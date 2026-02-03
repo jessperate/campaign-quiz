@@ -65,12 +65,13 @@ export default function QuizPage() {
   return (
     <div className="min-h-screen relative">
       {/* Full page background */}
-      <div className="fixed inset-0 pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none flex items-center justify-center">
         <Image
           src="/images/quiz-bg.png"
           alt=""
-          fill
-          className="object-cover"
+          width={1920}
+          height={1080}
+          className="w-full h-auto max-h-screen object-contain"
           priority
         />
       </div>
