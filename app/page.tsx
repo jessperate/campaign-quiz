@@ -11,13 +11,12 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-6 overflow-hidden">
         {/* Background laurel wreath image */}
-        <div className="absolute inset-0 flex items-start justify-center pointer-events-none">
+        <div className="absolute inset-x-0 top-0 h-[600px] md:h-[700px] lg:h-[800px] pointer-events-none overflow-hidden">
           <Image
             src="/images/laurel-hero.png"
             alt=""
-            width={1280}
-            height={720}
-            className="w-full max-w-5xl object-contain"
+            fill
+            className="object-cover object-top"
             priority
           />
         </div>
