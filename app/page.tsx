@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/ui/Header";
-import { PlayerCard } from "@/components/Results/PlayerCard";
 
 export default function Home() {
   return (
@@ -76,35 +75,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Example Player Cards */}
-          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
-            <div className="card-tilt-left transform hover:scale-105 transition-transform">
-              <PlayerCard
-                name="Josh"
-                title="VP Growth"
-                company="Webflow"
-                archetype="Quarterback"
-                tagline="Orchestrator of outcomes"
-              />
-            </div>
-            <div className="card-tilt-center transform hover:scale-105 transition-transform -mt-4 md:mt-0">
-              <PlayerCard
-                name="Nick"
-                title="VP Growth"
-                company="Chime"
-                archetype="Trailblazer"
-                tagline="First to the future"
-              />
-            </div>
-            <div className="card-tilt-right transform hover:scale-105 transition-transform">
-              <PlayerCard
-                name="Connor"
-                title="Senior SEO Manager"
-                company="LegalZoom"
-                archetype="Closer"
-                tagline="Revenue is the scoreboard"
-              />
-            </div>
+        </div>
+      </section>
+
+      {/* Champion Cards - Horizontal Scroll */}
+      <section className="py-8 overflow-hidden">
+        <div className="overflow-x-auto scrollbar-hide px-6">
+          <div className="flex gap-6 min-w-max pb-4">
+            <Image
+              src="/images/champion-cards.png"
+              alt="Champion cards showing marketing leaders who win AI search"
+              width={1920}
+              height={400}
+              className="h-[350px] md:h-[420px] w-auto object-contain"
+            />
           </div>
         </div>
       </section>

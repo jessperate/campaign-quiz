@@ -95,6 +95,16 @@ body {
   background: rgba(0, 255, 102, 0.1);
 }
 
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Confetti animation placeholder */
 @keyframes confetti-fall {
   0% {
