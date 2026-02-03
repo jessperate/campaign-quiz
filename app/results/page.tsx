@@ -31,58 +31,69 @@ export default function ResultsPage() {
   const [results, setResults] = useState<QuizResults | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [debug, setDebug] = useState<string>("initializing...");
 
   useEffect(() => {
     setMounted(true);
+    setDebug("mounted, checking data...");
 
-    // Check for preview mode via URL params
-    const urlParams = new URLSearchParams(window.location.search);
-    const previewArchetype = urlParams.get('archetype');
-    const previewRole = urlParams.get('role') as Role;
+    try {
+      // Check for preview mode via URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const previewArchetype = urlParams.get('archetype');
+      const previewRole = urlParams.get('role') as Role;
 
-    // Get quiz data from sessionStorage or URL params (for preview)
-    const archetypeId = previewArchetype || sessionStorage.getItem("quizArchetype");
-    const role = previewRole || sessionStorage.getItem("quizRole") as Role;
-    const formDataStr = sessionStorage.getItem("quizFormData");
+      // Get quiz data from sessionStorage or URL params (for preview)
+      const archetypeId = previewArchetype || sessionStorage.getItem("quizArchetype");
+      const role = previewRole || sessionStorage.getItem("quizRole") as Role;
+      const formDataStr = sessionStorage.getItem("quizFormData");
 
-    console.log("Results page loaded:", { archetypeId, role, availableArchetypes: Object.keys(archetypes) });
+      setDebug(`archetypeId: ${archetypeId}, role: ${role}`);
 
-    if (!archetypeId || !role) {
-      setError("No quiz data found. Please take the quiz first.");
-      return;
+      if (!archetypeId || !role) {
+        setError("No quiz data found. Please take the quiz first.");
+        setDebug(`Missing data - archetypeId: ${archetypeId}, role: ${role}`);
+        return;
+      }
+
+      const archetype = archetypes[archetypeId];
+      if (!archetype) {
+        setError(`Unknown archetype: ${archetypeId}`);
+        setDebug(`Unknown archetype: ${archetypeId}, available: ${Object.keys(archetypes).join(', ')}`);
+        return;
+      }
+
+      const bullets = getRandomBullets(archetype);
+      const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
+        email: "",
+        linkedinUrl: "",
+        fullName: "Champion",
+        title: "",
+        company: "",
+        wantsDemo: false,
+      };
+
+      setDebug(`Success! Archetype: ${archetype.name}`);
+      setResults({
+        archetype: archetypeId,
+        role,
+        bullets,
+        formData,
+      });
+    } catch (e) {
+      setDebug(`Error: ${e}`);
+      setError(`Error: ${e}`);
     }
-
-    const archetype = archetypes[archetypeId];
-    if (!archetype) {
-      setError(`Unknown archetype: ${archetypeId}`);
-      return;
-    }
-
-    const bullets = getRandomBullets(archetype);
-    const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
-      email: "",
-      linkedinUrl: "",
-      fullName: "Champion",
-      title: "",
-      company: "",
-      wantsDemo: false,
-    };
-
-    setResults({
-      archetype: archetypeId,
-      role,
-      bullets,
-      formData,
-    });
   }, []);
 
   // Show loading until mounted (avoids hydration issues)
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-[#4ADE80] flex items-center justify-center">
+      <div className="min-h-screen bg-[#4ADE80] flex flex-col items-center justify-center gap-4">
         <div className="text-[#0D3D1F] text-xl" style={{ fontFamily: 'Serrif, serif' }}>
           Loading...
         </div>
+        <div className="text-[#0D3D1F]/50 text-sm">Debug: {debug}</div>
       </div>
     );
   }
@@ -94,6 +105,7 @@ export default function ResultsPage() {
         <div className="text-[#0D3D1F] text-xl text-center" style={{ fontFamily: 'Serrif, serif' }}>
           {error}
         </div>
+        <div className="text-[#0D3D1F]/50 text-sm text-center max-w-md">Debug: {debug}</div>
         <Link
           href="/quiz"
           className="px-6 py-3 bg-[#0D3D1F] text-white rounded-full font-semibold"
@@ -107,10 +119,11 @@ export default function ResultsPage() {
   // Show loading while waiting for results
   if (!results) {
     return (
-      <div className="min-h-screen bg-[#4ADE80] flex items-center justify-center">
+      <div className="min-h-screen bg-[#4ADE80] flex flex-col items-center justify-center gap-4">
         <div className="text-[#0D3D1F] text-xl" style={{ fontFamily: 'Serrif, serif' }}>
           Loading your results...
         </div>
+        <div className="text-[#0D3D1F]/50 text-sm">Debug: {debug}</div>
       </div>
     );
   }
