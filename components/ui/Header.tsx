@@ -4,39 +4,40 @@ import Link from "next/link";
 
 export function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <header className="fixed top-4 left-4 right-4 z-50">
+      <nav className="max-w-6xl mx-auto bg-[#000D05]/50 backdrop-blur-md rounded-full px-6 py-3 flex items-center justify-between">
+        {/* AirOps Logo */}
         <Link href="/" className="flex items-center">
-          <AirOpsLogo />
+          <svg width="104" height="24" viewBox="0 0 104 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.2683 8.35381V11.2588C12.9587 9.16448 10.9253 7.88086 8.40941 7.88086C3.03294 7.88086 0 11.833 0 17.1364C0 22.4735 3.06729 26.5608 8.47835 26.5608C10.9942 26.5608 12.9931 25.2772 14.2683 23.1829V26.0879H18.473V8.35381H14.2683ZM9.30541 23.0478C6.23812 23.0478 4.48035 20.2441 4.48035 17.1364C4.48035 14.0963 6.20365 11.4277 9.37435 11.4277C11.9937 11.4277 14.2339 13.2856 14.2339 17.0688C14.2339 20.7846 12.0971 23.0478 9.30541 23.0478Z" fill="white"/>
+            <path d="M22.0938 8.35547V26.0896H26.5741V8.35547H22.0938Z" fill="white"/>
+            <path d="M34.832 12.7461V8.35482H30.3516V26.0889H34.832V15.9551C34.832 13.3541 36.6586 12.307 38.3818 12.307C39.3813 12.307 40.4152 12.5772 40.9666 12.7799V8.05078C38.0372 8.05078 35.6246 9.77349 34.832 12.7461Z" fill="white"/>
+            <path d="M42.0625 13.7594C42.0625 19.2655 45.9225 23.1839 51.4713 23.1839C57.0546 23.1839 60.8804 19.2655 60.8804 13.7594C60.8804 8.35473 57.0546 4.50391 51.4713 4.50391C45.9225 4.50391 42.0625 8.35473 42.0625 13.7594ZM56.3998 13.7594C56.3998 17.2049 54.5042 19.6708 51.4713 19.6708C48.404 19.6708 46.5429 17.2049 46.5429 13.7594C46.5429 10.4491 48.404 8.05073 51.4713 8.05073C54.5042 8.05073 56.3998 10.4491 56.3998 13.7594Z" fill="white"/>
+            <path d="M73.3741 7.88086C70.7548 7.88086 68.6177 9.40086 67.4804 11.833V8.35381H63V31.9993H67.4804V22.9127C68.7556 25.1083 71.1337 26.5608 73.6496 26.5608C78.5436 26.5608 81.9563 22.8113 81.9563 17.4404C81.9563 11.7993 78.406 7.88086 73.3741 7.88086ZM72.5815 23.2505C69.5832 23.2505 67.4804 20.7846 67.4804 17.2715C67.4804 13.6571 69.5832 11.1237 72.5815 11.1237C75.4419 11.1237 77.4757 13.7247 77.4757 17.4066C77.4757 20.8521 75.4419 23.2505 72.5815 23.2505Z" fill="white"/>
+            <path d="M83.3906 19.9401C83.3906 23.1491 86.2857 26.5608 92.0757 26.5608C97.8999 26.5608 100.003 23.2167 100.003 20.6157C100.003 16.6297 95.2117 15.9203 92.0068 15.3123C89.8351 14.9407 88.4565 14.6367 88.4565 13.4207C88.4565 12.0357 90.0074 11.1575 91.6617 11.1575C93.9019 11.1575 94.7635 12.6775 94.8324 14.2989H99.3128C99.3128 11.6641 97.4173 7.88086 91.5583 7.88086C86.4919 7.88086 83.9761 10.6845 83.9761 13.6909C83.9761 17.9809 88.8356 18.42 92.0413 19.028C93.9019 19.3658 95.5221 19.7712 95.5221 21.0886C95.5221 22.406 93.9364 23.2842 92.2476 23.2842C90.6623 23.2842 87.8709 22.406 87.8709 19.9401H83.3906Z" fill="white"/>
+            <path d="M24.4093 6.19287C22.5697 6.19287 21.25 4.89935 21.25 3.13559C21.25 1.37182 22.5697 0 24.4093 0C26.1688 0 27.5685 1.37182 27.5685 3.13559C27.5685 4.89935 26.1688 6.19287 24.4093 6.19287Z" fill="white"/>
+          </svg>
         </Link>
+
+        {/* Right side buttons */}
         <div className="flex items-center gap-4">
           <Link
             href="https://airops.com/start-free-trial"
-            className="text-white hover:text-green transition-colors text-sm font-medium"
+            className="text-[#DFEAE3] hover:text-white transition-colors text-sm font-medium hidden sm:block"
           >
             Start Free Trial
           </Link>
           <Link
             href="https://airops.com/demo"
-            className="inline-flex items-center px-4 py-2 bg-green text-black rounded-full text-sm font-semibold hover:bg-green-dark transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#00FF64] text-[#01200D] rounded-full text-sm font-semibold hover:bg-[#00ff64]/90 transition-colors"
           >
             Book a Demo
-            <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12.17 7.00086L6.81 1.63686L8.22 0.222656L16 8.00086L8.22 15.779L6.81 14.3648L12.17 9.00086H0V7.00086H12.17Z" fill="#01200D"/>
             </svg>
           </Link>
         </div>
-      </div>
+      </nav>
     </header>
-  );
-}
-
-function AirOpsLogo() {
-  return (
-    <svg width="100" height="28" viewBox="0 0 100 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <text x="0" y="22" fill="white" fontSize="24" fontWeight="bold" fontFamily="system-ui, sans-serif">
-        air<tspan fill="#00ff66">O</tspan>ps
-      </text>
-    </svg>
   );
 }
