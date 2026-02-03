@@ -77,17 +77,8 @@ export default function QuizPage() {
       </div>
 
       <div className="relative min-h-screen flex flex-col">
-        {/* Logo */}
-        <div className="flex justify-center pt-8">
-          <div className="bg-[#E8F5E9]/80 backdrop-blur-sm px-6 py-3 rounded-full">
-            <span className="text-[#0D3D1F] text-xl font-bold" style={{ fontFamily: 'system-ui, sans-serif' }}>
-              air<span className="text-[#0D3D1F]">O</span>ps
-            </span>
-          </div>
-        </div>
-
         {/* Main content */}
-        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pt-24">
           <div className="max-w-3xl mx-auto text-center">
             {/* Subtitle */}
             <p className="text-[#0D3D1F]/70 text-lg md:text-xl mb-4" style={{ fontFamily: 'Serrif, serif' }}>
