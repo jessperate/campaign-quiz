@@ -1,18 +1,25 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/ui/Header";
-import { LaurelWreath } from "@/components/LaurelWreath";
 import { PlayerCard } from "@/components/Results/PlayerCard";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-dark">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <Header />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-6 overflow-hidden">
-        {/* Background laurel wreath */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
-          <LaurelWreath className="w-[800px] h-[400px]" />
+        {/* Background laurel wreath image */}
+        <div className="absolute inset-0 flex items-start justify-center pointer-events-none">
+          <Image
+            src="/images/laurel-hero.png"
+            alt=""
+            width={1280}
+            height={720}
+            className="w-full max-w-5xl object-contain"
+            priority
+          />
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center">
