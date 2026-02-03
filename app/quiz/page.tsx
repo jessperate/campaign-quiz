@@ -67,7 +67,7 @@ export default function QuizPage() {
       {/* Full page background */}
       <div className="fixed inset-0 pointer-events-none">
         <Image
-          src="/images/quiz-bg-v2.png"
+          src="/images/quiz-bg-v3.png"
           alt=""
           fill
           className="object-cover"
