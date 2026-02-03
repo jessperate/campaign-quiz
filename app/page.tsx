@@ -20,7 +20,7 @@ export default function Home() {
         <Header />
 
         {/* Hero Section */}
-        <section className="relative pt-24 pb-16 px-6">
+        <section className="relative pt-36 md:pt-44 pb-16 px-6">
           <div className="relative max-w-4xl mx-auto text-center">
             <p className="text-white/80 text-[32px] md:text-[48px] mb-2 leading-tight" style={{ fontFamily: 'Serrif, serif' }}>
               Do you have what it takes?
