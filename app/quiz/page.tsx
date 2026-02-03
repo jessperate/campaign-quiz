@@ -19,12 +19,16 @@ export default function QuizPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
+    linkedinUrl: "",
+    fullName: "",
+    title: "",
     company: "",
+    wantsDemo: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [headshot, setHeadshot] = useState<File | null>(null);
+  const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (role) {
@@ -60,17 +64,37 @@ export default function QuizPage() {
     }, 300);
   };
 
+  const handleHeadshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setHeadshot(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHeadshotPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     // Store form data in session storage
-    sessionStorage.setItem("quizFormData", JSON.stringify(formData));
+    const dataToStore = {
+      ...formData,
+      headshotPreview: headshotPreview,
+    };
+    sessionStorage.setItem("quizFormData", JSON.stringify(dataToStore));
 
     // TODO: Send to backend/HubSpot in future phase
+    // TODO: LinkedIn scraping via Proxycurl/PhantomBuster
 
     router.push("/results");
   };
+
+  // Check if fallback fields are needed (no LinkedIn URL provided)
+  const needsFallbackFields = !formData.linkedinUrl;
 
   if (!currentQuestion && !showForm) {
     return null;
@@ -109,42 +133,85 @@ export default function QuizPage() {
               </h1>
 
               <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
-                <div className="flex gap-4">
-                  <input
-                    type="text"
-                    placeholder="First name"
-                    required
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Last name"
-                    required
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                  />
-                </div>
-
+                {/* Work email - required */}
                 <input
                   type="email"
-                  placeholder="Work email"
+                  placeholder="Work email *"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
                 />
 
+                {/* LinkedIn URL - optional */}
                 <input
-                  type="text"
-                  placeholder="Company"
-                  required
-                  value={formData.company}
-                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                  type="url"
+                  placeholder="LinkedIn URL (optional - we'll grab your info)"
+                  value={formData.linkedinUrl}
+                  onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
                   className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
                 />
+
+                {/* Fallback fields - shown if no LinkedIn URL */}
+                {needsFallbackFields && (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Full name *"
+                      required
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Title *"
+                      required
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Company *"
+                      required
+                      value={formData.company}
+                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                    />
+
+                    {/* Headshot upload - optional */}
+                    <div className="flex items-center gap-4">
+                      <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-left">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleHeadshotChange}
+                          className="hidden"
+                        />
+                        {headshotPreview ? "Photo uploaded ✓" : "Upload headshot (optional)"}
+                      </label>
+                      {headshotPreview && (
+                        <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white">
+                          <img src={headshotPreview} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {/* Demo checkbox */}
+                <label className="flex items-center gap-3 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.wantsDemo}
+                    onChange={(e) => setFormData({ ...formData, wantsDemo: e.target.checked })}
+                    className="w-5 h-5 rounded accent-[#0D3D1F]"
+                  />
+                  <span className="text-[#0D3D1F]">I'd like to book a demo</span>
+                </label>
 
                 <button
                   type="submit"
