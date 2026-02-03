@@ -52,9 +52,11 @@ export default function QuizPage() {
       }
 
       if (currentQuestionIndex === totalQuestions - 1) {
-        const archetype = calculateArchetype(newAnswers, role || (answerId as Role));
+        const finalRole = role || (answerId as Role);
+        const archetype = calculateArchetype(newAnswers, finalRole);
+        console.log("Quiz complete - storing data:", { archetype, finalRole, newAnswers });
         sessionStorage.setItem("quizAnswers", JSON.stringify(newAnswers));
-        sessionStorage.setItem("quizRole", role || answerId);
+        sessionStorage.setItem("quizRole", finalRole);
         sessionStorage.setItem("quizArchetype", archetype);
         setShowForm(true);
       } else {
@@ -86,6 +88,13 @@ export default function QuizPage() {
       headshotPreview: headshotPreview,
     };
     sessionStorage.setItem("quizFormData", JSON.stringify(dataToStore));
+
+    // Log all stored data for debugging
+    console.log("Form submitted - stored data:", {
+      formData: dataToStore,
+      archetype: sessionStorage.getItem("quizArchetype"),
+      role: sessionStorage.getItem("quizRole"),
+    });
 
     // TODO: Send to backend/HubSpot in future phase
     // TODO: LinkedIn scraping via Proxycurl/PhantomBuster
