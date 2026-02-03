@@ -47,51 +47,64 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Second Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
-                Winning isn&apos;t just about speed.
-              </h2>
+      {/* Bottom Section with Background */}
+      <div className="relative">
+        {/* Bottom background image */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <Image
+            src="/images/bottom.png"
+            alt=""
+            fill
+            className="object-cover object-top"
+          />
+        </div>
+
+        {/* Second Section */}
+        <section className="relative py-20 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+              <div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
+                  Winning isn&apos;t just about speed.
+                </h2>
+              </div>
+              <div>
+                <p className="text-white/70 text-lg mb-6">
+                  This quiz helps you understand whether your content operation is built to compete in the next era, or still training for it.
+                </p>
+                <Link
+                  href="/quiz"
+                  className="inline-flex items-center px-6 py-3 bg-green text-black rounded-full font-bold hover:bg-green-dark transition-all btn-glow"
+                >
+                  Take the quiz
+                  <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+                <p className="text-text-muted text-sm mt-3">
+                  Estimated time: 90 seconds (90 data points)
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-white/70 text-lg mb-6">
-                This quiz helps you understand whether your content operation is built to compete in the next era, or still training for it.
-              </p>
-              <Link
-                href="/quiz"
-                className="inline-flex items-center px-6 py-3 bg-green text-black rounded-full font-bold hover:bg-green-dark transition-all btn-glow"
-              >
-                Take the quiz
-                <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-              <p className="text-text-muted text-sm mt-3">
-                Estimated time: 90 seconds (90 data points)
-              </p>
+
+          </div>
+        </section>
+
+        {/* Champion Cards - Horizontal Scroll */}
+        <section className="relative py-8 overflow-hidden">
+          <div className="overflow-x-auto scrollbar-hide px-6">
+            <div className="flex gap-6 min-w-max pb-4">
+              <Image
+                src="/images/champion-cards.png"
+                alt="Champion cards showing marketing leaders who win AI search"
+                width={1920}
+                height={400}
+                className="h-[350px] md:h-[420px] w-auto object-contain"
+              />
             </div>
           </div>
-
-        </div>
-      </section>
-
-      {/* Champion Cards - Horizontal Scroll */}
-      <section className="py-8 overflow-hidden">
-        <div className="overflow-x-auto scrollbar-hide px-6">
-          <div className="flex gap-6 min-w-max pb-4">
-            <Image
-              src="/images/champion-cards.png"
-              alt="Champion cards showing marketing leaders who win AI search"
-              width={1920}
-              height={400}
-              className="h-[350px] md:h-[420px] w-auto object-contain"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* CTA Section */}
       <section className="py-20 px-6 border-t border-card-border">
