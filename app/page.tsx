@@ -41,8 +41,8 @@ export default function Home() {
             </svg>
           </Link>
 
-          <p className="text-green/60 text-sm mt-4 uppercase tracking-widest">
-            Estimated time: 90 seconds (10 data points)
+          <p className="text-green/60 text-[16px] mt-4 uppercase tracking-widest" style={{ fontFamily: 'SaansMono, monospace' }}>
+            Estimated time: 90 seconds (5 data points)
           </p>
         </div>
       </section>
