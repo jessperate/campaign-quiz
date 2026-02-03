@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --green: #00ff66;
+  --green-dark: #00cc52;
+  --green-glow: rgba(0, 255, 102, 0.3);
+  --card-bg: #111111;
+  --card-border: #1a1a1a;
+  --text-muted: #888888;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-green: var(--green);
+  --color-green-dark: var(--green-dark);
+  --color-green-glow: var(--green-glow);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-text-muted: var(--text-muted);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Green gradient background effect */
+.bg-gradient-dark {
+  background: linear-gradient(180deg, #0a0a0a 0%, #0d1f0d 50%, #0a0a0a 100%);
+}
+
+/* Laurel wreath glow effect */
+.laurel-glow {
+  filter: drop-shadow(0 0 30px var(--green-glow));
+}
+
+/* Button glow effect */
+.btn-glow {
+  box-shadow: 0 0 20px var(--green-glow);
+}
+
+.btn-glow:hover {
+  box-shadow: 0 0 30px var(--green-glow), 0 0 60px var(--green-glow);
+}
+
+/* Card tilt effect */
+.card-tilt-left {
+  transform: perspective(1000px) rotateY(15deg) rotateX(5deg);
+}
+
+.card-tilt-center {
+  transform: perspective(1000px) rotateY(0deg) rotateX(5deg);
+}
+
+.card-tilt-right {
+  transform: perspective(1000px) rotateY(-15deg) rotateX(5deg);
+}
+
+/* Progress bar */
+.progress-bar {
+  background: linear-gradient(90deg, var(--green) 0%, var(--green-dark) 100%);
+}
+
+/* Text gradient */
+.text-gradient-green {
+  background: linear-gradient(180deg, #00ff66 0%, #00cc52 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth transitions */
+.transition-quiz {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Answer option hover effect */
+.answer-option {
+  transition: all 0.2s ease;
+}
+
+.answer-option:hover {
+  border-color: var(--green);
+  background: rgba(0, 255, 102, 0.05);
+}
+
+.answer-option.selected {
+  border-color: var(--green);
+  background: rgba(0, 255, 102, 0.1);
+}
+
+/* Confetti animation placeholder */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
