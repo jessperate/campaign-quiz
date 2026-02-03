@@ -30,48 +30,66 @@ interface QuizResults {
 export default function ResultsPage() {
   const router = useRouter();
   const [results, setResults] = useState<QuizResults | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for preview mode via URL params
-    const urlParams = new URLSearchParams(window.location.search);
-    const previewArchetype = urlParams.get('archetype');
-    const previewRole = urlParams.get('role') as Role;
+    // Small delay to ensure sessionStorage is available
+    const loadResults = () => {
+      try {
+        // Check for preview mode via URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const previewArchetype = urlParams.get('archetype');
+        const previewRole = urlParams.get('role') as Role;
 
-    // Get quiz data from sessionStorage or URL params (for preview)
-    const archetypeId = previewArchetype || sessionStorage.getItem("quizArchetype");
-    const role = previewRole || sessionStorage.getItem("quizRole") as Role;
-    const formDataStr = sessionStorage.getItem("quizFormData");
+        // Get quiz data from sessionStorage or URL params (for preview)
+        const archetypeId = previewArchetype || sessionStorage.getItem("quizArchetype");
+        const role = previewRole || sessionStorage.getItem("quizRole") as Role;
+        const formDataStr = sessionStorage.getItem("quizFormData");
 
-    if (!archetypeId || !role) {
-      router.push("/quiz");
-      return;
-    }
+        console.log("Loading results:", { archetypeId, role, formDataStr });
 
-    const archetype = archetypes[archetypeId];
-    if (!archetype) {
-      router.push("/quiz");
-      return;
-    }
+        if (!archetypeId || !role) {
+          console.log("Missing data, redirecting to quiz");
+          router.push("/quiz");
+          return;
+        }
 
-    const bullets = getRandomBullets(archetype);
-    const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
-      email: "",
-      linkedinUrl: "",
-      fullName: "Champion",
-      title: "",
-      company: "",
-      wantsDemo: false,
+        const archetype = archetypes[archetypeId];
+        if (!archetype) {
+          console.log("Invalid archetype:", archetypeId);
+          router.push("/quiz");
+          return;
+        }
+
+        const bullets = getRandomBullets(archetype);
+        const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
+          email: "",
+          linkedinUrl: "",
+          fullName: "Champion",
+          title: "",
+          company: "",
+          wantsDemo: false,
+        };
+
+        setResults({
+          archetype: archetypeId,
+          role,
+          bullets,
+          formData,
+        });
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error loading results:", error);
+        router.push("/quiz");
+      }
     };
 
-    setResults({
-      archetype: archetypeId,
-      role,
-      bullets,
-      formData,
-    });
+    // Use setTimeout to ensure this runs after hydration
+    const timer = setTimeout(loadResults, 100);
+    return () => clearTimeout(timer);
   }, [router]);
 
-  if (!results) {
+  if (isLoading || !results) {
     return (
       <div className="min-h-screen bg-[#4ADE80] flex items-center justify-center">
         <div className="text-[#0D3D1F] text-xl" style={{ fontFamily: 'Serrif, serif' }}>
