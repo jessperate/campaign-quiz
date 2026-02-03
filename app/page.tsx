@@ -4,7 +4,7 @@ import { Header } from "@/components/ui/Header";
 
 export default function Home() {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-[#00A642]">
       {/* Full page background */}
       <div className="fixed inset-0 pointer-events-none">
         <Image
