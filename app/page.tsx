@@ -21,7 +21,7 @@ export default function Home() {
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center">
-          <p className="text-white/80 text-lg md:text-xl mb-4">
+          <p className="text-white/80 text-[40px] md:text-[56px] mb-4 leading-tight" style={{ fontFamily: 'Serrif, serif' }}>
             Do you have what it takes?
           </p>
           <h1 className="text-5xl md:text-7xl font-black text-gradient-green mb-6 tracking-tight">
