@@ -24,7 +24,7 @@ export default function QuizPage() {
     }
   }, [role]);
 
-  const totalQuestions = 6;
+  const totalQuestions = 5;
   const currentQuestion = questions[currentQuestionIndex];
 
   const handleSelectAnswer = (answerId: string) => {
