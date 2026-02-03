@@ -15,21 +15,21 @@ export interface Question {
 // Q1: Role selection (same for everyone)
 export const roleQuestion: Question = {
   id: "q1",
-  text: "What best describes your role?",
+  text: "What's your role?",
   options: [
     {
-      id: "ic",
-      text: "Individual Contributor",
-      scores: {} // No archetype scoring for role question
-    },
-    {
-      id: "manager",
-      text: "Manager",
+      id: "executive",
+      text: "I set the strategy and own the budget. (VP, CMO)",
       scores: {}
     },
     {
-      id: "executive",
-      text: "Executive",
+      id: "manager",
+      text: "I manage a team or function. (Director, Lead, Sr. Manager)",
+      scores: {}
+    },
+    {
+      id: "ic",
+      text: "I'm in the game every day doing the work. (Writer, Ops, Analyst, Creator)",
       scores: {}
     }
   ]

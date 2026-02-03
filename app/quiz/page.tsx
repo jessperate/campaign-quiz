@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/ui/Header";
-import { ProgressBar } from "@/components/Quiz/ProgressBar";
-import { QuestionCard } from "@/components/Quiz/QuestionCard";
-import { LaurelWreath } from "@/components/LaurelWreath";
+import Image from "next/image";
 import {
   roleQuestion,
   getQuestionsForRole,
@@ -19,76 +16,124 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [role, setRole] = useState<Role | null>(null);
   const [questions, setQuestions] = useState([roleQuestion]);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  // Update questions when role is selected
   useEffect(() => {
     if (role) {
       setQuestions([roleQuestion, ...getQuestionsForRole(role)]);
     }
   }, [role]);
 
-  const totalQuestions = 5;
+  const totalQuestions = 6;
   const currentQuestion = questions[currentQuestionIndex];
 
-  const handleAnswer = (questionId: string, answerId: string) => {
-    const newAnswers = { ...answers, [questionId]: answerId };
-    setAnswers(newAnswers);
+  const handleSelectAnswer = (answerId: string) => {
+    setSelectedAnswer(answerId);
 
-    // If this is the role question, set the role
-    if (questionId === "q1") {
-      setRole(answerId as Role);
-    }
+    // Auto-advance after a short delay
+    setTimeout(() => {
+      const newAnswers = { ...answers, [currentQuestion.id]: answerId };
+      setAnswers(newAnswers);
 
-    // Check if quiz is complete
-    if (currentQuestionIndex === totalQuestions - 1) {
-      // Calculate archetype and navigate to results
-      const archetype = calculateArchetype(newAnswers, role || (answerId as Role));
+      if (currentQuestion.id === "q1") {
+        setRole(answerId as Role);
+      }
 
-      // Store data in sessionStorage for the results page
-      sessionStorage.setItem("quizAnswers", JSON.stringify(newAnswers));
-      sessionStorage.setItem("quizRole", role || answerId);
-      sessionStorage.setItem("quizArchetype", archetype);
-
-      router.push("/results");
-    } else {
-      // Move to next question
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
+      if (currentQuestionIndex === totalQuestions - 1) {
+        const archetype = calculateArchetype(newAnswers, role || (answerId as Role));
+        sessionStorage.setItem("quizAnswers", JSON.stringify(newAnswers));
+        sessionStorage.setItem("quizRole", role || answerId);
+        sessionStorage.setItem("quizArchetype", archetype);
+        router.push("/results");
+      } else {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setSelectedAnswer(null);
+      }
+    }, 300);
   };
 
   if (!currentQuestion) {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-dark">
-      <Header />
+  // Determine subtitle based on question
+  const getSubtitle = () => {
+    if (currentQuestionIndex === 0) return "First, let's set the field.";
+    return `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+  };
 
-      {/* Background decoration */}
-      <div className="fixed inset-0 flex items-center justify-center pointer-events-none opacity-10">
-        <LaurelWreath className="w-[1000px] h-[500px]" />
+  return (
+    <div className="min-h-screen relative">
+      {/* Full page background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <Image
+          src="/images/quiz-bg.png"
+          alt=""
+          fill
+          className="object-cover"
+          priority
+        />
       </div>
 
-      <main className="relative pt-32 pb-20 px-6">
-        <div className="max-w-2xl mx-auto">
-          {/* Progress */}
-          <div className="mb-12">
-            <ProgressBar current={currentQuestionIndex + 1} total={totalQuestions} />
+      <div className="relative min-h-screen flex flex-col">
+        {/* Logo */}
+        <div className="flex justify-center pt-8">
+          <div className="bg-[#E8F5E9]/80 backdrop-blur-sm px-6 py-3 rounded-full">
+            <span className="text-[#0D3D1F] text-xl font-bold" style={{ fontFamily: 'system-ui, sans-serif' }}>
+              air<span className="text-[#0D3D1F]">O</span>ps
+            </span>
           </div>
-
-          {/* Question */}
-          <QuestionCard
-            question={currentQuestion}
-            onAnswer={handleAnswer}
-            currentAnswer={answers[currentQuestion.id]}
-          />
-
-          {/* Estimated time */}
-          <p className="text-center text-text-muted text-sm mt-8">
-            {totalQuestions - currentQuestionIndex - 1} questions remaining
-          </p>
         </div>
-      </main>
+
+        {/* Main content */}
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+          <div className="max-w-3xl mx-auto text-center">
+            {/* Subtitle */}
+            <p className="text-[#0D3D1F]/70 text-lg md:text-xl mb-4" style={{ fontFamily: 'Serrif, serif' }}>
+              {getSubtitle()}
+            </p>
+
+            {/* Question */}
+            <h1 className="text-[#0D3D1F] text-[48px] md:text-[72px] lg:text-[88px] leading-[1.1] mb-12" style={{ fontFamily: 'Serrif, serif' }}>
+              {currentQuestion.text}
+            </h1>
+
+            {/* Answer options */}
+            <div className="flex flex-col items-center gap-4">
+              {currentQuestion.options.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => handleSelectAnswer(option.id)}
+                  className={`
+                    w-full max-w-2xl px-6 py-4 rounded-full text-left
+                    transition-all duration-200 ease-out
+                    ${selectedAnswer === option.id
+                      ? 'bg-[#0D3D1F] text-white'
+                      : 'bg-white/80 backdrop-blur-sm text-[#0D3D1F] hover:bg-white hover:shadow-lg'
+                    }
+                  `}
+                >
+                  <span className="text-base md:text-lg">
+                    {option.text}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </main>
+
+        {/* Progress dots */}
+        <div className="flex justify-center gap-2 pb-8">
+          {Array.from({ length: totalQuestions }).map((_, index) => (
+            <div
+              key={index}
+              className={`w-3 h-3 rounded-full transition-colors ${
+                index <= currentQuestionIndex ? 'bg-[#0D3D1F]' : 'bg-[#0D3D1F]/30'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
