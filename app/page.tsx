@@ -24,7 +24,7 @@ export default function Home() {
           <p className="text-white/80 text-[40px] md:text-[56px] mb-4 leading-tight" style={{ fontFamily: 'Serrif, serif' }}>
             Do you have what it takes?
           </p>
-          <h1 className="text-[72px] md:text-[120px] text-gradient-green mb-6 tracking-tight leading-none" style={{ fontFamily: 'Knockout, sans-serif' }}>
+          <h1 className="text-[72px] md:text-[120px] text-[#75FFB9] mb-6 tracking-tight leading-none whitespace-nowrap" style={{ fontFamily: 'Knockout, sans-serif' }}>
             WIN AI SEARCH
           </h1>
           <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto mb-8">
