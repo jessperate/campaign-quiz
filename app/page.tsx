@@ -64,7 +64,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
               <div>
-                <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
+                <h2 className="text-[48px] md:text-[72px] text-white leading-tight mb-6" style={{ fontFamily: 'Serrif, serif' }}>
                   Winning isn&apos;t just about speed.
                 </h2>
               </div>
