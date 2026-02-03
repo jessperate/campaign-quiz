@@ -32,9 +32,14 @@ export default function ResultsPage() {
   const [results, setResults] = useState<QuizResults | null>(null);
 
   useEffect(() => {
-    // Get quiz data from sessionStorage
-    const archetypeId = sessionStorage.getItem("quizArchetype");
-    const role = sessionStorage.getItem("quizRole") as Role;
+    // Check for preview mode via URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const previewArchetype = urlParams.get('archetype');
+    const previewRole = urlParams.get('role') as Role;
+
+    // Get quiz data from sessionStorage or URL params (for preview)
+    const archetypeId = previewArchetype || sessionStorage.getItem("quizArchetype");
+    const role = previewRole || sessionStorage.getItem("quizRole") as Role;
     const formDataStr = sessionStorage.getItem("quizFormData");
 
     if (!archetypeId || !role) {
