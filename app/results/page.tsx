@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { archetypes, getRandomBullets } from "@/lib/archetypes";
 import type { Role } from "@/lib/quiz-data";
 
@@ -28,68 +28,84 @@ interface QuizResults {
 }
 
 export default function ResultsPage() {
-  const router = useRouter();
   const [results, setResults] = useState<QuizResults | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Small delay to ensure sessionStorage is available
-    const loadResults = () => {
-      try {
-        // Check for preview mode via URL params
-        const urlParams = new URLSearchParams(window.location.search);
-        const previewArchetype = urlParams.get('archetype');
-        const previewRole = urlParams.get('role') as Role;
+    setMounted(true);
 
-        // Get quiz data from sessionStorage or URL params (for preview)
-        const archetypeId = previewArchetype || sessionStorage.getItem("quizArchetype");
-        const role = previewRole || sessionStorage.getItem("quizRole") as Role;
-        const formDataStr = sessionStorage.getItem("quizFormData");
+    // Check for preview mode via URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const previewArchetype = urlParams.get('archetype');
+    const previewRole = urlParams.get('role') as Role;
 
-        console.log("Loading results:", { archetypeId, role, formDataStr });
+    // Get quiz data from sessionStorage or URL params (for preview)
+    const archetypeId = previewArchetype || sessionStorage.getItem("quizArchetype");
+    const role = previewRole || sessionStorage.getItem("quizRole") as Role;
+    const formDataStr = sessionStorage.getItem("quizFormData");
 
-        if (!archetypeId || !role) {
-          console.log("Missing data, redirecting to quiz");
-          router.push("/quiz");
-          return;
-        }
+    console.log("Results page loaded:", { archetypeId, role, availableArchetypes: Object.keys(archetypes) });
 
-        const archetype = archetypes[archetypeId];
-        if (!archetype) {
-          console.log("Invalid archetype:", archetypeId);
-          router.push("/quiz");
-          return;
-        }
+    if (!archetypeId || !role) {
+      setError("No quiz data found. Please take the quiz first.");
+      return;
+    }
 
-        const bullets = getRandomBullets(archetype);
-        const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
-          email: "",
-          linkedinUrl: "",
-          fullName: "Champion",
-          title: "",
-          company: "",
-          wantsDemo: false,
-        };
+    const archetype = archetypes[archetypeId];
+    if (!archetype) {
+      setError(`Unknown archetype: ${archetypeId}`);
+      return;
+    }
 
-        setResults({
-          archetype: archetypeId,
-          role,
-          bullets,
-          formData,
-        });
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error loading results:", error);
-        router.push("/quiz");
-      }
+    const bullets = getRandomBullets(archetype);
+    const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
+      email: "",
+      linkedinUrl: "",
+      fullName: "Champion",
+      title: "",
+      company: "",
+      wantsDemo: false,
     };
 
-    // Use setTimeout to ensure this runs after hydration
-    const timer = setTimeout(loadResults, 100);
-    return () => clearTimeout(timer);
-  }, [router]);
+    setResults({
+      archetype: archetypeId,
+      role,
+      bullets,
+      formData,
+    });
+  }, []);
 
-  if (isLoading || !results) {
+  // Show loading until mounted (avoids hydration issues)
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#4ADE80] flex items-center justify-center">
+        <div className="text-[#0D3D1F] text-xl" style={{ fontFamily: 'Serrif, serif' }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  // Show error with link back to quiz
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#4ADE80] flex flex-col items-center justify-center gap-6 px-6">
+        <div className="text-[#0D3D1F] text-xl text-center" style={{ fontFamily: 'Serrif, serif' }}>
+          {error}
+        </div>
+        <Link
+          href="/quiz"
+          className="px-6 py-3 bg-[#0D3D1F] text-white rounded-full font-semibold"
+        >
+          Take the Quiz
+        </Link>
+      </div>
+    );
+  }
+
+  // Show loading while waiting for results
+  if (!results) {
     return (
       <div className="min-h-screen bg-[#4ADE80] flex items-center justify-center">
         <div className="text-[#0D3D1F] text-xl" style={{ fontFamily: 'Serrif, serif' }}>
@@ -152,7 +168,7 @@ export default function ResultsPage() {
                 {/* Green header */}
                 <div className="bg-[#0D3D1F] px-6 py-4 text-center">
                   <p className="text-[#4ADE80] text-xs font-bold tracking-widest uppercase">
-                    {userName}'s Content Team
+                    {userName}&apos;s Content Team
                   </p>
                   <p className="text-white text-xl font-black tracking-tight" style={{ fontFamily: 'Knockout, sans-serif' }}>
                     WINS AI SEARCH
@@ -189,7 +205,7 @@ export default function ResultsPage() {
                   <div className="text-center py-4 border-t border-[#E8F5E9]">
                     <p className="text-[#0D3D1F]/50 text-xs uppercase tracking-wide mb-1">Archetype</p>
                     <h4 className="text-[#0D3D1F] text-xl font-bold">The {archetype.name}</h4>
-                    <p className="text-[#0D3D1F]/70 text-sm italic">"{archetype.tagline}"</p>
+                    <p className="text-[#0D3D1F]/70 text-sm italic">&quot;{archetype.tagline}&quot;</p>
                   </div>
                 </div>
 
@@ -224,7 +240,7 @@ export default function ResultsPage() {
                 </div>
                 <div>
                   <p className="text-[#0D3D1F]/50 text-sm uppercase tracking-wide mb-1">
-                    In another life, you'd be...
+                    In another life, you&apos;d be...
                   </p>
                   <p className="text-[#0D3D1F] text-lg">{results.bullets.altCareer}</p>
                 </div>
@@ -241,7 +257,7 @@ export default function ResultsPage() {
             <div className="grid md:grid-cols-2 gap-6 mb-10">
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8">
                 <h3 className="text-[#0D3D1F] text-lg font-bold mb-4" style={{ fontFamily: 'Serrif, serif' }}>
-                  What you're great at
+                  What you&apos;re great at
                 </h3>
                 <ul className="space-y-3">
                   {archetype.strengths.map((strength, i) => (
@@ -335,12 +351,12 @@ export default function ResultsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </a>
-              <a
+              <Link
                 href="/quiz"
                 className="inline-flex items-center justify-center px-8 py-4 bg-white/80 text-[#0D3D1F] rounded-full text-lg font-bold hover:bg-white transition-colors"
               >
                 Challenge Your Team
-              </a>
+              </Link>
             </div>
           </div>
         </main>
