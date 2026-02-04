@@ -15,98 +15,61 @@ export async function POST(request: NextRequest) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // Build the image prompt similar to the Content Engineer Performance Lab
-    let imagePrompt = `Design a front-facing vintage trading card (1990s aesthetic).
+    // Build the image prompt
+    const imagePrompt = `Create a vintage 1990s trading card design.
 
-CARD LAYOUT:
-- Top banner: Dark green (#0D3D1F) with text "${userName.toUpperCase()}'S CONTENT TEAM" in small caps and "WINS AI SEARCH" in bold white below
-- Main image area: Portrait in stipple/hedcut black & white style against mint green (#4ADE80) background
-- Bottom section: White area with archetype "THE ${archetype.toUpperCase()}" and tagline "${tagline}"
-- Footer: Dark green bar with "airOps" logo and "airops.com/win"
+EXACT LAYOUT:
+- Dark green (#0D3D1F) header banner at top with:
+  - Small text: "${userName.toUpperCase()}'S CONTENT TEAM"
+  - Large bold white text: "WINS AI SEARCH"
+- Main portrait area: A professional stipple/hedcut style black and white illustration of a person against mint green (#4ADE80) background
+- White bottom section with:
+  - "THE ${archetype.toUpperCase()}" in bold
+  - "${tagline}" in italic
+- Dark green footer with "airOps" branding
 
-STYLE:
-- 1990s trading card aesthetic
-- Clean, professional sports card design
-- Bold typography
-- High contrast stipple portrait`;
+STYLE: 1990s sports trading card, clean design, stipple portrait art style, professional.`;
 
-    const parts: Array<{ text: string } | { inlineData: { data: string; mimeType: string } }> = [];
-
-    // If user provided a photo, include it as reference
-    if (photoBase64) {
-      // Remove data URL prefix if present
-      const base64Data = photoBase64.includes(',')
-        ? photoBase64.split(',')[1]
-        : photoBase64;
-
-      parts.push({
-        inlineData: {
-          data: base64Data,
-          mimeType: 'image/jpeg',
-        }
-      });
-
-      imagePrompt += `
-
-REFERENCE IMAGE INSTRUCTIONS:
-- Use the provided photo as reference for the portrait
-- Transform it into a BLACK & WHITE STIPPLE/HEDCUT illustration style
-- Maintain the person's likeness and features
-- Professional, heroic pose
-- Clean background in mint green`;
-    } else {
-      imagePrompt += `
-
-SUBJECT: Generate a heroic character silhouette or abstract portrait in stipple style.
-Use a placeholder initial "${userName.charAt(0).toUpperCase()}" if no face is needed.`;
-    }
-
-    parts.push({ text: imagePrompt });
-
-    // Generate content using the models API
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
-      contents: [{ role: 'user', parts }],
+    // Use Imagen 3 for image generation
+    const response = await ai.models.generateImages({
+      model: 'imagen-3.0-generate-002',
+      prompt: imagePrompt,
+      config: {
+        numberOfImages: 1,
+        aspectRatio: '3:4', // Trading card aspect ratio
+      },
     });
 
     // Extract image from response
-    let imageUrl: string | null = null;
-
-    if (response.candidates?.[0]?.content?.parts) {
-      for (const part of response.candidates[0].content.parts) {
-        if ('inlineData' in part && part.inlineData?.data) {
-          imageUrl = `data:image/png;base64,${part.inlineData.data}`;
-          break;
-        }
+    if (response.generatedImages && response.generatedImages.length > 0) {
+      const image = response.generatedImages[0];
+      if (image.image?.imageBytes) {
+        const imageUrl = `data:image/png;base64,${image.image.imageBytes}`;
+        return NextResponse.json({ imageUrl });
       }
     }
 
-    // If no image in response, return info for debugging
-    if (!imageUrl) {
-      // Try to get text response
-      let textContent = '';
-      if (response.candidates?.[0]?.content?.parts) {
-        for (const part of response.candidates[0].content.parts) {
-          if ('text' in part) {
-            textContent += part.text;
-          }
-        }
-      }
+    return NextResponse.json(
+      { error: "No image generated", debug: JSON.stringify(response) },
+      { status: 500 }
+    );
+  } catch (error) {
+    console.error("Image generation error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Image generation failed";
 
+    // Check if it's a model not found error and suggest alternatives
+    if (errorMessage.includes('not found') || errorMessage.includes('NOT_FOUND')) {
       return NextResponse.json(
         {
-          error: "No image generated. The model returned text instead.",
-          debug: textContent || "No response content"
+          error: "Image generation model not available. The Imagen API may require additional setup or a different API key.",
+          details: errorMessage
         },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ imageUrl });
-  } catch (error) {
-    console.error("Image generation error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Image generation failed" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
