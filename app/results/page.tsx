@@ -30,6 +30,42 @@ interface QuizResults {
 export default function ResultsPage() {
   const [results, setResults] = useState<QuizResults | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
+
+  const generateCardImage = async () => {
+    if (!results) return;
+
+    setIsGeneratingImage(true);
+    setImageError(null);
+
+    try {
+      const archetype = archetypes[results.archetype];
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          photoBase64: results.formData.headshotPreview || null,
+          userName: results.formData.fullName || 'Champion',
+          archetype: archetype.name,
+          tagline: archetype.tagline,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.imageUrl) {
+        setGeneratedImage(data.imageUrl);
+      } else {
+        setImageError(data.error || 'Failed to generate image');
+      }
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : 'Failed to generate image');
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
 
   useEffect(() => {
     // Get URL params for preview mode
@@ -146,7 +182,17 @@ export default function ResultsPage() {
             </div>
 
             {/* Player Card */}
-            <div className="flex justify-center mb-10">
+            <div className="flex flex-col items-center mb-10">
+              {/* AI Generated Card or Standard Card */}
+              {generatedImage ? (
+                <div className="w-full max-w-sm">
+                  <img
+                    src={generatedImage}
+                    alt="AI Generated Trading Card"
+                    className="w-full rounded-3xl shadow-2xl"
+                  />
+                </div>
+              ) : (
               <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
                 {/* Green header */}
                 <div className="bg-[#0D3D1F] px-6 py-4 text-center">
@@ -200,6 +246,41 @@ export default function ResultsPage() {
                   <p className="text-[#4ADE80] text-xs">airops.com/win</p>
                 </div>
               </div>
+              )}
+
+              {/* Generate AI Card Button */}
+              <button
+                onClick={generateCardImage}
+                disabled={isGeneratingImage || !!generatedImage}
+                className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#0D3D1F] text-white rounded-full font-semibold hover:bg-[#0D3D1F]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingImage ? (
+                  <>
+                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating AI Card...
+                  </>
+                ) : generatedImage ? (
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Card Generated!
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Generate AI Trading Card
+                  </>
+                )}
+              </button>
+              {imageError && (
+                <p className="mt-2 text-red-600 text-sm">{imageError}</p>
+              )}
             </div>
 
             {/* Description */}
