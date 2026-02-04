@@ -31,23 +31,24 @@ export default function ResultsPage() {
   const [results, setResults] = useState<QuizResults | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [stippleImage, setStippleImage] = useState<string | null>(null); // Just the stipple portrait
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
 
-  const generateCardImage = async () => {
-    if (!results) return;
-
+  const generateCardImage = async (resultsData: QuizResults) => {
     setIsGeneratingImage(true);
     setImageError(null);
 
     try {
-      const archetype = archetypes[results.archetype];
+      const archetype = archetypes[resultsData.archetype];
+      const photoData = resultsData.formData.headshotPreview || null;
+
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          photoBase64: results.formData.headshotPreview || null,
-          userName: results.formData.fullName || 'Champion',
+          photoBase64: photoData,
+          userName: resultsData.formData.fullName || 'Champion',
           archetype: archetype.name,
           tagline: archetype.tagline,
         }),
@@ -56,7 +57,13 @@ export default function ResultsPage() {
       const data = await response.json();
 
       if (data.imageUrl) {
-        setGeneratedImage(data.imageUrl);
+        if (data.isStippleOnly) {
+          // Got just the stipple portrait - we'll compose the card with CSS
+          setStippleImage(data.imageUrl);
+        } else {
+          // Got a full card image
+          setGeneratedImage(data.imageUrl);
+        }
       } else {
         setImageError(data.error || 'Failed to generate image');
       }
@@ -99,12 +106,16 @@ export default function ResultsPage() {
       wantsDemo: false,
     };
 
-    setResults({
+    const newResults = {
       archetype: archetypeId,
       role,
       bullets,
       formData,
-    });
+    };
+    setResults(newResults);
+
+    // Auto-generate the card image with Nano Banana Pro
+    generateCardImage(newResults);
   }, []);
 
   // Error state
@@ -183,7 +194,7 @@ export default function ResultsPage() {
 
             {/* Player Card */}
             <div className="flex flex-col items-center mb-10">
-              {/* AI Generated Card or Standard Card */}
+              {/* AI Generated Card or Loading State */}
               {generatedImage ? (
                 <div className="w-full max-w-sm">
                   <img
@@ -191,6 +202,86 @@ export default function ResultsPage() {
                     alt="AI Generated Trading Card"
                     className="w-full rounded-3xl shadow-2xl"
                   />
+                </div>
+              ) : stippleImage ? (
+                /* CSS-composed card with AI-generated stipple portrait */
+                <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
+                  {/* Green header */}
+                  <div className="bg-[#0D3D1F] px-6 py-4 text-center">
+                    <p className="text-[#4ADE80] text-xs font-bold tracking-widest uppercase">
+                      {userName}&apos;s Content Team
+                    </p>
+                    <p className="text-white text-xl font-black tracking-tight" style={{ fontFamily: 'Knockout, sans-serif' }}>
+                      WINS AI SEARCH
+                    </p>
+                  </div>
+
+                  {/* Card body with stipple portrait */}
+                  <div className="p-6">
+                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#4ADE80] mb-4">
+                      <img
+                        src={stippleImage}
+                        alt={`${userName} stipple portrait`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    {/* User info */}
+                    <div className="text-center mb-4">
+                      <h3 className="text-[#0D3D1F] text-2xl font-bold">{userName}</h3>
+                      {userTitle && <p className="text-[#0D3D1F]/60 text-sm">{userTitle}</p>}
+                      {userCompany && <p className="text-[#0D3D1F]/60 text-sm">{userCompany}</p>}
+                    </div>
+
+                    {/* Archetype */}
+                    <div className="text-center py-4 border-t border-[#E8F5E9]">
+                      <p className="text-[#0D3D1F]/50 text-xs uppercase tracking-wide mb-1">Archetype</p>
+                      <h4 className="text-[#0D3D1F] text-xl font-bold">The {archetype.name}</h4>
+                      <p className="text-[#0D3D1F]/70 text-sm italic">&quot;{archetype.tagline}&quot;</p>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="bg-[#0D3D1F] px-6 py-3 flex items-center justify-between">
+                    <div className="text-white text-sm font-bold">
+                      air<span className="text-[#4ADE80]">O</span>ps
+                    </div>
+                    <p className="text-[#4ADE80] text-xs">airops.com/win</p>
+                  </div>
+                </div>
+              ) : isGeneratingImage ? (
+                <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
+                  {/* Loading state card */}
+                  <div className="bg-[#0D3D1F] px-6 py-4 text-center">
+                    <p className="text-[#4ADE80] text-xs font-bold tracking-widest uppercase">
+                      {userName}&apos;s Content Team
+                    </p>
+                    <p className="text-white text-xl font-black tracking-tight" style={{ fontFamily: 'Knockout, sans-serif' }}>
+                      WINS AI SEARCH
+                    </p>
+                  </div>
+                  <div className="p-6">
+                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#E8F5E9] mb-4 flex flex-col items-center justify-center">
+                      <svg className="animate-spin w-12 h-12 text-[#0D3D1F]/30 mb-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <p className="text-[#0D3D1F]/50 text-sm text-center px-4">Creating your stipple portrait...</p>
+                    </div>
+                    <div className="text-center mb-4">
+                      <h3 className="text-[#0D3D1F] text-2xl font-bold">{userName}</h3>
+                    </div>
+                    <div className="text-center py-4 border-t border-[#E8F5E9]">
+                      <p className="text-[#0D3D1F]/50 text-xs uppercase tracking-wide mb-1">Archetype</p>
+                      <h4 className="text-[#0D3D1F] text-xl font-bold">The {archetype.name}</h4>
+                    </div>
+                  </div>
+                  <div className="bg-[#0D3D1F] px-6 py-3 flex items-center justify-between">
+                    <div className="text-white text-sm font-bold">
+                      air<span className="text-[#4ADE80]">O</span>ps
+                    </div>
+                    <p className="text-[#4ADE80] text-xs">airops.com/win</p>
+                  </div>
                 </div>
               ) : (
               <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
@@ -248,38 +339,17 @@ export default function ResultsPage() {
               </div>
               )}
 
-              {/* Generate AI Card Button */}
-              <button
-                onClick={generateCardImage}
-                disabled={isGeneratingImage || !!generatedImage}
-                className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#0D3D1F] text-white rounded-full font-semibold hover:bg-[#0D3D1F]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isGeneratingImage ? (
-                  <>
-                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Generating AI Card...
-                  </>
-                ) : generatedImage ? (
-                  <>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Card Generated!
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Generate AI Trading Card
-                  </>
-                )}
-              </button>
+              {/* Regenerate button (only show if there was an error) */}
               {imageError && (
-                <p className="mt-2 text-red-600 text-sm">{imageError}</p>
+                <div className="mt-4 text-center">
+                  <p className="text-red-600 text-sm mb-2">{imageError}</p>
+                  <button
+                    onClick={() => results && generateCardImage(results)}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#0D3D1F] text-white rounded-full text-sm font-semibold hover:bg-[#0D3D1F]/90 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
               )}
             </div>
 

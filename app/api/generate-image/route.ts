@@ -1,9 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
+const STIPPLE_PROMPT = `Create a high-resolution stipple engraving portrait in the authentic Wall Street Journal hedcut style. The image must be composed entirely of fine, distinct dark green (hex #001408) dots on a pure white background. Use directional stippling techniques where rows of dots follow the flow of hair and facial contours to define form. Achieve shading strictly through dot density (halftone), creating strong contrast between deep shadows and bright highlights. No solid lines, outlines, or gray washes—only distinct ink dots. The final output should look like a masterful hand-drawn engraving. Color: #001408.`;
+
 export async function POST(request: NextRequest) {
   try {
-    const { userName, archetype, tagline } = await request.json();
+    const { userName, archetype, tagline, photoBase64 } = await request.json();
 
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) {
@@ -15,88 +17,120 @@ export async function POST(request: NextRequest) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // Build the image prompt
-    const imagePrompt = `Create a vintage 1990s trading card design.
+    // If photo provided, transform to stipple style
+    if (photoBase64) {
+      // Clean base64 string - remove data URL prefix
+      const cleanBase64 = photoBase64.replace(/^data:image\/\w+;base64,/, "");
 
-EXACT LAYOUT:
-- Dark green (#0D3D1F) header banner at top with:
-  - Small text: "${userName.toUpperCase()}'S CONTENT TEAM"
-  - Large bold white text: "WINS AI SEARCH"
-- Main portrait area: A professional stipple/hedcut style black and white illustration of a person against mint green (#4ADE80) background
-- White bottom section with:
-  - "THE ${archetype.toUpperCase()}" in bold
-  - "${tagline}" in italic
-- Dark green footer with "airOps" branding
+      // Extract mime type from original
+      const mimeMatch = photoBase64.match(/^data:(image\/\w+);base64,/);
+      const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
 
-STYLE: 1990s sports trading card, clean design, stipple portrait art style, professional.`;
+      console.log(`Calling Nano Banana Pro with photo (${mimeType}, ${cleanBase64.length} chars)`);
 
-    // Try different model names for image generation
-    // Gemini 2.0 Flash experimental with image output
-    const modelNames = [
-      'gemini-2.0-flash-exp-image-generation',
-      'gemini-2.0-flash-thinking-exp',
-      'imagen-3.0-generate-001',
-      'imagegeneration@006',
-    ];
-
-    let lastError = '';
-
-    for (const modelName of modelNames) {
       try {
-        console.log(`Trying model: ${modelName}`);
         const response = await ai.models.generateContent({
-          model: modelName,
-          contents: imagePrompt,
+          model: 'gemini-3-pro-image-preview',
+          contents: {
+            parts: [
+              {
+                inlineData: {
+                  mimeType: mimeType,
+                  data: cleanBase64,
+                },
+              },
+              {
+                text: STIPPLE_PROMPT,
+              },
+            ],
+          },
           config: {
-            responseModalities: ['image', 'text'],
+            imageConfig: {
+              imageSize: '1K',
+              aspectRatio: '1:1',
+            },
           },
         });
 
         // Extract image from response
-        if (response.candidates && response.candidates.length > 0) {
-          const candidate = response.candidates[0];
-          if (candidate.content?.parts) {
-            for (const part of candidate.content.parts) {
-              if (part.inlineData?.mimeType?.startsWith('image/')) {
-                const imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                return NextResponse.json({ imageUrl, modelUsed: modelName });
-              }
+        if (response.candidates && response.candidates[0]?.content?.parts) {
+          for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData && part.inlineData.data) {
+              // Re-attach header for browser display
+              const imageUrl = `data:image/png;base64,${part.inlineData.data}`;
+              console.log('SUCCESS - stipple image generated');
+              return NextResponse.json({
+                imageUrl,
+                isStippleOnly: true,
+              });
             }
           }
         }
-      } catch (e) {
-        lastError = String(e);
-        console.log(`Model ${modelName} failed: ${lastError}`);
-        continue;
+
+        return NextResponse.json({
+          error: "No image data found in response",
+        }, { status: 500 });
+
+      } catch (error) {
+        console.error("Gemini Generation Error:", error);
+        return NextResponse.json({
+          error: "Stipple generation failed",
+          details: String(error),
+        }, { status: 500 });
       }
     }
 
-    // If all models fail, list available models
+    // No photo - generate full card (fallback)
+    const cardPrompt = `Create a vintage 1990s trading card design.
+LAYOUT:
+- Dark green (#0D3D1F) header: "${userName.toUpperCase()}'S CONTENT TEAM" and "WINS AI SEARCH"
+- Main area: Professional stipple illustration of a business person on mint green (#4ADE80) background
+- White bottom: "THE ${archetype.toUpperCase()}" and "${tagline}"
+- Dark green footer with "airOps" branding
+STYLE: 1990s sports trading card, stipple portrait art style.`;
+
     try {
-      const modelsResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
-      );
-      const modelsData = await modelsResponse.json();
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-pro-image-preview',
+        contents: {
+          parts: [{ text: cardPrompt }],
+        },
+        config: {
+          imageConfig: {
+            imageSize: '1K',
+            aspectRatio: '3:4',
+          },
+        },
+      });
+
+      if (response.candidates && response.candidates[0]?.content?.parts) {
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData && part.inlineData.data) {
+            const imageUrl = `data:image/png;base64,${part.inlineData.data}`;
+            return NextResponse.json({
+              imageUrl,
+              isStippleOnly: false,
+            });
+          }
+        }
+      }
+
       return NextResponse.json({
-        error: "No image generation model worked",
-        lastError,
-        availableModels: modelsData.models?.map((m: { name: string; supportedGenerationMethods: string[] }) => ({
-          name: m.name,
-          methods: m.supportedGenerationMethods
-        }))
+        error: "No image data found in response",
       }, { status: 500 });
-    } catch {
+
+    } catch (error) {
+      console.error("Card Generation Error:", error);
       return NextResponse.json({
-        error: "No image generation model worked",
-        lastError
+        error: "Card generation failed",
+        details: String(error),
       }, { status: 500 });
     }
+
   } catch (error) {
     console.error("Image generation error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Image generation failed";
-
     return NextResponse.json(
-      { error: errorMessage, details: String(error) },
+      { error: "Request failed", details: String(error) },
       { status: 500 }
     );
   }
