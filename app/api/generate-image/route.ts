@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { photoBase64, userName, archetype, tagline } = await request.json();
+    const { userName, archetype, tagline } = await request.json();
 
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) {
@@ -30,22 +30,25 @@ EXACT LAYOUT:
 
 STYLE: 1990s sports trading card, clean design, stipple portrait art style, professional.`;
 
-    // Use Imagen 3 for image generation
-    const response = await ai.models.generateImages({
-      model: 'imagen-3.0-generate-002',
-      prompt: imagePrompt,
+    // Use Gemini 2.0 Flash with image generation capabilities
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-exp',
+      contents: imagePrompt,
       config: {
-        numberOfImages: 1,
-        aspectRatio: '3:4', // Trading card aspect ratio
+        responseModalities: ['image', 'text'],
       },
     });
 
     // Extract image from response
-    if (response.generatedImages && response.generatedImages.length > 0) {
-      const image = response.generatedImages[0];
-      if (image.image?.imageBytes) {
-        const imageUrl = `data:image/png;base64,${image.image.imageBytes}`;
-        return NextResponse.json({ imageUrl });
+    if (response.candidates && response.candidates.length > 0) {
+      const candidate = response.candidates[0];
+      if (candidate.content?.parts) {
+        for (const part of candidate.content.parts) {
+          if (part.inlineData?.mimeType?.startsWith('image/')) {
+            const imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            return NextResponse.json({ imageUrl });
+          }
+        }
       }
     }
 
@@ -57,19 +60,9 @@ STYLE: 1990s sports trading card, clean design, stipple portrait art style, prof
     console.error("Image generation error:", error);
     const errorMessage = error instanceof Error ? error.message : "Image generation failed";
 
-    // Check if it's a model not found error and suggest alternatives
-    if (errorMessage.includes('not found') || errorMessage.includes('NOT_FOUND')) {
-      return NextResponse.json(
-        {
-          error: "Image generation model not available. The Imagen API may require additional setup or a different API key.",
-          details: errorMessage
-        },
-        { status: 500 }
-      );
-    }
-
+    // Return detailed error for debugging
     return NextResponse.json(
-      { error: errorMessage },
+      { error: errorMessage, details: String(error) },
       { status: 500 }
     );
   }
