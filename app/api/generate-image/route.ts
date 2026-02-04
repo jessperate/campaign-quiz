@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Google API key not configured" },
+        { error: "Google API key not configured. Please add GOOGLE_API_KEY to your environment variables." },
         { status: 500 }
       );
     }
@@ -30,7 +30,7 @@ STYLE:
 - Bold typography
 - High contrast stipple portrait`;
 
-    const contentsParts: Array<{ text: string } | { inlineData: { data: string; mimeType: string } }> = [];
+    const parts: Array<{ text: string } | { inlineData: { data: string; mimeType: string } }> = [];
 
     // If user provided a photo, include it as reference
     if (photoBase64) {
@@ -39,7 +39,7 @@ STYLE:
         ? photoBase64.split(',')[1]
         : photoBase64;
 
-      contentsParts.push({
+      parts.push({
         inlineData: {
           data: base64Data,
           mimeType: 'image/jpeg',
@@ -61,15 +61,12 @@ SUBJECT: Generate a heroic character silhouette or abstract portrait in stipple 
 Use a placeholder initial "${userName.charAt(0).toUpperCase()}" if no face is needed.`;
     }
 
-    contentsParts.push({ text: imagePrompt });
+    parts.push({ text: imagePrompt });
 
-    // Generate image using Gemini
+    // Generate content using the models API
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp', // Using available model
-      contents: [{ role: 'user', parts: contentsParts }],
-      generationConfig: {
-        responseModalities: ['image', 'text'],
-      } as Record<string, unknown>,
+      model: 'gemini-2.0-flash-exp',
+      contents: [{ role: 'user', parts }],
     });
 
     // Extract image from response
@@ -84,14 +81,28 @@ Use a placeholder initial "${userName.charAt(0).toUpperCase()}" if no face is ne
       }
     }
 
-    if (imageUrl) {
-      return NextResponse.json({ imageUrl });
-    } else {
+    // If no image in response, return info for debugging
+    if (!imageUrl) {
+      // Try to get text response
+      let textContent = '';
+      if (response.candidates?.[0]?.content?.parts) {
+        for (const part of response.candidates[0].content.parts) {
+          if ('text' in part) {
+            textContent += part.text;
+          }
+        }
+      }
+
       return NextResponse.json(
-        { error: "No image generated" },
+        {
+          error: "No image generated. The model returned text instead.",
+          debug: textContent || "No response content"
+        },
         { status: 500 }
       );
     }
+
+    return NextResponse.json({ imageUrl });
   } catch (error) {
     console.error("Image generation error:", error);
     return NextResponse.json(
