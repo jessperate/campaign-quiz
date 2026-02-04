@@ -30,37 +30,71 @@ EXACT LAYOUT:
 
 STYLE: 1990s sports trading card, clean design, stipple portrait art style, professional.`;
 
-    // Use Gemini 2.0 Flash with image generation capabilities
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
-      contents: imagePrompt,
-      config: {
-        responseModalities: ['image', 'text'],
-      },
-    });
+    // Try different model names for image generation
+    // Gemini 2.0 Flash experimental with image output
+    const modelNames = [
+      'gemini-2.0-flash-exp-image-generation',
+      'gemini-2.0-flash-thinking-exp',
+      'imagen-3.0-generate-001',
+      'imagegeneration@006',
+    ];
 
-    // Extract image from response
-    if (response.candidates && response.candidates.length > 0) {
-      const candidate = response.candidates[0];
-      if (candidate.content?.parts) {
-        for (const part of candidate.content.parts) {
-          if (part.inlineData?.mimeType?.startsWith('image/')) {
-            const imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-            return NextResponse.json({ imageUrl });
+    let lastError = '';
+
+    for (const modelName of modelNames) {
+      try {
+        console.log(`Trying model: ${modelName}`);
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: imagePrompt,
+          config: {
+            responseModalities: ['image', 'text'],
+          },
+        });
+
+        // Extract image from response
+        if (response.candidates && response.candidates.length > 0) {
+          const candidate = response.candidates[0];
+          if (candidate.content?.parts) {
+            for (const part of candidate.content.parts) {
+              if (part.inlineData?.mimeType?.startsWith('image/')) {
+                const imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                return NextResponse.json({ imageUrl, modelUsed: modelName });
+              }
+            }
           }
         }
+      } catch (e) {
+        lastError = String(e);
+        console.log(`Model ${modelName} failed: ${lastError}`);
+        continue;
       }
     }
 
-    return NextResponse.json(
-      { error: "No image generated", debug: JSON.stringify(response) },
-      { status: 500 }
-    );
+    // If all models fail, list available models
+    try {
+      const modelsResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+      );
+      const modelsData = await modelsResponse.json();
+      return NextResponse.json({
+        error: "No image generation model worked",
+        lastError,
+        availableModels: modelsData.models?.map((m: { name: string; supportedGenerationMethods: string[] }) => ({
+          name: m.name,
+          methods: m.supportedGenerationMethods
+        }))
+      }, { status: 500 });
+    } catch {
+      return NextResponse.json({
+        error: "No image generation model worked",
+        lastError
+      }, { status: 500 });
+    }
   } catch (error) {
     console.error("Image generation error:", error);
     const errorMessage = error instanceof Error ? error.message : "Image generation failed";
 
-    // Return detailed error for debugging
     return NextResponse.json(
       { error: errorMessage, details: String(error) },
       { status: 500 }
