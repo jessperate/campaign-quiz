@@ -564,32 +564,32 @@ export default function ResultsClient() {
           {/* ── Right Column (34%) ── */}
           <div className="w-full md:w-1/3">
             <div className="md:sticky md:top-8 space-y-6">
-              {/* Player card — 1:1 duplicate of the hero card */}
+              {/* Player card — 1:1 duplicate of the hero card, scaled to fit */}
               <div
                 style={{
                   width: '100%',
                   aspectRatio: '1',
                   overflow: 'hidden',
                   borderRadius: '1.5rem',
+                  position: 'relative',
                 }}
               >
                 <div
                   style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
                     width: '1080px',
                     height: '1080px',
-                    transform: 'scale(var(--card-scale, 0.37))',
+                    transform: 'scale(0.37)',
                     transformOrigin: 'top left',
                   }}
                   ref={(el) => {
-                    if (el) {
-                      const observer = new ResizeObserver((entries) => {
-                        for (const entry of entries) {
-                          const parentWidth = entry.target.parentElement?.clientWidth || 400;
-                          el.style.setProperty('--card-scale', String(parentWidth / 1080));
-                        }
-                      });
-                      if (el.parentElement) observer.observe(el.parentElement);
-                    }
+                    if (!el || typeof window === 'undefined') return;
+                    const parent = el.parentElement;
+                    if (!parent) return;
+                    const scale = parent.clientWidth / 1080;
+                    el.style.transform = `scale(${scale})`;
                   }}
                 >
                   <ShareCard
