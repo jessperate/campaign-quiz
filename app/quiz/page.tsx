@@ -82,23 +82,72 @@ export default function QuizPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Store form data in session storage
+    // Also keep sessionStorage as fallback
     const dataToStore = {
       ...formData,
       headshotPreview: headshotPreview,
     };
     sessionStorage.setItem("quizFormData", JSON.stringify(dataToStore));
 
-    // Log all stored data for debugging
-    console.log("Form submitted - stored data:", {
-      formData: dataToStore,
-      archetype: sessionStorage.getItem("quizArchetype"),
-      role: sessionStorage.getItem("quizRole"),
-    });
+    // Upload headshot to blob if provided, then submit through API
+    let headshotBlobUrl = "";
+    if (headshotPreview) {
+      try {
+        const res = await fetch("/api/upload-card", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageBase64: headshotPreview,
+            uniqueId: `headshot-${Date.now()}`,
+          }),
+        });
+        const data = await res.json();
+        if (data.url) headshotBlobUrl = data.url;
+      } catch (err) {
+        console.warn("Failed to upload headshot:", err);
+      }
+    }
 
-    // TODO: Send to backend/HubSpot in future phase
-    // TODO: LinkedIn scraping via Proxycurl/PhantomBuster
+    // Parse name into first/last
+    const nameParts = (formData.fullName || "").trim().split(/\s+/);
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
 
+    // Build answer array from stored answers (q2-q6 → question 1-5)
+    const quizRole = role || sessionStorage.getItem("quizRole") as Role;
+    const answerArray = [];
+    for (let i = 2; i <= 6; i++) {
+      const ans = answers[`q${i}`];
+      if (ans) {
+        answerArray.push({ question: i - 1, answer: ans });
+      }
+    }
+
+    try {
+      const res = await fetch("/api/submit-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          role: quizRole,
+          answers: answerArray,
+          firstName,
+          lastName,
+          company: formData.company || "",
+          email: formData.email,
+          headshotUrl: headshotBlobUrl,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success && data.userId) {
+        router.push(`/results?userId=${data.userId}`);
+        return;
+      }
+    } catch (err) {
+      console.warn("API submit failed, falling back to sessionStorage:", err);
+    }
+
+    // Fallback to old sessionStorage flow
     router.push("/results");
   };
 

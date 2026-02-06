@@ -82,6 +82,7 @@ interface ShareCardProps {
   mostLikelyTo: string;
   typicallySpending: string;
   favoritePhrase: string;
+  transparent?: boolean;
 }
 
 const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
@@ -97,6 +98,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
       mostLikelyTo,
       typicallySpending,
       favoritePhrase,
+      transparent,
     },
     ref
   ) => {
@@ -191,27 +193,29 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
         style={{
           width: "1080px",
           height: "1080px",
-          backgroundColor: "#000000",
+          backgroundColor: transparent ? "transparent" : "#000000",
           position: "relative",
           overflow: "hidden",
           fontFamily: "sans-serif",
         }}
       >
         {/* Background image */}
-        <img
-          src={theme.bgImage}
-          alt=""
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "1080px",
-            height: "1080px",
-            objectFit: "cover",
-            opacity: 0.6,
-          }}
-          crossOrigin="anonymous"
-        />
+        {!transparent && (
+          <img
+            src={theme.bgImage}
+            alt=""
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "1080px",
+              height: "1080px",
+              objectFit: "cover",
+              opacity: 0.6,
+            }}
+            crossOrigin="anonymous"
+          />
+        )}
 
         {/* Central card */}
         <div
@@ -560,40 +564,42 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
         />
 
         {/* Bottom bar: airops + Win AI Search */}
-        <div
-          style={{
-            position: "absolute",
-            left: "40px",
-            bottom: "35px",
-            right: "40px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        {!transparent && (
           <div
             style={{
-              fontFamily: "SaansMono, monospace",
-              fontSize: "18px",
-              fontWeight: "500",
-              color: "#FFFFFF",
-              letterSpacing: "1px",
+              position: "absolute",
+              left: "40px",
+              bottom: "35px",
+              right: "40px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            airops
+            <div
+              style={{
+                fontFamily: "SaansMono, monospace",
+                fontSize: "18px",
+                fontWeight: "500",
+                color: "#FFFFFF",
+                letterSpacing: "1px",
+              }}
+            >
+              airops
+            </div>
+            <div
+              style={{
+                fontFamily: "SaansMono, monospace",
+                fontSize: "18px",
+                fontWeight: "500",
+                color: "#FFFFFF",
+                letterSpacing: "1px",
+              }}
+            >
+              Win AI Search.
+            </div>
           </div>
-          <div
-            style={{
-              fontFamily: "SaansMono, monospace",
-              fontSize: "18px",
-              fontWeight: "500",
-              color: "#FFFFFF",
-              letterSpacing: "1px",
-            }}
-          >
-            Win AI Search.
-          </div>
-        </div>
+        )}
       </div>
     );
   }

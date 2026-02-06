@@ -1,0 +1,25 @@
+<svg width="643" height="900" viewBox="0 0 643 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Mask to cut out the photo area -->
+    <mask id="photoMask">
+      <rect width="643" height="900" fill="white"/>
+      <!-- Cut out the inner rectangle where photo goes -->
+      <path d="M129 47H612V582H30V146C30 91.3238 74.3238 47 129 47Z" fill="black"/>
+    </mask>
+  </defs>
+  
+  <!-- Background with photo area cut out -->
+  <g mask="url(#photoMask)">
+    <rect x="1" y="1" width="640.857" height="898" rx="8.64286" fill="#C9EBF2"/>
+  </g>
+  
+  <!-- Card border -->
+  <rect x="1" y="1" width="640.857" height="898" rx="8.64286" stroke="#01491B" stroke-width="2" fill="none"/>
+  
+  <!-- Inner rectangle border -->
+  <path d="M129 47H612V582H30V146C30 91.3238 74.3238 47 129 47Z" stroke="#01491B" stroke-width="2" fill="none"/>
+  
+  <!-- Bottom section -->
+  <rect x="30" y="582" width="583" height="295" fill="#F2FCFF"/>
+  <rect x="30" y="582" width="583" height="295" stroke="#01491B" stroke-width="2"/>
+</svg>

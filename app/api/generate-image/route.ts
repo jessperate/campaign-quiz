@@ -5,7 +5,7 @@ const STIPPLE_PROMPT = `Create a high-resolution stipple engraving portrait in t
 
 export async function POST(request: NextRequest) {
   try {
-    const { userName, archetype, tagline, photoBase64 } = await request.json();
+    const { userName, archetype, tagline, photoBase64, photoUrl } = await request.json();
 
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) {
@@ -17,13 +17,29 @@ export async function POST(request: NextRequest) {
 
     const ai = new GoogleGenAI({ apiKey });
 
+    // Resolve photo data: use base64 directly, or download from URL
+    let resolvedPhotoBase64 = photoBase64;
+    if (!resolvedPhotoBase64 && photoUrl) {
+      try {
+        const imageResponse = await fetch(photoUrl);
+        if (imageResponse.ok) {
+          const arrayBuffer = await imageResponse.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+          resolvedPhotoBase64 = `data:${contentType};base64,${buffer.toString('base64')}`;
+        }
+      } catch (err) {
+        console.error('Failed to download photo from URL:', err);
+      }
+    }
+
     // If photo provided, transform to stipple style
-    if (photoBase64) {
+    if (resolvedPhotoBase64) {
       // Clean base64 string - remove data URL prefix
-      const cleanBase64 = photoBase64.replace(/^data:image\/\w+;base64,/, "");
+      const cleanBase64 = resolvedPhotoBase64.replace(/^data:image\/\w+;base64,/, "");
 
       // Extract mime type from original
-      const mimeMatch = photoBase64.match(/^data:(image\/\w+);base64,/);
+      const mimeMatch = resolvedPhotoBase64.match(/^data:(image\/\w+);base64,/);
       const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
 
       console.log(`Calling Nano Banana Pro with photo (${mimeType}, ${cleanBase64.length} chars)`);
