@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import html2canvas from "html2canvas";
 import { archetypes, getRandomBullets } from "@/lib/archetypes";
-import type { Role } from "@/lib/quiz-data";
+import type { Role, ArchetypeId } from "@/lib/quiz-data";
+import { ShareCard } from "@/components/Results/ShareCard";
 
 interface FormData {
   email: string;
@@ -17,12 +19,12 @@ interface FormData {
 }
 
 interface QuizResults {
-  archetype: string;
+  archetype: ArchetypeId;
   role: Role;
   bullets: {
-    spendTime: string;
-    altCareer: string;
-    secretStrength: string;
+    mostLikelyTo: string;
+    typicallySpending: string;
+    favoritePhrase: string;
   };
   formData: FormData;
 }
@@ -30,10 +32,12 @@ interface QuizResults {
 export default function ResultsPage() {
   const [results, setResults] = useState<QuizResults | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [stippleImage, setStippleImage] = useState<string | null>(null); // Just the stipple portrait
+  const [stippleImage, setStippleImage] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [shareableCardUrl, setShareableCardUrl] = useState<string | null>(null);
+  const [isCapturingCard, setIsCapturingCard] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const generateCardImage = async (resultsData: QuizResults) => {
     setIsGeneratingImage(true);
@@ -50,20 +54,14 @@ export default function ResultsPage() {
           photoBase64: photoData,
           userName: resultsData.formData.fullName || 'Champion',
           archetype: archetype.name,
-          tagline: archetype.tagline,
+          tagline: archetype.roleContent[resultsData.role].tagline,
         }),
       });
 
       const data = await response.json();
 
       if (data.imageUrl) {
-        if (data.isStippleOnly) {
-          // Got just the stipple portrait - we'll compose the card with CSS
-          setStippleImage(data.imageUrl);
-        } else {
-          // Got a full card image
-          setGeneratedImage(data.imageUrl);
-        }
+        setStippleImage(data.imageUrl);
       } else {
         setImageError(data.error || 'Failed to generate image');
       }
@@ -74,6 +72,55 @@ export default function ResultsPage() {
     }
   };
 
+  // Capture and upload the card for sharing
+  const captureAndUploadCard = useCallback(async () => {
+    if (!cardRef.current || shareableCardUrl || isCapturingCard) return;
+
+    setIsCapturingCard(true);
+    try {
+      // Wait for images to fully render
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 1,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#000000',
+        width: 1080,
+        height: 1080,
+      });
+
+      const imageBase64 = canvas.toDataURL('image/png');
+      const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const response = await fetch('/api/upload-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64, uniqueId }),
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        setShareableCardUrl(data.url);
+        console.log('Card uploaded:', data.url);
+      }
+    } catch (err) {
+      console.error('Failed to capture/upload card:', err);
+    } finally {
+      setIsCapturingCard(false);
+    }
+  }, [shareableCardUrl, isCapturingCard]);
+
+  // Trigger card capture when stipple image is ready
+  useEffect(() => {
+    if (stippleImage && !shareableCardUrl && !isCapturingCard) {
+      const timer = setTimeout(() => {
+        captureAndUploadCard();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [stippleImage, shareableCardUrl, isCapturingCard, captureAndUploadCard]);
+
   useEffect(() => {
     // Get URL params for preview mode
     const urlParams = new URLSearchParams(window.location.search);
@@ -81,7 +128,7 @@ export default function ResultsPage() {
     const previewRole = urlParams.get('role') as Role;
 
     // Get data from URL params or sessionStorage
-    const archetypeId = previewArchetype || sessionStorage.getItem("quizArchetype");
+    const archetypeId = (previewArchetype || sessionStorage.getItem("quizArchetype")) as ArchetypeId;
     const role = previewRole || sessionStorage.getItem("quizRole") as Role;
     const formDataStr = sessionStorage.getItem("quizFormData");
 
@@ -96,7 +143,7 @@ export default function ResultsPage() {
       return;
     }
 
-    const bullets = getRandomBullets(archetype);
+    const bullets = getRandomBullets(archetype, role);
     const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
       email: "",
       linkedinUrl: "",
@@ -147,10 +194,14 @@ export default function ResultsPage() {
   }
 
   const archetype = archetypes[results.archetype];
+  const roleContent = archetype.roleContent[results.role];
   const userName = results.formData.fullName || "Champion";
-  const userTitle = results.formData.title;
-  const userCompany = results.formData.company;
-  const userHeadshot = results.formData.headshotPreview;
+  const userCompany = results.formData.company || "";
+
+  // Parse name into first/last
+  const nameParts = userName.trim().split(/\s+/);
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
 
   // Role-based CTAs
   const primaryCTA = results.role === "ic"
@@ -158,10 +209,27 @@ export default function ResultsPage() {
     : { text: "Book a Demo", href: "#demo" };
 
   // Share URLs
-  const shareText = `I just discovered I'm "The ${archetype.name}" - ${archetype.tagline}. Take the quiz to find your Content Engineer archetype!`;
+  const shareText = `I just discovered I'm "The ${archetype.name}" - ${roleContent.tagline}. Take the quiz to find your Content Engineer archetype!`;
   const shareUrl = typeof window !== 'undefined' ? window.location.origin + '/quiz' : 'https://airops.com/win';
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+
+  // Build LinkedIn share URL with OG meta tags via share page
+  const buildLinkedInShareUrl = () => {
+    if (typeof window === 'undefined') return 'https://www.linkedin.com/sharing/share-offsite/?url=https://airops.com/win';
+
+    const baseUrl = window.location.origin;
+    const sharePageUrl = new URL('/share', baseUrl);
+    sharePageUrl.searchParams.set('archetype', results.archetype);
+    if (shareableCardUrl) {
+      sharePageUrl.searchParams.set('cardUrl', shareableCardUrl);
+    }
+    sharePageUrl.searchParams.set('stat1', results.bullets.mostLikelyTo);
+    sharePageUrl.searchParams.set('stat2', results.bullets.typicallySpending);
+    sharePageUrl.searchParams.set('stat3', results.bullets.favoritePhrase);
+
+    return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrl.toString())}`;
+  };
+  const linkedinUrl = buildLinkedInShareUrl();
 
   return (
     <div className="min-h-screen relative">
@@ -188,155 +256,78 @@ export default function ResultsPage() {
                 The {archetype.name}
               </h1>
               <p className="text-[#0D3D1F]/80 text-xl md:text-2xl italic mb-6" style={{ fontFamily: 'Serrif, serif' }}>
-                &quot;{archetype.tagline}&quot;
+                &quot;{roleContent.tagline}&quot;
               </p>
             </div>
 
-            {/* Player Card */}
+            {/* Share Card - rendered at 1080x1080 but displayed scaled */}
             <div className="flex flex-col items-center mb-10">
-              {/* AI Generated Card or Loading State */}
-              {generatedImage ? (
-                <div className="w-full max-w-sm">
-                  <img
-                    src={generatedImage}
-                    alt="AI Generated Trading Card"
-                    className="w-full rounded-3xl shadow-2xl"
+              {/* Hidden full-size card for html2canvas capture */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '-9999px',
+                  top: 0,
+                }}
+              >
+                <ShareCard
+                  ref={cardRef}
+                  firstName={firstName}
+                  lastName={lastName}
+                  company={userCompany}
+                  archetypeName={archetype.name}
+                  shortName={archetype.shortName}
+                  headshotUrl={stippleImage || results.formData.headshotPreview}
+                  mostLikelyTo={results.bullets.mostLikelyTo}
+                  typicallySpending={results.bullets.typicallySpending}
+                  favoritePhrase={results.bullets.favoritePhrase}
+                />
+              </div>
+
+              {/* Visible scaled-down card */}
+              <div
+                style={{
+                  width: '100%',
+                  maxWidth: '400px',
+                  aspectRatio: '1',
+                  overflow: 'hidden',
+                  borderRadius: '12px',
+                  boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '1080px',
+                    height: '1080px',
+                    transform: 'scale(0.37)',
+                    transformOrigin: 'top left',
+                  }}
+                >
+                  <ShareCard
+                    firstName={firstName}
+                    lastName={lastName}
+                    company={userCompany}
+                    archetypeName={archetype.name}
+                    shortName={archetype.shortName}
+                    headshotUrl={stippleImage || results.formData.headshotPreview}
+                    mostLikelyTo={results.bullets.mostLikelyTo}
+                    typicallySpending={results.bullets.typicallySpending}
+                    favoritePhrase={results.bullets.favoritePhrase}
                   />
                 </div>
-              ) : stippleImage ? (
-                /* CSS-composed card with AI-generated stipple portrait */
-                <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
-                  {/* Green header */}
-                  <div className="bg-[#0D3D1F] px-6 py-4 text-center">
-                    <p className="text-[#4ADE80] text-xs font-bold tracking-widest uppercase">
-                      {userName}&apos;s Content Team
-                    </p>
-                    <p className="text-white text-xl font-black tracking-tight" style={{ fontFamily: 'Knockout, sans-serif' }}>
-                      WINS AI SEARCH
-                    </p>
-                  </div>
-
-                  {/* Card body with stipple portrait */}
-                  <div className="p-6">
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#4ADE80] mb-4">
-                      <img
-                        src={stippleImage}
-                        alt={`${userName} stipple portrait`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* User info */}
-                    <div className="text-center mb-4">
-                      <h3 className="text-[#0D3D1F] text-2xl font-bold">{userName}</h3>
-                      {userTitle && <p className="text-[#0D3D1F]/60 text-sm">{userTitle}</p>}
-                      {userCompany && <p className="text-[#0D3D1F]/60 text-sm">{userCompany}</p>}
-                    </div>
-
-                    {/* Archetype */}
-                    <div className="text-center py-4 border-t border-[#E8F5E9]">
-                      <p className="text-[#0D3D1F]/50 text-xs uppercase tracking-wide mb-1">Archetype</p>
-                      <h4 className="text-[#0D3D1F] text-xl font-bold">The {archetype.name}</h4>
-                      <p className="text-[#0D3D1F]/70 text-sm italic">&quot;{archetype.tagline}&quot;</p>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="bg-[#0D3D1F] px-6 py-3 flex items-center justify-between">
-                    <div className="text-white text-sm font-bold">
-                      air<span className="text-[#4ADE80]">O</span>ps
-                    </div>
-                    <p className="text-[#4ADE80] text-xs">airops.com/win</p>
-                  </div>
-                </div>
-              ) : isGeneratingImage ? (
-                <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
-                  {/* Loading state card */}
-                  <div className="bg-[#0D3D1F] px-6 py-4 text-center">
-                    <p className="text-[#4ADE80] text-xs font-bold tracking-widest uppercase">
-                      {userName}&apos;s Content Team
-                    </p>
-                    <p className="text-white text-xl font-black tracking-tight" style={{ fontFamily: 'Knockout, sans-serif' }}>
-                      WINS AI SEARCH
-                    </p>
-                  </div>
-                  <div className="p-6">
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#E8F5E9] mb-4 flex flex-col items-center justify-center">
-                      <svg className="animate-spin w-12 h-12 text-[#0D3D1F]/30 mb-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <p className="text-[#0D3D1F]/50 text-sm text-center px-4">Creating your stipple portrait...</p>
-                    </div>
-                    <div className="text-center mb-4">
-                      <h3 className="text-[#0D3D1F] text-2xl font-bold">{userName}</h3>
-                    </div>
-                    <div className="text-center py-4 border-t border-[#E8F5E9]">
-                      <p className="text-[#0D3D1F]/50 text-xs uppercase tracking-wide mb-1">Archetype</p>
-                      <h4 className="text-[#0D3D1F] text-xl font-bold">The {archetype.name}</h4>
-                    </div>
-                  </div>
-                  <div className="bg-[#0D3D1F] px-6 py-3 flex items-center justify-between">
-                    <div className="text-white text-sm font-bold">
-                      air<span className="text-[#4ADE80]">O</span>ps
-                    </div>
-                    <p className="text-[#4ADE80] text-xs">airops.com/win</p>
-                  </div>
-                </div>
-              ) : (
-              <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
-                {/* Green header */}
-                <div className="bg-[#0D3D1F] px-6 py-4 text-center">
-                  <p className="text-[#4ADE80] text-xs font-bold tracking-widest uppercase">
-                    {userName}&apos;s Content Team
-                  </p>
-                  <p className="text-white text-xl font-black tracking-tight" style={{ fontFamily: 'Knockout, sans-serif' }}>
-                    WINS AI SEARCH
-                  </p>
-                </div>
-
-                {/* Card body */}
-                <div className="p-6">
-                  {/* Headshot */}
-                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#E8F5E9] mb-4">
-                    {userHeadshot ? (
-                      <img
-                        src={userHeadshot}
-                        alt={userName}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4ADE80]/30 to-[#4ADE80]/10">
-                        <span className="text-8xl font-bold text-[#0D3D1F]/20">
-                          {userName.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* User info */}
-                  <div className="text-center mb-4">
-                    <h3 className="text-[#0D3D1F] text-2xl font-bold">{userName}</h3>
-                    {userTitle && <p className="text-[#0D3D1F]/60 text-sm">{userTitle}</p>}
-                    {userCompany && <p className="text-[#0D3D1F]/60 text-sm">{userCompany}</p>}
-                  </div>
-
-                  {/* Archetype */}
-                  <div className="text-center py-4 border-t border-[#E8F5E9]">
-                    <p className="text-[#0D3D1F]/50 text-xs uppercase tracking-wide mb-1">Archetype</p>
-                    <h4 className="text-[#0D3D1F] text-xl font-bold">The {archetype.name}</h4>
-                    <p className="text-[#0D3D1F]/70 text-sm italic">&quot;{archetype.tagline}&quot;</p>
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="bg-[#0D3D1F] px-6 py-3 flex items-center justify-between">
-                  <div className="text-white text-sm font-bold">
-                    air<span className="text-[#4ADE80]">O</span>ps
-                  </div>
-                  <p className="text-[#4ADE80] text-xs">airops.com/win</p>
-                </div>
               </div>
+
+              {/* Loading indicator */}
+              {isGeneratingImage && (
+                <div className="mt-4 text-center">
+                  <div className="inline-flex items-center gap-2 text-[#0D3D1F]/60">
+                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="text-sm">Creating your stipple portrait...</span>
+                  </div>
+                </div>
               )}
 
               {/* Regenerate button (only show if there was an error) */}
@@ -356,7 +347,7 @@ export default function ResultsPage() {
             {/* Description */}
             <div className="text-center mb-10 max-w-2xl mx-auto">
               <p className="text-[#0D3D1F]/80 text-lg">
-                {archetype.description}
+                {roleContent.description}
               </p>
             </div>
 
@@ -368,21 +359,21 @@ export default function ResultsPage() {
               <div className="space-y-6">
                 <div>
                   <p className="text-[#0D3D1F]/50 text-sm uppercase tracking-wide mb-1">
-                    You spend most of your time...
+                    Most likely to...
                   </p>
-                  <p className="text-[#0D3D1F] text-lg">{results.bullets.spendTime}</p>
+                  <p className="text-[#0D3D1F] text-lg">{results.bullets.mostLikelyTo}</p>
                 </div>
                 <div>
                   <p className="text-[#0D3D1F]/50 text-sm uppercase tracking-wide mb-1">
-                    In another life, you&apos;d be...
+                    Typically spending time...
                   </p>
-                  <p className="text-[#0D3D1F] text-lg">{results.bullets.altCareer}</p>
+                  <p className="text-[#0D3D1F] text-lg">{results.bullets.typicallySpending}</p>
                 </div>
                 <div>
                   <p className="text-[#0D3D1F]/50 text-sm uppercase tracking-wide mb-1">
-                    Your secret strength...
+                    Favorite phrase...
                   </p>
-                  <p className="text-[#0D3D1F] text-lg">{results.bullets.secretStrength}</p>
+                  <p className="text-[#0D3D1F] text-lg">{results.bullets.favoritePhrase}</p>
                 </div>
               </div>
             </div>
@@ -437,6 +428,27 @@ export default function ResultsPage() {
                 Share your results
               </h3>
               <div className="flex flex-wrap justify-center gap-4">
+                {/* Download Card Button */}
+                {shareableCardUrl ? (
+                  <a
+                    href={shareableCardUrl}
+                    download={`${userName.replace(/\s+/g, '-')}-player-card.png`}
+                    className="inline-flex items-center px-6 py-3 bg-[#22C55E] text-white rounded-full font-semibold hover:bg-[#16A34A] transition-colors"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download Card
+                  </a>
+                ) : isCapturingCard ? (
+                  <div className="inline-flex items-center px-6 py-3 bg-[#E8F5E9] text-[#0D3D1F]/60 rounded-full font-semibold">
+                    <svg className="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Preparing card...
+                  </div>
+                ) : null}
                 <a
                   href={twitterUrl}
                   target="_blank"
@@ -448,20 +460,40 @@ export default function ResultsPage() {
                   </svg>
                   Share on X
                 </a>
-                <a
-                  href={linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-6 py-3 bg-[#0A66C2] text-white rounded-full font-semibold hover:bg-[#0A66C2]/80 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                  </svg>
-                  Share on LinkedIn
-                </a>
+                {shareableCardUrl ? (
+                  <a
+                    href={linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-6 py-3 bg-[#0A66C2] text-white rounded-full font-semibold hover:bg-[#0A66C2]/80 transition-colors"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    </svg>
+                    Share on LinkedIn
+                  </a>
+                ) : (
+                  <div className="inline-flex items-center px-6 py-3 bg-[#0A66C2]/50 text-white/70 rounded-full font-semibold cursor-not-allowed">
+                    <svg className="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Preparing...
+                  </div>
+                )}
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(shareUrl);
+                    // Build personalized share URL
+                    const baseUrl = window.location.origin;
+                    const sharePageUrl = new URL('/share', baseUrl);
+                    sharePageUrl.searchParams.set('archetype', results.archetype);
+                    if (shareableCardUrl) {
+                      sharePageUrl.searchParams.set('cardUrl', shareableCardUrl);
+                    }
+                    sharePageUrl.searchParams.set('stat1', results.bullets.mostLikelyTo);
+                    sharePageUrl.searchParams.set('stat2', results.bullets.typicallySpending);
+                    sharePageUrl.searchParams.set('stat3', results.bullets.favoritePhrase);
+                    navigator.clipboard.writeText(sharePageUrl.toString());
                     alert('Link copied!');
                   }}
                   className="inline-flex items-center px-6 py-3 bg-white/80 text-[#0D3D1F] rounded-full font-semibold hover:bg-white transition-colors"

@@ -1,9 +1,18 @@
 export type Role = "ic" | "manager" | "executive";
 
+export type ArchetypeId =
+  | "vision"
+  | "glue"
+  | "trendsetter"
+  | "tastemaker"
+  | "goGoGoer"
+  | "clutch"
+  | "heart";
+
 export interface AnswerOption {
   id: string;
   text: string;
-  scores: Record<string, number>; // archetype id -> points
+  signals: ArchetypeId[];
 }
 
 export interface Question {
@@ -20,340 +29,418 @@ export const roleQuestion: Question = {
     {
       id: "executive",
       text: "I set the strategy and own the budget. (VP, CMO)",
-      scores: {}
+      signals: []
     },
     {
       id: "manager",
       text: "I manage a team or function. (Director, Lead, Sr. Manager)",
-      scores: {}
+      signals: []
     },
     {
       id: "ic",
       text: "I'm in the game every day doing the work. (Writer, Ops, Analyst, Creator)",
-      scores: {}
+      signals: []
     }
   ]
 };
 
-// IC Track Questions (Q2-Q5)
+// IC Track Questions (Q2-Q6)
 export const icQuestions: Question[] = [
   {
     id: "q2",
-    text: "When you're assigned a new content project, what's your first instinct?",
+    text: "It's game day and your work isn't quite publish-ready. You:",
     options: [
       {
         id: "a",
-        text: "Start writing immediately—I'll figure it out as I go",
-        scores: { sprinter: 3, pinchHitter: 1 }
+        text: "Ship it. You miss 100% of the shots you don't take.",
+        signals: ["goGoGoer"]
       },
       {
         id: "b",
-        text: "Research extensively and outline every detail before starting",
-        scores: { perfectTen: 3, closer: 1 }
+        text: "Delay it. I don't put my name on anything that's not ready.",
+        signals: ["tastemaker"]
       },
       {
         id: "c",
-        text: "Look for a new tool or approach that could make this more interesting",
-        scores: { trailblazer: 3, pacesetter: 1 }
+        text: "Stay late to run the full pre-launch checklist. We have a plan, let's follow it.",
+        signals: ["glue"]
       },
       {
         id: "d",
-        text: "Check what resources exist and build on what's already working",
-        scores: { trainer: 2, underdog: 2 }
+        text: "Ask my manager to gut-check it before it goes out.",
+        signals: ["heart"]
       }
     ]
   },
   {
     id: "q3",
-    text: "Your content is performing well. What do you do next?",
+    text: "What's your AI playbook look like?",
     options: [
       {
         id: "a",
-        text: "Document exactly what worked so others can replicate it",
-        scores: { trainer: 3, quarterback: 1 }
+        text: "AI handles the kickoff. I bring it to the end-zone.",
+        signals: ["goGoGoer"]
       },
       {
         id: "b",
-        text: "Immediately start working on the next piece to keep momentum",
-        scores: { sprinter: 3, underdog: 1 }
+        text: "I've built custom playbooks for most situations that get thrown at me.",
+        signals: ["glue", "trendsetter"]
       },
       {
         id: "c",
-        text: "Dig into the analytics to prove the revenue impact",
-        scores: { closer: 3, perfectTen: 1 }
+        text: "Limited use. I don't trust it with the important stuff yet.",
+        signals: ["tastemaker"]
       },
       {
         id: "d",
-        text: "Experiment with an even more unconventional approach",
-        scores: { trailblazer: 3, pacesetter: 1 }
+        text: "Experimenting and building my toolkit.",
+        signals: ["heart"]
       }
     ]
   },
   {
     id: "q4",
-    text: "A colleague asks for help with something outside your job description. You:",
+    text: "AI search is changing the marketing game. How are you adjusting to win on ChatGPT, Perplexity, and other AI tools?",
     options: [
       {
         id: "a",
-        text: "Jump in immediately—variety keeps things interesting",
-        scores: { pinchHitter: 3, underdog: 1 }
+        text: "Already training for it. This is where the competition is going.",
+        signals: ["trendsetter"]
       },
       {
         id: "b",
-        text: "Help them, but also create a resource so they can do it themselves next time",
-        scores: { trainer: 3, quarterback: 1 }
+        text: "I know it matters but haven't figured out my approach yet.",
+        signals: ["goGoGoer", "clutch", "heart"]
       },
       {
         id: "c",
-        text: "Help if it's quick, but stay focused on your high-impact work",
-        scores: { closer: 2, sprinter: 2 }
+        text: "Overhyped. Traditional playbooks are how humans still work.",
+        signals: ["tastemaker"]
       },
       {
         id: "d",
-        text: "Help, but suggest a better process to prevent this in the future",
-        scores: { pacesetter: 2, perfectTen: 2 }
+        text: "I volunteered to be my company's dedicated AEO player.",
+        signals: ["vision"]
       }
     ]
   },
   {
     id: "q5",
-    text: "What's your biggest source of pride in your work?",
+    text: "A trend just broke in your industry. What's the play?",
     options: [
       {
         id: "a",
-        text: "The sheer volume of quality work I produce",
-        scores: { sprinter: 2, pinchHitter: 2 }
+        text: "I've got a standard rapid-response workflow ready to go.",
+        signals: ["glue", "trendsetter"]
       },
       {
         id: "b",
-        text: "The measurable business results I can point to",
-        scores: { closer: 3, quarterback: 1 }
+        text: "Deprioritize everything else to come up with the best play. First to market wins.",
+        signals: ["goGoGoer"]
       },
       {
         id: "c",
-        text: "The craft and attention to detail in everything I create",
-        scores: { perfectTen: 3, trainer: 1 }
+        text: "Research first, act when ready. Hot takes don't land without insight.",
+        signals: ["vision", "tastemaker"]
       },
       {
         id: "d",
-        text: "Being ahead of the curve on new approaches",
-        scores: { trailblazer: 2, pacesetter: 2 }
+        text: "Huddle up with my team and learn as I go. This is how we get better.",
+        signals: ["heart", "clutch"]
+      }
+    ]
+  },
+  {
+    id: "q6",
+    text: "How would you describe your working style?",
+    options: [
+      {
+        id: "a",
+        text: "Craftsperson. Every detail matters.",
+        signals: ["tastemaker"]
+      },
+      {
+        id: "b",
+        text: "Systematic. I run proven plays because they work.",
+        signals: ["glue"]
+      },
+      {
+        id: "c",
+        text: "Versatile. Put me anywhere, I'll figure it out.",
+        signals: ["clutch"]
+      },
+      {
+        id: "d",
+        text: "Scrappy. Still building my game, but I deliver.",
+        signals: ["heart", "goGoGoer"]
       }
     ]
   }
 ];
 
-// Manager Track Questions (Q2-Q5)
+// Manager Track Questions (Q2-Q6)
 export const managerQuestions: Question[] = [
   {
     id: "q2",
-    text: "How do you prefer to develop your team's capabilities?",
+    text: "Your team's work is going out but the quality is inconsistent. You:",
     options: [
       {
         id: "a",
-        text: "Build comprehensive training programs and documentation",
-        scores: { trainer: 3, perfectTen: 1 }
+        text: "Ship it. We'll learn and iterate. Can't let perfect be the enemy of done.",
+        signals: ["goGoGoer", "trendsetter"]
       },
       {
         id: "b",
-        text: "Throw them into projects and let them learn by doing",
-        scores: { sprinter: 2, underdog: 2 }
+        text: "Hold it. I'll personally review everything before it goes out.",
+        signals: ["tastemaker"]
       },
       {
         id: "c",
-        text: "Introduce them to cutting-edge tools and methodologies",
-        scores: { trailblazer: 2, pacesetter: 2 }
+        text: "Build a checklist or workflow so this doesn't happen again.",
+        signals: ["glue", "vision"]
       },
       {
         id: "d",
-        text: "Focus on skills that directly tie to revenue metrics",
-        scores: { closer: 3, quarterback: 1 }
+        text: "Huddle with the team to figure out what went wrong.",
+        signals: ["heart"]
       }
     ]
   },
   {
     id: "q3",
-    text: "When your team faces a resource crunch, what's your approach?",
+    text: "How are you thinking about AI for your team?",
     options: [
       {
         id: "a",
-        text: "Roll up my sleeves and personally fill the gaps",
-        scores: { pinchHitter: 3, underdog: 1 }
+        text: "We're shipping faster than ever. AI handles the first draft, humans close it out.",
+        signals: ["goGoGoer"]
       },
       {
         id: "b",
-        text: "Prioritize ruthlessly and cut scope to maintain quality",
-        scores: { perfectTen: 3, closer: 1 }
+        text: "I've built workflows and templates so the team can use AI consistently.",
+        signals: ["glue"]
       },
       {
         id: "c",
-        text: "Find creative shortcuts and scrappy solutions",
-        scores: { underdog: 3, sprinter: 1 }
+        text: "Cautiously. I need to make sure quality doesn't slip.",
+        signals: ["tastemaker"]
       },
       {
         id: "d",
-        text: "Coordinate across teams to borrow resources temporarily",
-        scores: { quarterback: 3, trainer: 1 }
+        text: "Experimenting. We're figuring out what works for us.",
+        signals: ["heart", "trendsetter"]
       }
     ]
   },
   {
     id: "q4",
-    text: "What metric do you obsess over most?",
+    text: "AI search is changing the marketing game. How is your team adjusting?",
     options: [
       {
         id: "a",
-        text: "Content velocity—how much we're shipping",
-        scores: { sprinter: 3, pinchHitter: 1 }
+        text: "We're optimizing for it. I've already shared our new playbook.",
+        signals: ["trendsetter", "goGoGoer"]
       },
       {
         id: "b",
-        text: "Revenue attribution—proving content's business impact",
-        scores: { closer: 3, quarterback: 1 }
+        text: "We're taking some steps but not giving up the traditional plays.",
+        signals: ["vision", "clutch"]
       },
       {
         id: "c",
-        text: "Quality scores—engagement, time on page, conversions",
-        scores: { perfectTen: 3, trainer: 1 }
+        text: "Skeptical. We're focused on what's working now.",
+        signals: ["tastemaker"]
       },
       {
         id: "d",
-        text: "Innovation rate—new formats, channels, approaches",
-        scores: { trailblazer: 2, pacesetter: 2 }
+        text: "Learning together. I'm bringing insights back to the team.",
+        signals: ["heart"]
       }
     ]
   },
   {
     id: "q5",
-    text: "How do you want your team to be known?",
+    text: "A major trend breaks in your industry. How does your team respond?",
     options: [
       {
         id: "a",
-        text: "The team that ships more than anyone thought possible",
-        scores: { sprinter: 2, underdog: 2 }
+        text: "We've got a rapid-response workflow. The team knows exactly what to do.",
+        signals: ["glue", "trendsetter"]
       },
       {
         id: "b",
-        text: "The team that other teams learn from",
-        scores: { trainer: 3, pacesetter: 1 }
+        text: "All hands on deck. We figure it out and ship fast.",
+        signals: ["goGoGoer"]
       },
       {
         id: "c",
-        text: "The team that drives real revenue",
-        scores: { closer: 3, quarterback: 1 }
+        text: "We take our time. Rushed work reflects poorly on the team.",
+        signals: ["tastemaker"]
       },
       {
         id: "d",
-        text: "The team that's always two steps ahead",
-        scores: { trailblazer: 2, pacesetter: 2 }
+        text: "We debrief first, then decide if it's worth chasing.",
+        signals: ["clutch", "heart"]
+      }
+    ]
+  },
+  {
+    id: "q6",
+    text: "How would you describe your management style?",
+    options: [
+      {
+        id: "a",
+        text: "High standards. I push the team to do their best work.",
+        signals: ["tastemaker"]
+      },
+      {
+        id: "b",
+        text: "Systems-builder. I create the plays so the team can run them.",
+        signals: ["glue"]
+      },
+      {
+        id: "c",
+        text: "Flexible. I adapt to what the team and situation need.",
+        signals: ["clutch"]
+      },
+      {
+        id: "d",
+        text: "In the trenches. I'm still learning but I lead by doing.",
+        signals: ["heart", "goGoGoer"]
       }
     ]
   }
 ];
 
-// Executive Track Questions (Q2-Q5)
+// Executive Track Questions (Q2-Q6)
 export const executiveQuestions: Question[] = [
   {
     id: "q2",
-    text: "What's your primary focus for your content organization?",
+    text: "Your team needs to 2x output next quarter. Your move:",
     options: [
       {
         id: "a",
-        text: "Building a best-in-class operation others will emulate",
-        scores: { pacesetter: 3, trainer: 1 }
+        text: "Hire. We need more people to hit the number.",
+        signals: ["heart"]
       },
       {
         id: "b",
-        text: "Maximizing output while maintaining quality standards",
-        scores: { sprinter: 2, perfectTen: 2 }
+        text: "Build the systems and workflows so we can scale without adding headcount.",
+        signals: ["glue"]
       },
       {
         id: "c",
-        text: "Creating clear attribution from content to revenue",
-        scores: { closer: 3, quarterback: 1 }
+        text: "Dig in and re-motivate the team. We've got more in the tank.",
+        signals: ["goGoGoer"]
       },
       {
         id: "d",
-        text: "Staying ahead of industry shifts and new technologies",
-        scores: { trailblazer: 3, pacesetter: 1 }
+        text: "Try out new AI tools. That's the leverage play in 2026.",
+        signals: ["trendsetter"]
       }
     ]
   },
   {
     id: "q3",
-    text: "When presenting to the board, what story do you lead with?",
+    text: "How are you thinking about AI for your marketing org?",
     options: [
       {
         id: "a",
-        text: "Revenue impact and pipeline contribution",
-        scores: { closer: 3, quarterback: 1 }
+        text: "It's central to our strategy. We're building an AI-native team.",
+        signals: ["trendsetter", "vision"]
       },
       {
         id: "b",
-        text: "Efficiency gains and team velocity improvements",
-        scores: { sprinter: 2, underdog: 2 }
+        text: "We've got workflows in place. The team is enabled and shipping faster.",
+        signals: ["glue"]
       },
       {
         id: "c",
-        text: "How we're building an AI-native content operation",
-        scores: { pacesetter: 3, trailblazer: 1 }
+        text: "Cautiously optimistic. I need to see ROI before going all in.",
+        signals: ["tastemaker"]
       },
       {
         id: "d",
-        text: "Quality improvements and brand consistency",
-        scores: { perfectTen: 3, trainer: 1 }
+        text: "Still evaluating. We're running pilots to figure out what works.",
+        signals: ["heart", "clutch"]
       }
     ]
   },
   {
     id: "q4",
-    text: "What's your hiring philosophy for content roles?",
+    text: "AI search is disrupting how buyers find solutions. What's your strategy?",
     options: [
       {
         id: "a",
-        text: "Hire versatile generalists who can adapt to anything",
-        scores: { pinchHitter: 3, underdog: 1 }
+        text: "We're already repositioning. This is a board-level priority.",
+        signals: ["vision", "trendsetter"]
       },
       {
         id: "b",
-        text: "Hire specialists and invest in their development",
-        scores: { trainer: 3, perfectTen: 1 }
+        text: "We're testing and learning. I've got a team on it.",
+        signals: ["glue", "clutch"]
       },
       {
         id: "c",
-        text: "Hire people who are already experimenting with AI",
-        scores: { trailblazer: 2, pacesetter: 2 }
+        text: "Watching closely, but not ready to shift budget yet.",
+        signals: ["tastemaker"]
       },
       {
         id: "d",
-        text: "Hire people with strong business and analytics backgrounds",
-        scores: { closer: 3, quarterback: 1 }
+        text: "Honestly, we're behind on this. I need to get on it.",
+        signals: ["heart"]
       }
     ]
   },
   {
     id: "q5",
-    text: "What legacy do you want to leave?",
+    text: "How do you prove marketing's impact to the board?",
     options: [
       {
         id: "a",
-        text: "I built the playbook everyone else is now copying",
-        scores: { pacesetter: 3, trailblazer: 1 }
+        text: "Pipeline and revenue. I tie everything to business outcomes.",
+        signals: ["vision", "goGoGoer"]
       },
       {
         id: "b",
-        text: "I proved content is a revenue driver, not a cost center",
-        scores: { closer: 3, quarterback: 1 }
+        text: "Efficiency metrics. Cost-per-asset, velocity, team utilization.",
+        signals: ["glue"]
       },
       {
         id: "c",
-        text: "I developed talent that went on to lead their own teams",
-        scores: { trainer: 3, underdog: 1 }
+        text: "Quality and brand. Not everything fits in a spreadsheet.",
+        signals: ["tastemaker"]
       },
       {
         id: "d",
-        text: "I raised the bar for what content quality means",
-        scores: { perfectTen: 3, pacesetter: 1 }
+        text: "Still building the measurement framework. It's a work in progress.",
+        signals: ["heart", "clutch"]
+      }
+    ]
+  },
+  {
+    id: "q6",
+    text: "How would you describe your leadership style?",
+    options: [
+      {
+        id: "a",
+        text: "Visionary. I set the direction and align the org around it.",
+        signals: ["vision"]
+      },
+      {
+        id: "b",
+        text: "Process-oriented. I build the systems that make the team run.",
+        signals: ["glue"]
+      },
+      {
+        id: "c",
+        text: "Quality-obsessed. I hold a high bar and the team rises to it.",
+        signals: ["tastemaker"]
+      },
+      {
+        id: "d",
+        text: "Adaptive. I read the situation and adjust.",
+        signals: ["clutch"]
       }
     ]
   }
@@ -372,11 +459,10 @@ export function getQuestionsForRole(role: Role): Question[] {
   }
 }
 
-export function calculateArchetype(answers: Record<string, string>, role: Role): string {
+export function calculateArchetype(answers: Record<string, string>, role: Role): ArchetypeId {
   const scores: Record<string, number> = {};
   const questions = [roleQuestion, ...getQuestionsForRole(role)];
 
-  // Process each answer
   for (const question of questions) {
     const answerId = answers[question.id];
     if (!answerId) continue;
@@ -384,9 +470,17 @@ export function calculateArchetype(answers: Record<string, string>, role: Role):
     const selectedOption = question.options.find(opt => opt.id === answerId);
     if (!selectedOption) continue;
 
-    // Add scores from this answer
-    for (const [archetypeId, points] of Object.entries(selectedOption.scores)) {
-      scores[archetypeId] = (scores[archetypeId] || 0) + points;
+    const { signals } = selectedOption;
+    if (signals.length === 0) continue;
+
+    if (signals.length === 1) {
+      // Single signal: 2 points
+      scores[signals[0]] = (scores[signals[0]] || 0) + 2;
+    } else {
+      // Multiple signals: 1 point each
+      for (const sig of signals) {
+        scores[sig] = (scores[sig] || 0) + 1;
+      }
     }
   }
 
@@ -403,10 +497,10 @@ export function calculateArchetype(answers: Record<string, string>, role: Role):
     }
   }
 
-  // Handle ties by picking randomly
+  // Tiebreak: random selection
   if (topArchetypes.length > 1) {
-    return topArchetypes[Math.floor(Math.random() * topArchetypes.length)];
+    return topArchetypes[Math.floor(Math.random() * topArchetypes.length)] as ArchetypeId;
   }
 
-  return topArchetypes[0] || "sprinter"; // Default fallback
+  return (topArchetypes[0] as ArchetypeId) || "goGoGoer"; // Default fallback
 }
