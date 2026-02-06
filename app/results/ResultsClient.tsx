@@ -142,27 +142,46 @@ export default function ResultsClient() {
     if (userId) {
       fetch(`/api/get-results?userId=${encodeURIComponent(userId)}`)
         .then(res => res.json())
-        .then(data => {
+        .then(async (data) => {
           if (!data.success) {
             setError(data.error || "Failed to load results.");
             return;
           }
 
-          const archetypeId = data.archetype.id as ArchetypeId;
-          const role = data.role as Role;
+          let resultData = data;
+
+          // If linkedinUrl is present but enrichment hasn't happened yet, trigger it
+          if (data.linkedinUrl && !data.enriched) {
+            try {
+              const enrichRes = await fetch('/api/enrich-linkedin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, linkedinUrl: data.linkedinUrl }),
+              });
+              const enrichData = await enrichRes.json();
+              if (enrichData.success) {
+                resultData = enrichData;
+              }
+            } catch (err) {
+              console.warn("LinkedIn enrichment failed, using original data:", err);
+            }
+          }
+
+          const archetypeId = resultData.archetype.id as ArchetypeId;
+          const role = resultData.role as Role;
 
           const newResults: QuizResults = {
             archetype: archetypeId,
             role,
-            bullets: data.bullets,
+            bullets: resultData.bullets,
             formData: {
-              email: data.email || "",
-              linkedinUrl: "",
-              fullName: `${data.firstName || ""} ${data.lastName || ""}`.trim(),
+              email: resultData.email || "",
+              linkedinUrl: resultData.linkedinUrl || "",
+              fullName: `${resultData.firstName || ""} ${resultData.lastName || ""}`.trim(),
               title: "",
-              company: data.company || "",
+              company: resultData.company || "",
               wantsDemo: false,
-              headshotUrl: data.headshotUrl || "",
+              headshotUrl: resultData.headshotUrl || "",
             },
           };
           setResults(newResults);

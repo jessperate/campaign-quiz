@@ -3,7 +3,6 @@ import Redis from "ioredis";
 import { put } from "@vercel/blob";
 import { calculateArchetype, type Role } from "@/lib/quiz-data";
 import { archetypes, getRandomBullets } from "@/lib/archetypes";
-import { enrichLinkedInProfile } from "@/lib/phantombuster";
 import crypto from "crypto";
 
 const redis = new Redis(process.env.REDIS_URL!);
@@ -83,25 +82,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Enrich from LinkedIn if URL provided
-    let enrichedImageUrl = "";
-    if (linkedinUrl) {
-      const profile = await enrichLinkedInProfile(linkedinUrl);
-      if (profile) {
-        firstName = profile.firstName || firstName || "";
-        lastName = profile.lastName || lastName || "";
-        company = profile.company || company || "";
-        enrichedImageUrl = profile.profileImageUrl || "";
-      }
-    }
-
     // If headshotUrl provided, download and upload to Vercel Blob for reliable storage
-    // Fall back to LinkedIn profile image if no headshot was uploaded
-    const imageToStore = (headshotUrl && typeof headshotUrl === "string") ? headshotUrl : enrichedImageUrl;
     let storedHeadshotUrl = "";
-    if (imageToStore) {
+    if (headshotUrl && typeof headshotUrl === "string") {
       try {
-        const imageResponse = await fetch(imageToStore);
+        const imageResponse = await fetch(headshotUrl);
         if (imageResponse.ok) {
           const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
           const imageBuffer = await imageResponse.arrayBuffer();
@@ -111,7 +96,7 @@ export async function POST(request: NextRequest) {
           });
           storedHeadshotUrl = blob.url;
         } else {
-          console.warn(`Failed to download headshot from ${imageToStore}: ${imageResponse.status}`);
+          console.warn(`Failed to download headshot from ${headshotUrl}: ${imageResponse.status}`);
         }
       } catch (err) {
         console.warn("Failed to download/store headshot:", err);
@@ -141,6 +126,7 @@ export async function POST(request: NextRequest) {
       lastName,
       company: company || "",
       email,
+      linkedinUrl: linkedinUrl || "",
       headshotUrl: storedHeadshotUrl,
       archetype: {
         id: archetype.id,
