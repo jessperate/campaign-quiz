@@ -29,13 +29,28 @@ export async function enrichLinkedInProfile(
   }
 
   try {
-    // 1. Launch the phantom
+    // 0. Fetch the agent's saved argument so we preserve identities/sessionCookie
+    const agentRes = await fetch(`${API_BASE}/agents/fetch?id=${agentId}`, {
+      headers: getHeaders(),
+    });
+
+    if (!agentRes.ok) {
+      console.warn("PhantomBuster agent fetch failed:", agentRes.status);
+      return null;
+    }
+
+    const agentData = await agentRes.json();
+    const savedArgument = typeof agentData.argument === "string"
+      ? JSON.parse(agentData.argument)
+      : agentData.argument || {};
+
+    // 1. Launch the phantom, merging saved config with our URL
     const launchRes = await fetch(`${API_BASE}/agents/launch`, {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify({
         id: agentId,
-        argument: { spreadsheetUrl: linkedinUrl },
+        argument: { ...savedArgument, spreadsheetUrl: linkedinUrl },
       }),
     });
 
@@ -70,6 +85,10 @@ export async function enrichLinkedInProfile(
       const statusData = await statusRes.json();
 
       if (statusData.status === "finished" || statusData.status === "success") {
+        if (statusData.exitCode && statusData.exitCode !== 0) {
+          console.warn("PhantomBuster container finished with error exitCode:", statusData.exitCode);
+          return null;
+        }
         break;
       }
 
@@ -79,7 +98,7 @@ export async function enrichLinkedInProfile(
       }
     }
 
-    // 3. Fetch output
+    // 3. Fetch output to find the result JSON URL
     const outputRes = await fetch(
       `${API_BASE}/agents/fetch-output?id=${agentId}`,
       { headers: getHeaders() }
@@ -92,45 +111,42 @@ export async function enrichLinkedInProfile(
 
     const outputData = await outputRes.json();
 
-    // Parse the result - output is typically a JSON string in resultObject
-    let results: Record<string, unknown>[];
-    if (typeof outputData.resultObject === "string") {
-      results = JSON.parse(outputData.resultObject);
-    } else if (Array.isArray(outputData.resultObject)) {
-      results = outputData.resultObject;
-    } else {
-      console.warn("PhantomBuster unexpected output format:", outputData);
+    // Results are saved to S3 — extract the JSON URL from the output logs
+    const outputLog = (outputData.output as string) || "";
+    const jsonUrlMatch = outputLog.match(/JSON saved at (https:\/\/\S+\.json)/);
+
+    if (!jsonUrlMatch) {
+      console.warn("PhantomBuster output has no result JSON URL:", outputLog.slice(-500));
       return null;
     }
+
+    // 4. Fetch the actual result data from S3
+    const resultRes = await fetch(jsonUrlMatch[1]);
+    if (!resultRes.ok) {
+      console.warn("PhantomBuster result fetch failed:", resultRes.status);
+      return null;
+    }
+
+    const results: Record<string, unknown>[] = await resultRes.json();
 
     if (!results.length) {
       console.warn("PhantomBuster returned no results");
       return null;
     }
 
-    const profile = results[0];
-
-    // PhantomBuster LinkedIn Profile Scraper fields:
-    // firstName, lastName, company, title (or jobTitle)
-    const firstName = (profile.firstName as string) || "";
-    const lastName = (profile.lastName as string) || "";
-    const fullName = (profile.fullName as string) || "";
-
-    // Fallback: split fullName if first/last not present
-    let resolvedFirst = firstName;
-    let resolvedLast = lastName;
-    if (!resolvedFirst && !resolvedLast && fullName) {
-      const parts = fullName.trim().split(/\s+/);
-      resolvedFirst = parts[0] || "";
-      resolvedLast = parts.slice(1).join(" ") || "";
-    }
+    // Find the matching profile (result.json accumulates all runs)
+    const normalizedInput = linkedinUrl.replace(/\/+$/, "").toLowerCase();
+    const profile = results.find((r) => {
+      const url = ((r.profileUrl as string) || "").replace(/\/+$/, "").toLowerCase();
+      return url === normalizedInput;
+    }) || results[results.length - 1];
 
     return {
-      firstName: resolvedFirst,
-      lastName: resolvedLast,
-      company: (profile.company as string) || (profile.companyName as string) || "",
-      title: (profile.title as string) || (profile.jobTitle as string) || "",
-      profileImageUrl: (profile.imgUrl as string) || (profile.profileImageUrl as string) || "",
+      firstName: (profile.firstName as string) || "",
+      lastName: (profile.lastName as string) || "",
+      company: (profile.companyName as string) || "",
+      title: (profile.linkedinJobTitle as string) || (profile.linkedinHeadline as string) || "",
+      profileImageUrl: (profile.linkedinProfileImageUrl as string) || "",
     };
   } catch (err) {
     console.warn("PhantomBuster enrichment error:", err);
