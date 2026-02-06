@@ -490,19 +490,19 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         tagline: "You're the heartbeat of the team, and it shows in the work.",
         description: "You're the heartbeat of the team, and it shows in the work. You're scrappy, resourceful, and constantly punching above your weight.",
         mostLikelyToOptions: [
-          "Volunteer for the project nobody wants",
-          "Ask the question everyone was thinking",
-          "Turn a constraint into a creative advantage"
+          "Champion a project because it's the right thing to do",
+          "Rally the team when energy is low",
+          "Have the best growth trajectory on the team"
         ],
         typicallySpendingOptions: [
-          "Finding creative workarounds for tools you can't afford",
-          "Proving that scrappy beats fancy",
-          "Doing the work of three people and making it look easy"
+          "Delivering work that punches above your weight",
+          "Reminding the team why the work matters",
+          "Earning trust by showing up and getting it done"
         ],
         favoritePhraseOptions: [
-          '"I\'ll make it work"',
-          '"Give me a day, I\'ll figure it out"',
-          '"We don\'t need a bigger budget, we need a better idea"'
+          '"I\'ll take a crack at it"',
+          '"This is bigger than the metrics"',
+          '"We\'re in this together"'
         ]
       },
       manager: {
