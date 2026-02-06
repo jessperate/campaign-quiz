@@ -217,12 +217,13 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               >
                 <div
                   style={{
-                    fontFamily: "SaansMono, Saans, sans-serif",
+                    fontFamily: "Saans, sans-serif",
                     fontSize: "82.4px",
                     fontWeight: "400",
-                    color: "#000D05",
-                    letterSpacing: "-3.3px",
-                    lineHeight: "0.8",
+                    fontStyle: "normal",
+                    color: "#0C0D01",
+                    letterSpacing: "-3.296px",
+                    lineHeight: "80%",
                   }}
                 >
                   {firstName}
