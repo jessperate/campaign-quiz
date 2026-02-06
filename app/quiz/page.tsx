@@ -135,6 +135,7 @@ export default function QuizPage() {
           company: formData.company || "",
           email: formData.email,
           headshotUrl: headshotBlobUrl,
+          linkedinUrl: formData.linkedinUrl || "",
         }),
       });
       const data = await res.json();

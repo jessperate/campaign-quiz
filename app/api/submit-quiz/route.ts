@@ -3,6 +3,7 @@ import Redis from "ioredis";
 import { put } from "@vercel/blob";
 import { calculateArchetype, type Role } from "@/lib/quiz-data";
 import { archetypes, getRandomBullets } from "@/lib/archetypes";
+import { enrichLinkedInProfile } from "@/lib/phantombuster";
 import crypto from "crypto";
 
 const redis = new Redis(process.env.REDIS_URL!);
@@ -25,7 +26,8 @@ export async function OPTIONS() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { role, answers, firstName, lastName, company, email, headshotUrl } = body;
+    let { firstName, lastName, company } = body;
+    const { role, answers, email, headshotUrl, linkedinUrl } = body;
 
     // Validate role
     if (!role || !VALID_ROLES.has(role)) {
@@ -59,17 +61,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate required user fields
-    if (!firstName || typeof firstName !== "string") {
-      return NextResponse.json(
-        { success: false, error: "firstName is required." },
-        { status: 400, headers: CORS_HEADERS }
-      );
-    }
-    if (!lastName || typeof lastName !== "string") {
-      return NextResponse.json(
-        { success: false, error: "lastName is required." },
-        { status: 400, headers: CORS_HEADERS }
-      );
+    // When linkedinUrl is provided, name fields are optional (enrichment will fill them)
+    if (!linkedinUrl) {
+      if (!firstName || typeof firstName !== "string") {
+        return NextResponse.json(
+          { success: false, error: "firstName is required." },
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+      if (!lastName || typeof lastName !== "string") {
+        return NextResponse.json(
+          { success: false, error: "lastName is required." },
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
     }
     if (!email || typeof email !== "string") {
       return NextResponse.json(
@@ -78,11 +83,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Enrich from LinkedIn if URL provided
+    let enrichedImageUrl = "";
+    if (linkedinUrl) {
+      const profile = await enrichLinkedInProfile(linkedinUrl);
+      if (profile) {
+        firstName = profile.firstName || firstName || "";
+        lastName = profile.lastName || lastName || "";
+        company = profile.company || company || "";
+        enrichedImageUrl = profile.profileImageUrl || "";
+      }
+    }
+
     // If headshotUrl provided, download and upload to Vercel Blob for reliable storage
+    // Fall back to LinkedIn profile image if no headshot was uploaded
+    const imageToStore = (headshotUrl && typeof headshotUrl === "string") ? headshotUrl : enrichedImageUrl;
     let storedHeadshotUrl = "";
-    if (headshotUrl && typeof headshotUrl === "string") {
+    if (imageToStore) {
       try {
-        const imageResponse = await fetch(headshotUrl);
+        const imageResponse = await fetch(imageToStore);
         if (imageResponse.ok) {
           const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
           const imageBuffer = await imageResponse.arrayBuffer();
@@ -92,7 +111,7 @@ export async function POST(request: NextRequest) {
           });
           storedHeadshotUrl = blob.url;
         } else {
-          console.warn(`Failed to download headshot from ${headshotUrl}: ${imageResponse.status}`);
+          console.warn(`Failed to download headshot from ${imageToStore}: ${imageResponse.status}`);
         }
       } catch (err) {
         console.warn("Failed to download/store headshot:", err);
