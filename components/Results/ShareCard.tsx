@@ -9,6 +9,7 @@ interface CardTheme {
   cardBg: string;
   artBg: string;
   artBorder: string;
+  artImage?: string; // When set, replaces pattern + AKA/The/archetype text
   statsBg: string;
   statsBorder: string;
   labelColor: string;
@@ -48,6 +49,7 @@ const cardThemes: Partial<Record<ArchetypeId, Partial<CardTheme>>> = {
     cardBg: "#242603",
     artBg: "#EEFF8C",
     artBorder: "#586605",
+    artImage: "/images/glue-card-art.png",
     statsBg: "#FDFFF3",
     statsBorder: "#586605",
     labelColor: "#586605",
@@ -243,33 +245,90 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               overflow: "hidden",
             }}
           >
-            {/* Background pattern */}
-            {renderPattern()}
-
-            {/* Large archetype name at bottom of art section */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: "6px",
-                left: "0",
-                right: "12px",
-                textAlign: "right",
-              }}
-            >
-              <div
+            {/* Art section content: image or pattern + text */}
+            {theme.artImage ? (
+              <img
+                src={theme.artImage}
+                alt=""
                 style={{
-                  fontFamily: "Knockout, Impact, sans-serif",
-                  fontSize: getArchetypeFontSize(),
-                  fontWeight: "400",
-                  color: "#0C0D01",
-                  lineHeight: "0.85",
-                  textTransform: "uppercase",
-                  letterSpacing: "-2px",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
                 }}
-              >
-                {shortName}
-              </div>
-            </div>
+                crossOrigin="anonymous"
+              />
+            ) : (
+              <>
+                {/* Background pattern */}
+                {renderPattern()}
+
+                {/* Large archetype name at bottom of art section */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "6px",
+                    left: "0",
+                    right: "12px",
+                    textAlign: "right",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "Knockout, Impact, sans-serif",
+                      fontSize: getArchetypeFontSize(),
+                      fontWeight: "400",
+                      color: "#0C0D01",
+                      lineHeight: "0.85",
+                      textTransform: "uppercase",
+                      letterSpacing: "-2px",
+                    }}
+                  >
+                    {shortName}
+                  </div>
+                </div>
+
+                {/* AKA + The section */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "185px",
+                    top: "217px",
+                    zIndex: 2,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "SaansMono, monospace",
+                      fontSize: "16px",
+                      fontWeight: "500",
+                      color: "#0C0D01",
+                      letterSpacing: "3px",
+                      textTransform: "uppercase",
+                      marginBottom: "2px",
+                    }}
+                  >
+                    AKA
+                  </div>
+                  {/* Decorative script "The" */}
+                  <div
+                    style={{
+                      fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                      fontSize: "60px",
+                      fontStyle: "italic",
+                      color: "#0C0D01",
+                      lineHeight: "1",
+                      marginBottom: "-10px",
+                      WebkitTextStroke: "1px #0C0D01",
+                    }}
+                  >
+                    The
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Circular headshot badge - overlaps top-left */}
             <div
@@ -374,44 +433,6 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
                 }}
               >
                 Plays for {company}
-              </div>
-            </div>
-
-            {/* AKA + The section */}
-            <div
-              style={{
-                position: "absolute",
-                left: "185px",
-                top: "217px",
-                zIndex: 2,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "SaansMono, monospace",
-                  fontSize: "16px",
-                  fontWeight: "500",
-                  color: "#0C0D01",
-                  letterSpacing: "3px",
-                  textTransform: "uppercase",
-                  marginBottom: "2px",
-                }}
-              >
-                AKA
-              </div>
-              {/* Decorative script "The" */}
-              <div
-                style={{
-                  fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                  fontSize: "60px",
-                  fontStyle: "italic",
-                  color: "#0C0D01",
-                  lineHeight: "1",
-                  marginBottom: "-10px",
-                  WebkitTextStroke: "1px #0C0D01",
-                }}
-              >
-                The
               </div>
             </div>
           </div>
