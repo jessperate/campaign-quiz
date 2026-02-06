@@ -29,11 +29,12 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
     },
     ref
   ) => {
-    // Dynamic font size for long archetype names
+    // Dynamic font size for archetype name to fill width
     const getArchetypeFontSize = () => {
-      if (shortName.length > 10) return "52px";
-      if (shortName.length > 7) return "64px";
-      return "78px";
+      if (shortName.length > 10) return "80px";
+      if (shortName.length > 8) return "95px";
+      if (shortName.length > 6) return "115px";
+      return "140px";
     };
 
     return (
@@ -72,32 +73,96 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
             top: "77px",
             width: "641px",
             height: "926px",
-            borderRadius: "9px",
+            borderRadius: "10px",
             overflow: "hidden",
             border: "2px solid #002910",
+            backgroundColor: "#002910",
+            display: "flex",
+            flexDirection: "column",
+            padding: "16px",
+            boxSizing: "border-box",
+            gap: "0px",
           }}
         >
-          {/* Dark green top section */}
+          {/* Top "Art" section - sage green background */}
           <div
             style={{
               position: "relative",
               width: "100%",
-              height: "514px",
-              backgroundColor: "#002910",
+              flex: "1 1 0",
+              minHeight: "0",
+              backgroundColor: "#DFEAE3",
+              border: "2px solid #008C44",
+              borderTopLeftRadius: "120px",
+              overflow: "hidden",
             }}
           >
-            {/* Circular headshot */}
+            {/* Diamond/chevron pattern in background */}
+            <svg
+              width="600"
+              height="600"
+              viewBox="0 0 600 600"
+              fill="none"
+              style={{
+                position: "absolute",
+                left: "5px",
+                top: "-67px",
+                pointerEvents: "none",
+              }}
+            >
+              {[106, -34, -174, -314].map((left, i) => (
+                <rect
+                  key={i}
+                  x={left + 246.78}
+                  y={53 + 246.78}
+                  width="349"
+                  height="349"
+                  transform={`rotate(-135 ${left + 246.78} ${53 + 246.78})`}
+                  fill="#DFEAE3"
+                  stroke="white"
+                  strokeWidth="51"
+                />
+              ))}
+            </svg>
+
+            {/* Large archetype name at bottom of art section */}
             <div
               style={{
                 position: "absolute",
-                left: "15px",
-                top: "15px",
+                bottom: "6px",
+                left: "0",
+                right: "12px",
+                textAlign: "right",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "Knockout, Impact, sans-serif",
+                  fontSize: getArchetypeFontSize(),
+                  fontWeight: "400",
+                  color: "#000D05",
+                  lineHeight: "0.85",
+                  textTransform: "uppercase",
+                  letterSpacing: "-2px",
+                }}
+              >
+                {shortName}
+              </div>
+            </div>
+
+            {/* Circular headshot badge - overlaps top-left */}
+            <div
+              style={{
+                position: "absolute",
+                left: "-1px",
+                top: "-1px",
                 width: "233px",
                 height: "233px",
                 borderRadius: "50%",
                 border: "2px solid #008C44",
                 overflow: "hidden",
                 backgroundColor: "#F8FFFB",
+                zIndex: 3,
               }}
             >
               {headshotUrl ? (
@@ -123,7 +188,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
                     fontSize: "80px",
                     fontWeight: "bold",
                     color: "#002910",
-                    opacity: 0.4,
+                    opacity: 0.3,
                   }}
                 >
                   {firstName.charAt(0).toUpperCase()}
@@ -131,258 +196,225 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               )}
             </div>
 
-            {/* Name + Company - top right area */}
+            {/* Name + Company - positioned right of headshot */}
             <div
               style={{
                 position: "absolute",
-                left: "270px",
-                top: "30px",
-                right: "20px",
+                left: "246px",
+                top: "25px",
+                width: "359px",
+                zIndex: 2,
               }}
             >
               <div
                 style={{
-                  fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                  fontSize: "28px",
-                  fontWeight: "400",
-                  color: "#FFFFFF",
-                  lineHeight: "1.2",
-                  marginBottom: "6px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  lineHeight: "0.8",
+                  marginBottom: "8px",
                 }}
               >
-                {firstName}
+                <div
+                  style={{
+                    fontFamily: "SaansMono, Saans, sans-serif",
+                    fontSize: "82.4px",
+                    fontWeight: "400",
+                    color: "#000D05",
+                    letterSpacing: "-3.3px",
+                    lineHeight: "0.8",
+                  }}
+                >
+                  {firstName}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                    fontSize: "82.4px",
+                    fontWeight: "400",
+                    color: "#000D05",
+                    letterSpacing: "-3.3px",
+                    lineHeight: "0.8",
+                  }}
+                >
+                  {lastName}
+                </div>
               </div>
               <div
                 style={{
                   fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                  fontSize: "28px",
+                  fontSize: "24px",
                   fontWeight: "400",
-                  color: "#FFFFFF",
-                  lineHeight: "1.2",
-                  marginBottom: "16px",
-                }}
-              >
-                {lastName}
-              </div>
-              <div
-                style={{
-                  fontFamily: "SaansMono, monospace",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: "#FFFFFF",
-                  opacity: 0.7,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
+                  fontStyle: "italic",
+                  color: "#000D05",
+                  letterSpacing: "-0.96px",
+                  lineHeight: "1.3",
                 }}
               >
                 Plays for {company}
               </div>
             </div>
 
-            {/* AKA section */}
+            {/* AKA + The section */}
             <div
               style={{
                 position: "absolute",
-                left: "20px",
-                top: "280px",
-                right: "20px",
+                left: "185px",
+                top: "217px",
+                zIndex: 2,
               }}
             >
               <div
                 style={{
                   fontFamily: "SaansMono, monospace",
-                  fontSize: "13px",
+                  fontSize: "16px",
                   fontWeight: "500",
-                  color: "#FFFFFF",
-                  opacity: 0.6,
-                  letterSpacing: "2px",
+                  color: "#000D05",
+                  letterSpacing: "3px",
                   textTransform: "uppercase",
-                  marginBottom: "4px",
+                  marginBottom: "2px",
                 }}
               >
                 AKA
               </div>
-              {/* Decorative "The" */}
+              {/* Decorative script "The" */}
               <div
                 style={{
                   fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                  fontSize: "32px",
+                  fontSize: "60px",
                   fontStyle: "italic",
-                  color: "#FFFFFF",
-                  opacity: 0.7,
+                  color: "#000D05",
                   lineHeight: "1",
-                  marginBottom: "0px",
+                  marginBottom: "-10px",
+                  WebkitTextStroke: "1px #000D05",
                 }}
               >
                 The
               </div>
-              {/* Large archetype name */}
-              <div
-                style={{
-                  fontFamily: "Knockout, Impact, sans-serif",
-                  fontSize: getArchetypeFontSize(),
-                  fontWeight: "400",
-                  color: "#FFFFFF",
-                  lineHeight: "1.05",
-                  textTransform: "uppercase",
-                  letterSpacing: "-1px",
-                }}
-              >
-                {shortName}
-              </div>
             </div>
           </div>
 
-          {/* Diamond decorative shapes at boundary */}
+          {/* Bottom white stats section */}
           <div
             style={{
-              position: "absolute",
-              left: "0",
-              top: "490px",
+              position: "relative",
               width: "100%",
-              height: "100px",
-              overflow: "hidden",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              pointerEvents: "none",
-            }}
-          >
-            <svg
-              width="641"
-              height="100"
-              viewBox="0 0 641 100"
-              fill="none"
-              style={{ position: "absolute", top: 0, left: 0 }}
-            >
-              {/* Row of diamonds */}
-              {[80, 220, 360, 500].map((cx, i) => (
-                <rect
-                  key={i}
-                  x={cx}
-                  y="50"
-                  width="90"
-                  height="90"
-                  transform={`rotate(-45 ${cx} 50)`}
-                  fill="#DFEAE3"
-                  stroke="white"
-                  strokeWidth="16"
-                />
-              ))}
-            </svg>
-          </div>
-
-          {/* White bottom section */}
-          <div
-            style={{
-              position: "absolute",
-              left: "0",
-              top: "514px",
-              width: "100%",
-              height: "412px",
+              height: "397px",
+              flexShrink: 0,
               backgroundColor: "#F8FFFB",
-              padding: "40px 30px 30px",
+              border: "2px solid #008C44",
+              overflow: "hidden",
+              padding: "15px",
               boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
             }}
           >
-            {/* Stat rows */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-              {/* MOST LIKELY TO */}
-              <div>
-                <div
-                  style={{
-                    fontFamily: "SaansMono, monospace",
-                    fontSize: "11px",
-                    fontWeight: "500",
-                    color: "#002910",
-                    opacity: 0.5,
-                    textTransform: "uppercase",
-                    letterSpacing: "1.5px",
-                    marginBottom: "4px",
-                  }}
-                >
-                  MOST LIKELY TO
-                </div>
-                <div
-                  style={{
-                    fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                    fontSize: "20px",
-                    fontWeight: "400",
-                    color: "#002910",
-                    lineHeight: "1.3",
-                  }}
-                >
-                  {mostLikelyTo}
-                </div>
+            {/* MOST LIKELY TO */}
+            <div>
+              <div
+                style={{
+                  fontFamily: "SaansMono, monospace",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#008C44",
+                  textTransform: "uppercase",
+                  letterSpacing: "2px",
+                  marginBottom: "6px",
+                }}
+              >
+                MOST LIKELY TO:
               </div>
-
-              {/* Divider */}
-              <div style={{ width: "100%", height: "1px", backgroundColor: "#002910", opacity: 0.1 }} />
-
-              {/* TYPICALLY SPENDING TIME */}
-              <div>
-                <div
-                  style={{
-                    fontFamily: "SaansMono, monospace",
-                    fontSize: "11px",
-                    fontWeight: "500",
-                    color: "#002910",
-                    opacity: 0.5,
-                    textTransform: "uppercase",
-                    letterSpacing: "1.5px",
-                    marginBottom: "4px",
-                  }}
-                >
-                  TYPICALLY SPENDING TIME
-                </div>
-                <div
-                  style={{
-                    fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                    fontSize: "20px",
-                    fontWeight: "400",
-                    color: "#002910",
-                    lineHeight: "1.3",
-                  }}
-                >
-                  {typicallySpending}
-                </div>
+              <div
+                style={{
+                  fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                  fontSize: "36px",
+                  fontWeight: "400",
+                  color: "#000D05",
+                  lineHeight: "1.15",
+                  letterSpacing: "-0.5px",
+                }}
+              >
+                {mostLikelyTo}
               </div>
+            </div>
 
-              {/* Divider */}
-              <div style={{ width: "100%", height: "1px", backgroundColor: "#002910", opacity: 0.1 }} />
+            {/* TYPICALLY SPENDING TIME */}
+            <div>
+              <div
+                style={{
+                  fontFamily: "SaansMono, monospace",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#008C44",
+                  textTransform: "uppercase",
+                  letterSpacing: "2px",
+                  marginBottom: "6px",
+                }}
+              >
+                TYPICALLY SPENDING TIME:
+              </div>
+              <div
+                style={{
+                  fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                  fontSize: "36px",
+                  fontWeight: "400",
+                  color: "#000D05",
+                  lineHeight: "1.15",
+                  letterSpacing: "-0.5px",
+                }}
+              >
+                {typicallySpending}
+              </div>
+            </div>
 
-              {/* FAVORITE PHRASE */}
-              <div>
-                <div
-                  style={{
-                    fontFamily: "SaansMono, monospace",
-                    fontSize: "11px",
-                    fontWeight: "500",
-                    color: "#002910",
-                    opacity: 0.5,
-                    textTransform: "uppercase",
-                    letterSpacing: "1.5px",
-                    marginBottom: "4px",
-                  }}
-                >
-                  FAVORITE PHRASE
-                </div>
-                <div
-                  style={{
-                    fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                    fontSize: "20px",
-                    fontWeight: "400",
-                    color: "#002910",
-                    lineHeight: "1.3",
-                    fontStyle: "italic",
-                  }}
-                >
-                  {favoritePhrase}
-                </div>
+            {/* FAVORITE PHRASE */}
+            <div>
+              <div
+                style={{
+                  fontFamily: "SaansMono, monospace",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#008C44",
+                  textTransform: "uppercase",
+                  letterSpacing: "2px",
+                  marginBottom: "6px",
+                }}
+              >
+                FAVORITE PHRASE:
+              </div>
+              <div
+                style={{
+                  fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                  fontSize: "36px",
+                  fontWeight: "400",
+                  fontStyle: "italic",
+                  color: "#000D05",
+                  lineHeight: "1.15",
+                  letterSpacing: "-0.5px",
+                }}
+              >
+                {favoritePhrase}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Small green dot in top-left of card */}
+        <div
+          style={{
+            position: "absolute",
+            left: "238px",
+            top: "95px",
+            width: "29px",
+            height: "29px",
+            borderRadius: "50%",
+            backgroundColor: "#008C44",
+            border: "2px solid #F8FFFB",
+            zIndex: 5,
+          }}
+        />
 
         {/* Bottom bar: airops + Win AI Search */}
         <div
