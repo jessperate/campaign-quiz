@@ -38,7 +38,9 @@ export default function ResultsClient() {
   const [imageError, setImageError] = useState<string | null>(null);
   const [shareableCardUrl, setShareableCardUrl] = useState<string | null>(null);
   const [isCapturingCard, setIsCapturingCard] = useState(false);
+  const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   const generateCardImage = async (resultsData: QuizResults) => {
     setIsGeneratingImage(true);
@@ -124,7 +126,56 @@ export default function ResultsClient() {
     }
   }, [shareableCardUrl, isCapturingCard]);
 
-  // Trigger card capture when stipple image is ready
+  // Capture the hero section (header + card + background) as the OG share image
+  const captureAndUploadOgImage = useCallback(async () => {
+    if (!heroRef.current || ogImageUrl) return;
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const heroEl = heroRef.current;
+      const rect = heroEl.getBoundingClientRect();
+
+      const canvas = await html2canvas(heroEl, {
+        scale: 1200 / rect.width, // Scale to 1200px wide
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#1a3a2a',
+        width: rect.width,
+        height: rect.width * (630 / 1200), // OG aspect ratio
+      });
+
+      const imageBase64 = canvas.toDataURL('image/png');
+      const uniqueId = `og-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const response = await fetch('/api/upload-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64, uniqueId }),
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        setOgImageUrl(data.url);
+        console.log('OG image uploaded:', data.url);
+
+        // Save OG image URL to Redis
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        if (userId) {
+          fetch('/api/save-card-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, cardUrl: data.url }),
+          }).catch(() => {});
+        }
+      }
+    } catch (err) {
+      console.error('Failed to capture OG image:', err);
+    }
+  }, [ogImageUrl]);
+
+  // Trigger card capture + OG image capture when stipple image is ready
   useEffect(() => {
     if (stippleImage && !shareableCardUrl && !isCapturingCard) {
       const timer = setTimeout(() => {
@@ -133,6 +184,16 @@ export default function ResultsClient() {
       return () => clearTimeout(timer);
     }
   }, [stippleImage, shareableCardUrl, isCapturingCard, captureAndUploadCard]);
+
+  // Capture OG image after card capture completes
+  useEffect(() => {
+    if (shareableCardUrl && !ogImageUrl) {
+      const timer = setTimeout(() => {
+        captureAndUploadOgImage();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [shareableCardUrl, ogImageUrl, captureAndUploadOgImage]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -304,6 +365,7 @@ export default function ResultsClient() {
     <div className="min-h-screen relative">
       {/* Hero section with background image */}
       <div
+        ref={heroRef}
         className="relative w-full"
         style={{
           height: '1130px',
