@@ -40,6 +40,7 @@ export default function ResultsClient() {
   const [isCapturingCard, setIsCapturingCard] = useState(false);
   const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const ogCardRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
   const generateCardImage = async (resultsData: QuizResults) => {
@@ -153,23 +154,20 @@ export default function ResultsClient() {
     }
   }, [shareableCardUrl, isCapturingCard]);
 
-  // Capture the hero section (header + card + background) as the OG share image
+  // Capture the OG card (card on archetype OG background) as the share image
   const captureAndUploadOgImage = useCallback(async () => {
-    if (!heroRef.current || ogImageUrl) return;
+    if (!ogCardRef.current || ogImageUrl) return;
 
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const heroEl = heroRef.current;
-      const rect = heroEl.getBoundingClientRect();
-
-      const canvas = await html2canvas(heroEl, {
-        scale: 1200 / rect.width, // Scale to 1200px wide
+      const canvas = await html2canvas(ogCardRef.current, {
+        scale: 1,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#1a3a2a',
-        width: rect.width,
-        height: rect.width * (630 / 1200), // OG aspect ratio
+        backgroundColor: '#000000',
+        width: 1080,
+        height: 1080,
       });
 
       const imageBase64 = canvas.toDataURL('image/png');
@@ -470,6 +468,29 @@ export default function ResultsClient() {
               mostLikelyTo={results.bullets.mostLikelyTo}
               typicallySpending={results.bullets.typicallySpending}
               favoritePhrase={results.bullets.favoritePhrase}
+            />
+          </div>
+          {/* Hidden OG card — card on archetype-specific OG background */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '-9999px',
+              top: '1100px',
+            }}
+          >
+            <ShareCard
+              ref={ogCardRef}
+              firstName={firstName}
+              lastName={lastName}
+              company={userCompany}
+              archetypeName={archetype.name}
+              shortName={archetype.shortName}
+              archetypeId={results.archetype}
+              headshotUrl={stippleImage || results.formData.headshotPreview}
+              mostLikelyTo={results.bullets.mostLikelyTo}
+              typicallySpending={results.bullets.typicallySpending}
+              favoritePhrase={results.bullets.favoritePhrase}
+              bgImageOverride={`/images/og-bg-${results.archetype}.png`}
             />
           </div>
 

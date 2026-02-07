@@ -199,6 +199,7 @@ interface ShareCardProps {
   typicallySpending: string;
   favoritePhrase: string;
   transparent?: boolean;
+  bgImageOverride?: string;
 }
 
 const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
@@ -215,10 +216,12 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
       typicallySpending,
       favoritePhrase,
       transparent,
+      bgImageOverride,
     },
     ref
   ) => {
     const theme = getTheme(archetypeId);
+    const bgImage = bgImageOverride || theme.bgImage;
 
     // Dynamic font size for archetype name to fill width
     const getArchetypeFontSize = () => {
@@ -318,7 +321,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
         {/* Background image */}
         {!transparent && (
           <img
-            src={theme.bgImage}
+            src={bgImage}
             alt=""
             style={{
               position: "absolute",
