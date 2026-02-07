@@ -5,7 +5,7 @@ const redis = new Redis(process.env.REDIS_URL!);
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, cardUrl } = await request.json();
+    const { userId, cardUrl, field } = await request.json();
 
     if (!userId || !cardUrl) {
       return NextResponse.json({ error: "Missing userId or cardUrl" }, { status: 400 });
@@ -18,7 +18,9 @@ export async function POST(request: NextRequest) {
     }
 
     const parsed = typeof existing === "string" ? JSON.parse(existing) : existing;
-    parsed.cardUrl = cardUrl;
+    // Use custom field name if provided, otherwise default to cardUrl
+    const fieldName = field || "cardUrl";
+    parsed[fieldName] = cardUrl;
 
     // Get remaining TTL and preserve it
     const ttl = await redis.ttl(`quiz:${userId}`);

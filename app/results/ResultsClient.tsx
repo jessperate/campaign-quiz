@@ -66,6 +66,31 @@ export default function ResultsClient() {
 
       if (data.imageUrl) {
         setStippleImage(data.imageUrl);
+
+        // Upload stipple image to Vercel Blob and cache URL in Redis
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        if (userId) {
+          const uniqueId = `stipple-${userId}-${Date.now()}`;
+          fetch('/api/upload-card', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageBase64: data.imageUrl, uniqueId }),
+          })
+            .then(res => res.json())
+            .then(uploadData => {
+              if (uploadData.url) {
+                setStippleImage(uploadData.url);
+                // Save blob URL to Redis for future page loads
+                fetch('/api/save-card-url', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ userId, cardUrl: uploadData.url, field: 'stippleImageUrl' }),
+                }).catch(() => {});
+              }
+            })
+            .catch(() => {});
+        }
       } else {
         setImageError(data.error || 'Failed to generate image');
       }
@@ -246,7 +271,13 @@ export default function ResultsClient() {
             },
           };
           setResults(newResults);
-          generateCardImage(newResults);
+
+          // Use cached stipple image if available, otherwise generate via Gemini
+          if (resultData.stippleImageUrl) {
+            setStippleImage(resultData.stippleImageUrl);
+          } else {
+            generateCardImage(newResults);
+          }
         })
         .catch(() => {
           setError("Failed to load results. Please try again.");
