@@ -9,7 +9,8 @@ interface CardTheme {
   cardBg: string;
   artBg: string;
   artBorder: string;
-  artImage?: string; // When set, replaces pattern + AKA/The/archetype text
+  artImage?: string; // Card art background image
+  titleImage?: string; // "The ARCHETYPE" title SVG overlaid on art section
   statsBg: string;
   statsBorder: string;
   labelColor: string;
@@ -50,6 +51,7 @@ const cardThemes: Partial<Record<ArchetypeId, Partial<CardTheme>>> = {
     artBg: "#EEFF8C",
     artBorder: "#586605",
     artImage: "/images/glue-card-art.png",
+    titleImage: "/images/glue-card-title.svg",
     statsBg: "#FDFFF3",
     statsBorder: "#586605",
     labelColor: "#586605",
@@ -68,6 +70,7 @@ const cardThemes: Partial<Record<ArchetypeId, Partial<CardTheme>>> = {
     artBg: "#FFD6E0",
     artBorder: "#D4587A",
     artImage: "/images/goGoGoer-card-art.png",
+    titleImage: "/images/goGoGoer-card-title.svg",
     statsBg: "#FFF5F7",
     statsBorder: "#D4587A",
     labelColor: "#D4587A",
@@ -86,6 +89,7 @@ const cardThemes: Partial<Record<ArchetypeId, Partial<CardTheme>>> = {
     artBg: "#DDE8E0",
     artBorder: "#7BA38A",
     artImage: "/images/clutch-card-art.png",
+    titleImage: "/images/clutch-card-title.svg",
     statsBg: "#F5FAF7",
     statsBorder: "#7BA38A",
     labelColor: "#7BA38A",
@@ -104,6 +108,7 @@ const cardThemes: Partial<Record<ArchetypeId, Partial<CardTheme>>> = {
     artBg: "#F5D6F5",
     artBorder: "#C87AC8",
     artImage: "/images/heart-card-art.png",
+    titleImage: "/images/heart-card-title.svg",
     statsBg: "#FDF5FD",
     statsBorder: "#C87AC8",
     labelColor: "#C87AC8",
@@ -122,6 +127,7 @@ const cardThemes: Partial<Record<ArchetypeId, Partial<CardTheme>>> = {
     artBg: "#DDD3F2",
     artBorder: "#8B7ABF",
     artImage: "/images/tastemaker-card-art.svg",
+    titleImage: "/images/tastemaker-card-title.svg",
     statsBg: "#F5F3FD",
     statsBorder: "#8B7ABF",
     labelColor: "#8B7ABF",
@@ -140,6 +146,7 @@ const cardThemes: Partial<Record<ArchetypeId, Partial<CardTheme>>> = {
     artBg: "#D6D6FF",
     artBorder: "#8B8BCC",
     artImage: "/images/trendsetter-card-art.png",
+    titleImage: "/images/trendsetter-card-title.svg",
     statsBg: "#F3F3FF",
     statsBorder: "#8B8BCC",
     labelColor: "#8B8BCC",
@@ -158,6 +165,7 @@ const cardThemes: Partial<Record<ArchetypeId, Partial<CardTheme>>> = {
     artBg: "#CCE8F5",
     artBorder: "#6AAFCC",
     artImage: "/images/vision-card-art.png",
+    titleImage: "/images/vision-card-title.svg",
     statsBg: "#F0F8FD",
     statsBorder: "#6AAFCC",
     labelColor: "#6AAFCC",
@@ -359,19 +367,39 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
           >
             {/* Art section content: image or pattern + text */}
             {theme.artImage ? (
-              <img
-                src={theme.artImage}
-                alt=""
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-                crossOrigin="anonymous"
-              />
+              <>
+                <img
+                  src={theme.artImage}
+                  alt=""
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  crossOrigin="anonymous"
+                />
+                {/* Title SVG overlay at bottom of art section */}
+                {theme.titleImage && (
+                  <img
+                    src={theme.titleImage}
+                    alt=""
+                    style={{
+                      position: "absolute",
+                      bottom: "12px",
+                      left: "12px",
+                      right: "12px",
+                      width: "calc(100% - 24px)",
+                      height: "auto",
+                      zIndex: 2,
+                      pointerEvents: "none",
+                    }}
+                    crossOrigin="anonymous"
+                  />
+                )}
+              </>
             ) : (
               <>
                 {/* Background pattern */}

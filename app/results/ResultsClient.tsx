@@ -369,7 +369,7 @@ export default function ResultsClient() {
         className="relative w-full"
         style={{
           minHeight: '1130px',
-          backgroundImage: 'url(/results-hero-bg.png)',
+          backgroundImage: `url(/images/results-header-bg-${results.archetype}.png)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
