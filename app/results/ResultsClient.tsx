@@ -404,10 +404,10 @@ export default function ResultsClient() {
           backgroundImage: `url(/images/results-header-bg-${results.archetype}.png)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          padding: '192px 24px',
+          padding: '40px 24px 192px',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
           alignItems: 'center',
           gap: '24px',
         }}
