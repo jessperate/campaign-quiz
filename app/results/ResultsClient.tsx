@@ -368,14 +368,25 @@ export default function ResultsClient() {
         ref={heroRef}
         className="relative w-full"
         style={{
-          height: '1130px',
+          minHeight: '1130px',
           backgroundImage: 'url(/results-hero-bg.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        {/* Archetype header SVG anchored to top */}
-        <div className="w-full">
+        {/* Archetype header SVG */}
+        <div
+          style={{
+            display: 'flex',
+            width: '100%',
+            maxWidth: '1440px',
+            margin: '0 auto',
+            paddingTop: '452.84px',
+            paddingBottom: '192px',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           <img
             src={`/headers/the-${archetype.id}-header.svg`}
             alt={`The ${archetype.name}`}
