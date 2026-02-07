@@ -65,31 +65,33 @@ export default function ResultsClient() {
       const data = await response.json();
 
       if (data.imageUrl) {
+        // Show the image immediately while we persist it
         setStippleImage(data.imageUrl);
 
         // Upload stipple image to Vercel Blob and cache URL in Redis
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userId');
         if (userId) {
-          const uniqueId = `stipple-${userId}-${Date.now()}`;
-          fetch('/api/upload-card', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageBase64: data.imageUrl, uniqueId }),
-          })
-            .then(res => res.json())
-            .then(uploadData => {
-              if (uploadData.url) {
-                setStippleImage(uploadData.url);
-                // Save blob URL to Redis for future page loads
-                fetch('/api/save-card-url', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ userId, cardUrl: uploadData.url, field: 'stippleImageUrl' }),
-                }).catch(() => {});
-              }
-            })
-            .catch(() => {});
+          try {
+            const uniqueId = `stipple-${userId}-${Date.now()}`;
+            const uploadRes = await fetch('/api/upload-card', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ imageBase64: data.imageUrl, uniqueId }),
+            });
+            const uploadData = await uploadRes.json();
+            if (uploadData.url) {
+              setStippleImage(uploadData.url);
+              await fetch('/api/save-card-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, cardUrl: uploadData.url, field: 'stippleImageUrl' }),
+              });
+              console.log('Stipple image cached to Redis:', uploadData.url);
+            }
+          } catch (err) {
+            console.warn('Failed to cache stipple image:', err);
+          }
         }
       } else {
         setImageError(data.error || 'Failed to generate image');
