@@ -404,45 +404,52 @@ export default function ResultsClient() {
           backgroundImage: `url(/images/results-header-bg-${results.archetype}.png)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          paddingBottom: '80px',
+          padding: '192px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '24px',
         }}
       >
-        {/* Archetype header SVG with tagline overlay */}
+        {/* Dark overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(0deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.30) 100%)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Archetype header SVG */}
         <div
           style={{
             position: 'relative',
             width: '100%',
             maxWidth: '1440px',
-            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
           }}
         >
           <img
             src={`/headers/the-${archetype.id}-header.svg`}
             alt={`The ${archetype.name}`}
-            className="w-full h-auto"
+            style={{ width: '100%', height: 'auto' }}
           />
-          {/* Tagline positioned to the right */}
-          <div
-            style={{
-              position: 'absolute',
-              right: '40px',
-              top: '55%',
-              maxWidth: '200px',
-              textAlign: 'right',
-              fontFamily: 'SerrifVF, Serrif, Georgia, serif',
-              fontSize: '18px',
-              fontStyle: 'italic',
-              color: '#FFFFFF',
-              lineHeight: '1.4',
-              letterSpacing: '-0.3px',
-            }}
-          >
-            {roleContent.tagline}
-          </div>
         </div>
 
-        {/* Share Card - rendered at 1080x1080 but displayed scaled */}
-        <div className="flex flex-col items-center px-6">
+        {/* Card + Share button area */}
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '24px',
+          }}
+        >
           {/* Hidden full-size card for html2canvas capture */}
           <div
             style={{
@@ -466,64 +473,90 @@ export default function ResultsClient() {
             />
           </div>
 
-          {/* Card + Share button wrapper (same width) */}
-          <div style={{ width: '100%', maxWidth: '340px' }}>
-            {/* Visible scaled-down card */}
+          {/* Visible card — cropped to inner card area (641×926 → 374×540) */}
+          <div
+            style={{
+              width: '374px',
+              height: '540px',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
             <div
               style={{
-                width: '100%',
-                aspectRatio: '1',
-                overflow: 'hidden',
+                width: '1080px',
+                height: '1080px',
+                transform: 'scale(0.5834)',
+                transformOrigin: 'top left',
+                position: 'absolute',
+                left: '-128px',
+                top: '-45px',
               }}
             >
-              <div
-                style={{
-                  width: '1080px',
-                  height: '1080px',
-                  transform: 'scale(0.3148)',
-                  transformOrigin: 'top left',
-                }}
-              >
-                <ShareCard
-                  firstName={firstName}
-                  lastName={lastName}
-                  company={userCompany}
-                  archetypeName={archetype.name}
-                  shortName={archetype.shortName}
-                  archetypeId={results.archetype}
-                  headshotUrl={stippleImage || results.formData.headshotPreview}
-                  mostLikelyTo={results.bullets.mostLikelyTo}
-                  typicallySpending={results.bullets.typicallySpending}
-                  favoritePhrase={results.bullets.favoritePhrase}
-                  transparent
-                />
-              </div>
+              <ShareCard
+                firstName={firstName}
+                lastName={lastName}
+                company={userCompany}
+                archetypeName={archetype.name}
+                shortName={archetype.shortName}
+                archetypeId={results.archetype}
+                headshotUrl={stippleImage || results.formData.headshotPreview}
+                mostLikelyTo={results.bullets.mostLikelyTo}
+                typicallySpending={results.bullets.typicallySpending}
+                favoritePhrase={results.bullets.favoritePhrase}
+                transparent
+              />
             </div>
-
-            {/* Share CTA button */}
-            <button
-              onClick={() => {
-                const baseUrl = window.location.origin;
-                const sharePageUrl = new URL('/share', baseUrl);
-                sharePageUrl.searchParams.set('archetype', results.archetype);
-                if (shareableCardUrl) {
-                  sharePageUrl.searchParams.set('cardUrl', shareableCardUrl);
-                }
-                sharePageUrl.searchParams.set('stat1', results.bullets.mostLikelyTo);
-                sharePageUrl.searchParams.set('stat2', results.bullets.typicallySpending);
-                sharePageUrl.searchParams.set('stat3', results.bullets.favoritePhrase);
-                navigator.clipboard.writeText(sharePageUrl.toString());
-                alert('Link copied!');
-              }}
-              className="w-full mt-4 cursor-pointer hover:opacity-90 transition-opacity"
-            >
-              <img src="/share-cta.svg" alt="Share My Player Card" className="w-full h-auto" />
-            </button>
           </div>
+
+          {/* Share CTA button */}
+          <button
+            onClick={() => {
+              const baseUrl = window.location.origin;
+              const sharePageUrl = new URL('/share', baseUrl);
+              sharePageUrl.searchParams.set('archetype', results.archetype);
+              if (shareableCardUrl) {
+                sharePageUrl.searchParams.set('cardUrl', shareableCardUrl);
+              }
+              sharePageUrl.searchParams.set('stat1', results.bullets.mostLikelyTo);
+              sharePageUrl.searchParams.set('stat2', results.bullets.typicallySpending);
+              sharePageUrl.searchParams.set('stat3', results.bullets.favoritePhrase);
+              navigator.clipboard.writeText(sharePageUrl.toString());
+              alert('Link copied!');
+            }}
+            style={{
+              width: '374px',
+              padding: '16px',
+              background: '#00FF64',
+              borderRadius: '58px',
+              display: 'inline-flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '4px',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+            className="hover:opacity-90 transition-opacity"
+          >
+            <span
+              style={{
+                color: '#000D05',
+                fontSize: '20px',
+                fontFamily: 'Saans, sans-serif',
+                fontWeight: 500,
+                lineHeight: '20px',
+              }}
+            >
+              Share My Player Card
+            </span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ overflow: 'hidden' }}>
+              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="#000D05" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
 
           {/* Loading indicator */}
           {isGeneratingImage && (
-            <div className="mt-4 text-center">
+            <div style={{ textAlign: 'center' }}>
               <div className="inline-flex items-center gap-2 text-white/70">
                 <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -536,7 +569,7 @@ export default function ResultsClient() {
 
           {/* Regenerate button (only show if there was an error) */}
           {imageError && (
-            <div className="mt-4 text-center">
+            <div style={{ textAlign: 'center' }}>
               <p className="text-red-600 text-sm mb-2">{imageError}</p>
               <button
                 onClick={() => results && generateCardImage(results)}
@@ -703,17 +736,29 @@ export default function ResultsClient() {
           {/* ── Right Column (34%) ── */}
           <div className="w-full md:w-1/3">
             <div className="md:sticky md:top-8 space-y-6">
-              {/* Player card — 1:1 duplicate of the hero card, scaled to fit */}
+              {/* Player card — cropped to inner card (641×926 ratio) */}
               <div
+                ref={(el) => {
+                  if (!el || typeof window === 'undefined') return;
+                  const containerWidth = el.clientWidth;
+                  const scale = containerWidth / 641;
+                  const inner = el.querySelector('[data-card-inner]') as HTMLElement;
+                  if (inner) {
+                    inner.style.transform = `scale(${scale})`;
+                    inner.style.left = `${-220 * scale}px`;
+                    inner.style.top = `${-77 * scale}px`;
+                  }
+                }}
                 style={{
                   width: '100%',
-                  aspectRatio: '1',
+                  aspectRatio: '374 / 540',
                   overflow: 'hidden',
                   borderRadius: '1.5rem',
                   position: 'relative',
                 }}
               >
                 <div
+                  data-card-inner
                   style={{
                     position: 'absolute',
                     top: 0,
@@ -722,13 +767,6 @@ export default function ResultsClient() {
                     height: '1080px',
                     transform: 'scale(0.37)',
                     transformOrigin: 'top left',
-                  }}
-                  ref={(el) => {
-                    if (!el || typeof window === 'undefined') return;
-                    const parent = el.parentElement;
-                    if (!parent) return;
-                    const scale = parent.clientWidth / 1080;
-                    el.style.transform = `scale(${scale})`;
                   }}
                 >
                   <ShareCard
