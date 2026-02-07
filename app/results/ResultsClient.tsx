@@ -384,7 +384,9 @@ export default function ResultsClient() {
 
   const sharePageUrlStr = buildSharePageUrl();
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(sharePageUrlStr)}`;
-  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrlStr)}`;
+  // LinkedIn: pre-populate compose with message + URL so OG card renders with image
+  const linkedinComposeText = `${shareText}\n\n${sharePageUrlStr}`;
+  const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(linkedinComposeText)}`;
 
   return (
     <div className="min-h-screen relative">
