@@ -188,11 +188,12 @@ export default function ResultsClient() {
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userId');
         if (userId) {
-          fetch('/api/save-card-url', {
+          await fetch('/api/save-card-url', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, cardUrl: data.url }),
-          }).catch(() => {});
+            body: JSON.stringify({ userId, cardUrl: data.url, field: 'ogImageUrl' }),
+          });
+          console.log('OG image URL saved to Redis');
         }
       }
     } catch (err) {
@@ -369,28 +370,21 @@ export default function ResultsClient() {
     ? { text: "Enroll in Cohort", href: "#cohort" }
     : { text: "Book a Demo", href: "#demo" };
 
-  // Share URLs
+  // Share URLs — use userId so the share page can fetch OG image from Redis
+  const userId = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('userId') : null;
   const shareText = `I just discovered I'm "The ${archetype.name}" - ${roleContent.tagline}. Take the quiz to find your Content Engineer archetype!`;
-  const shareUrl = typeof window !== 'undefined' ? window.location.origin + '/quiz' : 'https://airops.com/win';
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
 
-  // Build LinkedIn share URL with OG meta tags via share page
-  const buildLinkedInShareUrl = () => {
-    if (typeof window === 'undefined') return 'https://www.linkedin.com/sharing/share-offsite/?url=https://airops.com/win';
-
+  const buildSharePageUrl = () => {
+    if (typeof window === 'undefined') return 'https://airops.com/win';
     const baseUrl = window.location.origin;
-    const sharePageUrl = new URL('/share', baseUrl);
-    sharePageUrl.searchParams.set('archetype', results.archetype);
-    if (shareableCardUrl) {
-      sharePageUrl.searchParams.set('cardUrl', shareableCardUrl);
-    }
-    sharePageUrl.searchParams.set('stat1', results.bullets.mostLikelyTo);
-    sharePageUrl.searchParams.set('stat2', results.bullets.typicallySpending);
-    sharePageUrl.searchParams.set('stat3', results.bullets.favoritePhrase);
-
-    return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrl.toString())}`;
+    const url = new URL('/share', baseUrl);
+    if (userId) url.searchParams.set('userId', userId);
+    return url.toString();
   };
-  const linkedinUrl = buildLinkedInShareUrl();
+
+  const sharePageUrlStr = buildSharePageUrl();
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(sharePageUrlStr)}`;
+  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrlStr)}`;
 
   return (
     <div className="min-h-screen relative">
@@ -533,16 +527,7 @@ export default function ResultsClient() {
           {/* Share CTA button */}
           <button
             onClick={() => {
-              const baseUrl = window.location.origin;
-              const sharePageUrl = new URL('/share', baseUrl);
-              sharePageUrl.searchParams.set('archetype', results.archetype);
-              if (shareableCardUrl) {
-                sharePageUrl.searchParams.set('cardUrl', shareableCardUrl);
-              }
-              sharePageUrl.searchParams.set('stat1', results.bullets.mostLikelyTo);
-              sharePageUrl.searchParams.set('stat2', results.bullets.typicallySpending);
-              sharePageUrl.searchParams.set('stat3', results.bullets.favoritePhrase);
-              navigator.clipboard.writeText(sharePageUrl.toString());
+              navigator.clipboard.writeText(sharePageUrlStr);
               alert('Link copied!');
             }}
             style={{
@@ -857,16 +842,7 @@ export default function ResultsClient() {
                   {/* Challenge / Copy Link */}
                   <button
                     onClick={() => {
-                      const baseUrl = window.location.origin;
-                      const sharePageUrl = new URL('/share', baseUrl);
-                      sharePageUrl.searchParams.set('archetype', results.archetype);
-                      if (shareableCardUrl) {
-                        sharePageUrl.searchParams.set('cardUrl', shareableCardUrl);
-                      }
-                      sharePageUrl.searchParams.set('stat1', results.bullets.mostLikelyTo);
-                      sharePageUrl.searchParams.set('stat2', results.bullets.typicallySpending);
-                      sharePageUrl.searchParams.set('stat3', results.bullets.favoritePhrase);
-                      navigator.clipboard.writeText(sharePageUrl.toString());
+                      navigator.clipboard.writeText(sharePageUrlStr);
                       alert('Link copied!');
                     }}
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors cursor-pointer hover:opacity-80"

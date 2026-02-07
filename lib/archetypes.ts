@@ -255,8 +255,8 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
 
   tastemaker: {
     id: "tastemaker",
-    name: "Tastemaker",
-    shortName: "TASTEMAKER",
+    name: "Craft",
+    shortName: "CRAFT",
     roleContent: {
       ic: {
         tagline: 'You know "good enough" never really is.',
