@@ -399,23 +399,19 @@ export default function ResultsClient() {
         ref={heroRef}
         className="relative w-full"
         style={{
-          minHeight: '1130px',
           backgroundImage: `url(/images/results-header-bg-${results.archetype}.png)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          paddingBottom: '80px',
         }}
       >
-        {/* Archetype header SVG */}
+        {/* Archetype header SVG with tagline overlay */}
         <div
           style={{
-            display: 'flex',
+            position: 'relative',
             width: '100%',
             maxWidth: '1440px',
             margin: '0 auto',
-            paddingTop: '452.84px',
-            paddingBottom: '192px',
-            justifyContent: 'center',
-            alignItems: 'center',
           }}
         >
           <img
@@ -423,6 +419,24 @@ export default function ResultsClient() {
             alt={`The ${archetype.name}`}
             className="w-full h-auto"
           />
+          {/* Tagline positioned to the right */}
+          <div
+            style={{
+              position: 'absolute',
+              right: '40px',
+              top: '55%',
+              maxWidth: '200px',
+              textAlign: 'right',
+              fontFamily: 'SerrifVF, Serrif, Georgia, serif',
+              fontSize: '18px',
+              fontStyle: 'italic',
+              color: '#FFFFFF',
+              lineHeight: '1.4',
+              letterSpacing: '-0.3px',
+            }}
+          >
+            {roleContent.tagline}
+          </div>
         </div>
 
         {/* Share Card - rendered at 1080x1080 but displayed scaled */}
@@ -451,7 +465,7 @@ export default function ResultsClient() {
           </div>
 
           {/* Card + Share button wrapper (same width) */}
-          <div style={{ width: '100%', maxWidth: '560px' }}>
+          <div style={{ width: '100%', maxWidth: '340px' }}>
             {/* Visible scaled-down card */}
             <div
               style={{
@@ -464,7 +478,7 @@ export default function ResultsClient() {
                 style={{
                   width: '1080px',
                   height: '1080px',
-                  transform: 'scale(0.5185)',
+                  transform: 'scale(0.3148)',
                   transformOrigin: 'top left',
                 }}
               >
