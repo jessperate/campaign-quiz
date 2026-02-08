@@ -8,7 +8,10 @@ import {
   getQuestionsForRole,
   calculateArchetype,
   type Role,
+  type ArchetypeId,
 } from "@/lib/quiz-data";
+import { ShareCard } from "@/components/Results/ShareCard";
+import { archetypes, getRandomBullets } from "@/lib/archetypes";
 
 export default function QuizPage() {
   const router = useRouter();
@@ -27,8 +30,29 @@ export default function QuizPage() {
     wantsDemo: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [headshot, setHeadshot] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
+
+  const loadingMessages = [
+    "Finding your LinkedIn profile...",
+    "Pulling in your details...",
+    "Analyzing your content style...",
+    "Crunching the numbers...",
+    "Matching you to an archetype...",
+    "Building your player card...",
+    "Almost there...",
+  ];
+
+  useEffect(() => {
+    if (!isSubmitting || !formData.linkedinUrl) return;
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((prev) =>
+        prev < loadingMessages.length - 1 ? prev + 1 : prev
+      );
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isSubmitting, formData.linkedinUrl, loadingMessages.length]);
 
   useEffect(() => {
     if (role) {
@@ -132,10 +156,12 @@ export default function QuizPage() {
           answers: answerArray,
           firstName,
           lastName,
+          title: formData.title || "",
           company: formData.company || "",
           email: formData.email,
           headshotUrl: headshotBlobUrl,
           linkedinUrl: formData.linkedinUrl || "",
+          wantsDemo: formData.wantsDemo || false,
         }),
       });
       const data = await res.json();
@@ -167,6 +193,62 @@ export default function QuizPage() {
 
   // Form view after quiz completion
   if (showForm) {
+    // Full-screen loading view while enriching LinkedIn
+    if (isSubmitting && formData.linkedinUrl) {
+      return (
+        <div className="min-h-screen relative">
+          <div className="fixed inset-0 pointer-events-none">
+            <Image
+              src="/images/quiz-bg-v3.png"
+              alt=""
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+
+          <div className="relative min-h-screen flex flex-col items-center justify-center px-6">
+            <div className="max-w-lg mx-auto text-center">
+              {/* Spinner */}
+              <div className="mb-8 flex justify-center">
+                <div className="w-12 h-12 border-4 border-[#0D3D1F]/20 border-t-[#0D3D1F] rounded-full animate-spin" />
+              </div>
+
+              {/* Rotating message */}
+              <p
+                key={loadingMessageIndex}
+                className="text-[#0D3D1F] text-[28px] md:text-[36px] leading-[1.2] animate-fade-in"
+                style={{ fontFamily: 'Serrif, serif' }}
+              >
+                {loadingMessages[loadingMessageIndex]}
+              </p>
+
+              <p className="text-[#0D3D1F]/50 text-sm mt-6" style={{ fontFamily: 'SaansMono, monospace' }}>
+                This usually takes 15-30 seconds
+              </p>
+            </div>
+          </div>
+
+          <style jsx>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(8px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+              animation: fadeIn 0.5s ease-out;
+            }
+          `}</style>
+        </div>
+      );
+    }
+
+    // Get archetype for the preview card
+    const previewArchetypeId = sessionStorage.getItem("quizArchetype") as ArchetypeId | null;
+    const previewArchetype = previewArchetypeId ? archetypes[previewArchetypeId] : null;
+    const previewBullets = previewArchetype && role
+      ? getRandomBullets(previewArchetype, role)
+      : { mostLikelyTo: "???", typicallySpending: "???", favoritePhrase: "???" };
+
     return (
       <div className="min-h-screen relative">
         {/* Full page background */}
@@ -181,109 +263,265 @@ export default function QuizPage() {
         </div>
 
         <div className="relative min-h-screen flex flex-col">
-          <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-            <div className="max-w-xl mx-auto text-center">
-              <p className="text-[#0D3D1F]/70 text-lg md:text-xl mb-4" style={{ fontFamily: 'Serrif, serif' }}>
-                Almost there!
-              </p>
+          <main className="flex-1 flex items-center justify-center px-6 py-12">
+            <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+              {/* Form column */}
+              <div className="max-w-xl text-center lg:text-left flex-1">
+                <p className="text-[#0D3D1F]/70 text-lg md:text-xl mb-4" style={{ fontFamily: 'Serrif, serif' }}>
+                  Almost there!
+                </p>
 
-              <h1 className="text-[#0D3D1F] text-[36px] md:text-[48px] lg:text-[56px] leading-[1.1] mb-8" style={{ fontFamily: 'Serrif, serif' }}>
-                Where should we send your results?
-              </h1>
+                <h1 className="text-[#0D3D1F] text-[32px] md:text-[42px] lg:text-[48px] leading-[1.1] mb-8" style={{ fontFamily: 'Serrif, serif' }}>
+                  Tell us about yourself to build your player card.
+                </h1>
 
-              <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
-                {/* Work email - required */}
-                <input
-                  type="email"
-                  placeholder="Work email *"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                />
-
-                {/* LinkedIn URL - optional */}
-                <input
-                  type="url"
-                  placeholder="LinkedIn URL (optional - we'll grab your info)"
-                  value={formData.linkedinUrl}
-                  onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
-                  className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                />
-
-                {/* Fallback fields - shown if no LinkedIn URL */}
-                {needsFallbackFields && (
-                  <>
-                    <input
-                      type="text"
-                      placeholder="Full name *"
-                      required
-                      value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                      className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Title *"
-                      required
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Company *"
-                      required
-                      value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                    />
-
-                    {/* Headshot upload - optional */}
-                    <div className="flex items-center gap-4">
-                      <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-left">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleHeadshotChange}
-                          className="hidden"
-                        />
-                        {headshotPreview ? "Photo uploaded ✓" : "Upload headshot (optional)"}
-                      </label>
-                      {headshotPreview && (
-                        <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white">
-                          <img src={headshotPreview} alt="Preview" className="w-full h-full object-cover" />
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                {/* Demo checkbox */}
-                <label className="flex items-center gap-3 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
+                <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
+                  {/* Work email - required */}
                   <input
-                    type="checkbox"
-                    checked={formData.wantsDemo}
-                    onChange={(e) => setFormData({ ...formData, wantsDemo: e.target.checked })}
-                    className="w-5 h-5 rounded accent-[#0D3D1F]"
+                    type="email"
+                    placeholder="Work email *"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
                   />
-                  <span className="text-[#0D3D1F]">I'd like to book a demo</span>
-                </label>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full px-6 py-4 mt-4 rounded-full bg-[#0D3D1F] text-white font-semibold text-lg hover:bg-[#0D3D1F]/90 transition-colors disabled:opacity-50"
+                  {/* LinkedIn URL - optional */}
+                  <input
+                    type="url"
+                    placeholder="LinkedIn URL (optional - we'll grab your info)"
+                    value={formData.linkedinUrl}
+                    onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
+                    className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                  />
+
+                  {/* Fallback fields - shown if no LinkedIn URL */}
+                  {needsFallbackFields && (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Full name *"
+                        required
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                      />
+
+                      <input
+                        type="text"
+                        placeholder="Title *"
+                        required
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                      />
+
+                      <input
+                        type="text"
+                        placeholder="Company *"
+                        required
+                        value={formData.company}
+                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                        className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                      />
+
+                      {/* Headshot upload - optional */}
+                      <div className="flex items-center gap-4">
+                        <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-left">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleHeadshotChange}
+                            className="hidden"
+                          />
+                          {headshotPreview ? "Photo uploaded ✓" : "Upload headshot (optional)"}
+                        </label>
+                        {headshotPreview && (
+                          <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white">
+                            <img src={headshotPreview} alt="Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Demo checkbox */}
+                  <label className="flex items-center gap-3 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={formData.wantsDemo}
+                      onChange={(e) => setFormData({ ...formData, wantsDemo: e.target.checked })}
+                      className="w-5 h-5 rounded accent-[#0D3D1F]"
+                    />
+                    <span className="text-[#0D3D1F]">I'd like to book a demo</span>
+                  </label>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full px-6 py-4 mt-4 rounded-full bg-[#0D3D1F] text-white font-semibold text-lg hover:bg-[#0D3D1F]/90 transition-colors disabled:opacity-50"
+                  >
+                    {isSubmitting ? "Loading..." : "See my results"}
+                  </button>
+                </form>
+
+                <p className="text-[#0D3D1F]/50 text-sm mt-6">
+                  We'll send you a copy of your results and occasional content tips.
+                </p>
+              </div>
+
+              {/* Preview card column — obfuscated with holographic effect */}
+              <div className="hidden lg:block relative flex-shrink-0" style={{ perspective: '1000px' }}>
+                <div
+                  className="preview-card-tilt"
+                  style={{
+                    width: '320px',
+                    height: '462px',
+                    position: 'relative',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                  }}
                 >
-                  {isSubmitting ? "Loading..." : "See my results"}
-                </button>
-              </form>
+                  {/* Scaled-down ShareCard with placeholder data */}
+                  <div
+                    style={{
+                      width: '1080px',
+                      height: '1080px',
+                      transform: 'scale(0.5)',
+                      transformOrigin: 'top left',
+                      position: 'absolute',
+                      left: '-110px',
+                      top: '-38px',
+                    }}
+                  >
+                    <ShareCard
+                      firstName="Your"
+                      lastName="Name"
+                      company="Your Company"
+                      archetypeName={previewArchetype?.name || "???"}
+                      shortName={previewArchetype?.shortName || "???"}
+                      archetypeId={previewArchetypeId || undefined}
+                      mostLikelyTo={previewBullets.mostLikelyTo}
+                      typicallySpending={previewBullets.typicallySpending}
+                      favoritePhrase={previewBullets.favoritePhrase}
+                      transparent
+                    />
+                  </div>
 
-              <p className="text-[#0D3D1F]/50 text-sm mt-6">
-                We'll send you a copy of your results and occasional content tips.
-              </p>
+                  {/* Frosted blur overlay to obfuscate content */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backdropFilter: 'blur(6px)',
+                      WebkitBackdropFilter: 'blur(6px)',
+                      backgroundColor: 'rgba(255,255,255,0.15)',
+                      zIndex: 3,
+                    }}
+                  />
+
+                  {/* Animated holographic shimmer */}
+                  <div
+                    className="holo-shimmer"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      pointerEvents: 'none',
+                      overflow: 'hidden',
+                      mixBlendMode: 'multiply',
+                      opacity: 0.5,
+                      maskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\'%3E%3Crect width=\'4\' height=\'4\' fill=\'white\'/%3E%3Crect x=\'4\' y=\'4\' width=\'4\' height=\'4\' fill=\'white\'/%3E%3C/svg%3E")',
+                      maskSize: '6px 6px',
+                      WebkitMaskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\'%3E%3Crect width=\'4\' height=\'4\' fill=\'white\'/%3E%3Crect x=\'4\' y=\'4\' width=\'4\' height=\'4\' fill=\'white\'/%3E%3C/svg%3E")',
+                      WebkitMaskSize: '6px 6px',
+                      filter: 'saturate(2)',
+                      zIndex: 4,
+                    }}
+                  >
+                    <div
+                      className="holo-gradient-1"
+                      style={{
+                        position: 'absolute',
+                        width: '500%',
+                        aspectRatio: '1',
+                        bottom: 0,
+                        left: 0,
+                        transformOrigin: '0 100%',
+                        background: 'radial-gradient(circle at 0 100%, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
+                      }}
+                    />
+                    <div
+                      className="holo-gradient-2"
+                      style={{
+                        position: 'absolute',
+                        width: '500%',
+                        aspectRatio: '1',
+                        top: 0,
+                        right: 0,
+                        transformOrigin: '100% 0',
+                        background: 'radial-gradient(circle at 100% 0, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
+                      }}
+                    />
+                  </div>
+
+                  {/* Second holo layer with different blend */}
+                  <div
+                    className="holo-shimmer-alt"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      pointerEvents: 'none',
+                      overflow: 'hidden',
+                      mixBlendMode: 'hard-light',
+                      opacity: 0.35,
+                      maskImage: 'repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)',
+                      maskSize: '12px 12px',
+                      WebkitMaskImage: 'repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)',
+                      WebkitMaskSize: '12px 12px',
+                      filter: 'saturate(0.9) contrast(1.1) brightness(1.2)',
+                      zIndex: 5,
+                    }}
+                  >
+                    <div
+                      className="holo-gradient-1"
+                      style={{
+                        position: 'absolute',
+                        width: '500%',
+                        aspectRatio: '1',
+                        bottom: 0,
+                        left: 0,
+                        transformOrigin: '0 100%',
+                        background: 'radial-gradient(circle at 0 100%, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
+                      }}
+                    />
+                    <div
+                      className="holo-gradient-2"
+                      style={{
+                        position: 'absolute',
+                        width: '500%',
+                        aspectRatio: '1',
+                        top: 0,
+                        right: 0,
+                        transformOrigin: '100% 0',
+                        background: 'radial-gradient(circle at 100% 0, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
+                      }}
+                    />
+                  </div>
+
+                  {/* Spotlight sweep */}
+                  <div
+                    className="holo-spotlight"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      pointerEvents: 'none',
+                      zIndex: 6,
+                      borderRadius: '12px',
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </main>
 
@@ -297,6 +535,42 @@ export default function QuizPage() {
             ))}
           </div>
         </div>
+
+        <style jsx>{`
+          @keyframes holoShift1 {
+            0%, 100% { transform: scale(0.3) translate(-5%, 5%); }
+            50% { transform: scale(0.6) translate(5%, -5%); }
+          }
+          @keyframes holoShift2 {
+            0%, 100% { transform: scale(0.5) translate(5%, -5%); }
+            50% { transform: scale(0.2) translate(-5%, 5%); }
+          }
+          @keyframes spotlightSweep {
+            0% { background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15), transparent 50%); }
+            25% { background: radial-gradient(circle at 80% 80%, rgba(255,255,255,0.2), transparent 50%); }
+            50% { background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15), transparent 50%); }
+            75% { background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2), transparent 50%); }
+            100% { background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15), transparent 50%); }
+          }
+          @keyframes gentleTilt {
+            0%, 100% { transform: rotateX(2deg) rotateY(-3deg); }
+            25% { transform: rotateX(-1deg) rotateY(2deg); }
+            50% { transform: rotateX(-2deg) rotateY(3deg); }
+            75% { transform: rotateX(1deg) rotateY(-2deg); }
+          }
+          .preview-card-tilt {
+            animation: gentleTilt 8s ease-in-out infinite;
+          }
+          .holo-gradient-1 {
+            animation: holoShift1 6s ease-in-out infinite;
+          }
+          .holo-gradient-2 {
+            animation: holoShift2 6s ease-in-out infinite;
+          }
+          .holo-spotlight {
+            animation: spotlightSweep 4s ease-in-out infinite;
+          }
+        `}</style>
       </div>
     );
   }
