@@ -17,15 +17,30 @@ function getHeaders(): Record<string, string> {
   };
 }
 
+function normalizeLinkedInUrl(url: string): string {
+  return url
+    .replace(/\/+$/, "")
+    .replace(/^https?:\/\/(www\.)?/, "")
+    .toLowerCase();
+}
+
 function parseProfile(
   results: Record<string, unknown>[],
   linkedinUrl: string
-): EnrichedProfile {
-  const normalizedInput = linkedinUrl.replace(/\/+$/, "").toLowerCase();
+): EnrichedProfile | null {
+  const normalizedInput = normalizeLinkedInUrl(linkedinUrl);
+  console.log("[PhantomBuster] Looking for profile matching:", normalizedInput, "in", results.length, "results");
+
   const profile = results.find((r) => {
-    const url = ((r.profileUrl as string) || "").replace(/\/+$/, "").toLowerCase();
+    const url = normalizeLinkedInUrl((r.profileUrl as string) || (r.linkedinProfile as string) || "");
+    console.log("[PhantomBuster] Comparing:", url, "vs", normalizedInput);
     return url === normalizedInput;
-  }) || results[results.length - 1];
+  });
+
+  if (!profile) {
+    console.warn("[PhantomBuster] No matching profile found for:", linkedinUrl);
+    return null;
+  }
 
   const result = {
     firstName: (profile.firstName as string) || "",
@@ -138,26 +153,27 @@ export async function enrichLinkedInProfile(
       return null;
     }
 
-    // 3. Fetch output to find the result JSON URL
-    console.log("[PhantomBuster] Fetching output...");
+    // 3. Fetch container-specific output (NOT agent-level, which could return another user's data)
+    console.log("[PhantomBuster] Fetching container output for:", containerId);
     const outputRes = await fetch(
-      `${API_BASE}/agents/fetch-output?id=${agentId}`,
+      `${API_BASE}/containers/fetch-output?id=${containerId}`,
       { headers: getHeaders() }
     );
 
     if (!outputRes.ok) {
-      console.warn("[PhantomBuster] Fetch-output failed:", outputRes.status);
+      console.warn("[PhantomBuster] Container fetch-output failed:", outputRes.status);
       return null;
     }
 
     const outputData = await outputRes.json();
     const outputLog = (outputData.output as string) || "";
+    console.log("[PhantomBuster] Container output tail:", outputLog.slice(-500));
 
     // Results are saved to S3 — extract the JSON URL from the output logs
     const jsonUrlMatch = outputLog.match(/JSON saved at (https:\/\/\S+\.json)/);
 
     if (!jsonUrlMatch) {
-      // Also try the known S3 path pattern
+      // Fallback: try the known S3 path, but ONLY trust results that match the requested URL
       const s3Folder = agentData.s3Folder;
       const orgS3Folder = agentData.orgS3Folder;
       if (s3Folder && orgS3Folder) {
@@ -171,7 +187,7 @@ export async function enrichLinkedInProfile(
           }
         }
       }
-      console.warn("[PhantomBuster] No result JSON found. Output tail:", outputLog.slice(-500));
+      console.warn("[PhantomBuster] No result JSON found.");
       return null;
     }
 
