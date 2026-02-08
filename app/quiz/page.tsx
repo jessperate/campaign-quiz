@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -33,6 +33,22 @@ export default function QuizPage() {
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [headshot, setHeadshot] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
+  const [cardTilt, setCardTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
+  const cardTiltRef = useRef<HTMLDivElement>(null);
+
+  const handleCardTiltMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardTiltRef.current) return;
+    const rect = cardTiltRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    const rotateY = (x - 0.5) * 30;
+    const rotateX = (0.5 - y) * 20;
+    setCardTilt({ rotateX, rotateY, pointerX: x, pointerY: y, isHovering: true });
+  }, []);
+
+  const handleCardTiltLeave = useCallback(() => {
+    setCardTilt({ rotateX: 0, rotateY: 0, pointerX: 0.5, pointerY: 0.5, isHovering: false });
+  }, []);
 
   const loadingMessages = [
     "Finding your LinkedIn profile...",
@@ -370,17 +386,26 @@ export default function QuizPage() {
                 </p>
               </div>
 
-              {/* Preview card column — obfuscated with holographic effect */}
+              {/* Preview card column — obfuscated with interactive holographic effect */}
               <div className="hidden lg:block relative flex-shrink-0" style={{ perspective: '1000px' }}>
                 <div
-                  className="preview-card-tilt"
+                  ref={cardTiltRef}
+                  onMouseMove={handleCardTiltMove}
+                  onMouseLeave={handleCardTiltLeave}
                   style={{
                     width: '320px',
                     height: '462px',
                     position: 'relative',
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                    cursor: 'pointer',
+                    transform: `rotateX(${cardTilt.rotateX}deg) rotateY(${cardTilt.rotateY}deg)`,
+                    transition: !cardTilt.isHovering ? 'transform 0.5s ease-out, box-shadow 0.5s ease-out' : 'transform 0.1s ease-out, box-shadow 0.1s ease-out',
+                    transformStyle: 'preserve-3d',
+                    willChange: 'transform',
+                    boxShadow: !cardTilt.isHovering
+                      ? '0 20px 60px rgba(0,0,0,0.3)'
+                      : `${-cardTilt.rotateY * 1.5}px ${cardTilt.rotateX * 1.5}px 40px rgba(0,0,0,0.4), ${-cardTilt.rotateY * 0.5}px ${cardTilt.rotateX * 0.5}px 15px rgba(0,0,0,0.2)`,
                   }}
                 >
                   {/* Scaled-down ShareCard with placeholder data */}
@@ -421,16 +446,16 @@ export default function QuizPage() {
                     }}
                   />
 
-                  {/* Animated holographic shimmer */}
+                  {/* Holographic pattern layer — mouse-tracked */}
                   <div
-                    className="holo-shimmer"
                     style={{
                       position: 'absolute',
                       inset: 0,
                       pointerEvents: 'none',
                       overflow: 'hidden',
                       mixBlendMode: 'multiply',
-                      opacity: 0.5,
+                      opacity: cardTilt.isHovering ? 0.4 : 0,
+                      transition: 'opacity 0.3s ease-out',
                       maskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\'%3E%3Crect width=\'4\' height=\'4\' fill=\'white\'/%3E%3Crect x=\'4\' y=\'4\' width=\'4\' height=\'4\' fill=\'white\'/%3E%3C/svg%3E")',
                       maskSize: '6px 6px',
                       WebkitMaskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\'%3E%3Crect width=\'4\' height=\'4\' fill=\'white\'/%3E%3Crect x=\'4\' y=\'4\' width=\'4\' height=\'4\' fill=\'white\'/%3E%3C/svg%3E")',
@@ -440,7 +465,6 @@ export default function QuizPage() {
                     }}
                   >
                     <div
-                      className="holo-gradient-1"
                       style={{
                         position: 'absolute',
                         width: '500%',
@@ -449,10 +473,12 @@ export default function QuizPage() {
                         left: 0,
                         transformOrigin: '0 100%',
                         background: 'radial-gradient(circle at 0 100%, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
+                        scale: `${Math.min(1, 0.15 + cardTilt.pointerX * 0.25)}`,
+                        translate: `clamp(-10%, ${-10 + cardTilt.pointerX * 10}%, 10%) ${Math.max(0, cardTilt.pointerY * -1 * 10)}%`,
+                        transition: !cardTilt.isHovering ? 'all 0.3s ease-out' : 'none',
                       }}
                     />
                     <div
-                      className="holo-gradient-2"
                       style={{
                         position: 'absolute',
                         width: '500%',
@@ -461,20 +487,23 @@ export default function QuizPage() {
                         right: 0,
                         transformOrigin: '100% 0',
                         background: 'radial-gradient(circle at 100% 0, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
+                        scale: `${Math.min(1, 0.15 + cardTilt.pointerX * -0.65)}`,
+                        translate: `clamp(-10%, ${10 + cardTilt.pointerX * 10}%, 10%) ${Math.min(0, cardTilt.pointerY * -10)}%`,
+                        transition: !cardTilt.isHovering ? 'all 0.3s ease-out' : 'none',
                       }}
                     />
                   </div>
 
-                  {/* Second holo layer with different blend */}
+                  {/* Watermark holographic layer */}
                   <div
-                    className="holo-shimmer-alt"
                     style={{
                       position: 'absolute',
                       inset: 0,
                       pointerEvents: 'none',
                       overflow: 'hidden',
                       mixBlendMode: 'hard-light',
-                      opacity: 0.35,
+                      opacity: cardTilt.isHovering ? 0.35 : 0,
+                      transition: 'opacity 0.3s ease-out',
                       maskImage: 'repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)',
                       maskSize: '12px 12px',
                       WebkitMaskImage: 'repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)',
@@ -484,7 +513,6 @@ export default function QuizPage() {
                     }}
                   >
                     <div
-                      className="holo-gradient-1"
                       style={{
                         position: 'absolute',
                         width: '500%',
@@ -493,10 +521,11 @@ export default function QuizPage() {
                         left: 0,
                         transformOrigin: '0 100%',
                         background: 'radial-gradient(circle at 0 100%, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
+                        scale: `${Math.min(1, 0.15 + cardTilt.pointerX * 0.25)}`,
+                        translate: `clamp(-10%, ${-10 + cardTilt.pointerX * 10}%, 10%) ${Math.max(0, cardTilt.pointerY * -1 * 10)}%`,
                       }}
                     />
                     <div
-                      className="holo-gradient-2"
                       style={{
                         position: 'absolute',
                         width: '500%',
@@ -505,19 +534,41 @@ export default function QuizPage() {
                         right: 0,
                         transformOrigin: '100% 0',
                         background: 'radial-gradient(circle at 100% 0, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
+                        scale: `${Math.min(1, 0.15 + cardTilt.pointerX * -0.65)}`,
+                        translate: `clamp(-10%, ${10 + cardTilt.pointerX * 10}%, 10%) ${Math.min(0, cardTilt.pointerY * -10)}%`,
                       }}
                     />
                   </div>
 
-                  {/* Spotlight sweep */}
+                  {/* Spotlight following pointer */}
                   <div
-                    className="holo-spotlight"
                     style={{
                       position: 'absolute',
                       inset: 0,
                       pointerEvents: 'none',
+                      background: cardTilt.isHovering
+                        ? `radial-gradient(circle at ${cardTilt.pointerX * 100}% ${cardTilt.pointerY * 100}%, rgba(255,255,255,0.2), transparent 50%)`
+                        : 'none',
                       zIndex: 6,
                       borderRadius: '12px',
+                      transition: !cardTilt.isHovering ? 'opacity 0.3s ease-out' : 'none',
+                      opacity: cardTilt.isHovering ? 1 : 0,
+                    }}
+                  />
+
+                  {/* Edge glare */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      pointerEvents: 'none',
+                      background: cardTilt.isHovering
+                        ? `linear-gradient(${105 + cardTilt.rotateY * 2}deg, transparent 30%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 55%, transparent 70%)`
+                        : 'none',
+                      zIndex: 7,
+                      borderRadius: '12px',
+                      opacity: cardTilt.isHovering ? 1 : 0,
+                      transition: !cardTilt.isHovering ? 'opacity 0.3s ease-out' : 'none',
                     }}
                   />
                 </div>
@@ -535,42 +586,6 @@ export default function QuizPage() {
             ))}
           </div>
         </div>
-
-        <style jsx>{`
-          @keyframes holoShift1 {
-            0%, 100% { transform: scale(0.3) translate(-5%, 5%); }
-            50% { transform: scale(0.6) translate(5%, -5%); }
-          }
-          @keyframes holoShift2 {
-            0%, 100% { transform: scale(0.5) translate(5%, -5%); }
-            50% { transform: scale(0.2) translate(-5%, 5%); }
-          }
-          @keyframes spotlightSweep {
-            0% { background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15), transparent 50%); }
-            25% { background: radial-gradient(circle at 80% 80%, rgba(255,255,255,0.2), transparent 50%); }
-            50% { background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15), transparent 50%); }
-            75% { background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2), transparent 50%); }
-            100% { background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15), transparent 50%); }
-          }
-          @keyframes gentleTilt {
-            0%, 100% { transform: rotateX(2deg) rotateY(-3deg); }
-            25% { transform: rotateX(-1deg) rotateY(2deg); }
-            50% { transform: rotateX(-2deg) rotateY(3deg); }
-            75% { transform: rotateX(1deg) rotateY(-2deg); }
-          }
-          .preview-card-tilt {
-            animation: gentleTilt 8s ease-in-out infinite;
-          }
-          .holo-gradient-1 {
-            animation: holoShift1 6s ease-in-out infinite;
-          }
-          .holo-gradient-2 {
-            animation: holoShift2 6s ease-in-out infinite;
-          }
-          .holo-spotlight {
-            animation: spotlightSweep 4s ease-in-out infinite;
-          }
-        `}</style>
       </div>
     );
   }
