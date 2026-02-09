@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
-const STIPPLE_PROMPT = `Create a high-resolution stipple engraving portrait in the authentic Wall Street Journal hedcut style. The image must be composed entirely of fine, distinct dark green (hex #001408) dots on a pure white background. Use directional stippling techniques where rows of dots follow the flow of hair and facial contours to define form. Achieve shading strictly through dot density (halftone), creating strong contrast between deep shadows and bright highlights. No solid lines, outlines, or gray washes—only distinct ink dots. The final output should look like a masterful hand-drawn engraving. Color: #001408.`;
+const STIPPLE_PROMPT = `Transform this exact person's photo into a high-resolution stipple engraving portrait in the authentic Wall Street Journal hedcut style. You MUST preserve the exact likeness, facial features, hair style, and expression of the person in the photo. The image must be composed entirely of fine, distinct dark green (hex #001408) dots on a pure white background. Use directional stippling techniques where rows of dots follow the flow of hair and facial contours to define form. Achieve shading strictly through dot density (halftone), creating strong contrast between deep shadows and bright highlights. No solid lines, outlines, or gray washes—only distinct ink dots. The final output should look like a masterful hand-drawn engraving of THIS specific person. Color: #001408.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,13 +20,17 @@ export async function POST(request: NextRequest) {
     // Resolve photo data: use base64 directly, or download from URL
     let resolvedPhotoBase64 = photoBase64;
     if (!resolvedPhotoBase64 && photoUrl) {
+      console.log(`Downloading photo from URL: ${photoUrl.substring(0, 100)}...`);
       try {
         const imageResponse = await fetch(photoUrl);
         if (imageResponse.ok) {
           const arrayBuffer = await imageResponse.arrayBuffer();
           const buffer = Buffer.from(arrayBuffer);
-          const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+          const contentType = (imageResponse.headers.get('content-type') || 'image/jpeg').split(';')[0].trim();
           resolvedPhotoBase64 = `data:${contentType};base64,${buffer.toString('base64')}`;
+          console.log(`Downloaded photo: ${contentType}, ${buffer.length} bytes`);
+        } else {
+          console.error(`Failed to download photo: HTTP ${imageResponse.status}`);
         }
       } catch (err) {
         console.error('Failed to download photo from URL:', err);
@@ -35,14 +39,14 @@ export async function POST(request: NextRequest) {
 
     // If photo provided, transform to stipple style
     if (resolvedPhotoBase64) {
-      // Clean base64 string - remove data URL prefix
-      const cleanBase64 = resolvedPhotoBase64.replace(/^data:image\/\w+;base64,/, "");
+      // Clean base64 string - remove any data URL prefix (handle all formats)
+      const cleanBase64 = resolvedPhotoBase64.replace(/^data:[^;]+;base64,/, "");
 
       // Extract mime type from original
-      const mimeMatch = resolvedPhotoBase64.match(/^data:(image\/\w+);base64,/);
+      const mimeMatch = resolvedPhotoBase64.match(/^data:([^;]+);base64,/);
       const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
 
-      console.log(`Calling Nano Banana Pro with photo (${mimeType}, ${cleanBase64.length} chars)`);
+      console.log(`Calling Gemini with photo (${mimeType}, ${cleanBase64.length} chars base64)`);
 
       try {
         const response = await ai.models.generateContent({
@@ -97,6 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     // No photo - generate full card (fallback)
+    console.log(`No photo available for stipple generation. photoBase64: ${!!photoBase64}, photoUrl: ${photoUrl ? photoUrl.substring(0, 80) : 'null'}`);
     const cardPrompt = `Create a vintage 1990s trading card design.
 LAYOUT:
 - Dark green (#0D3D1F) header: "${userName.toUpperCase()}'S CONTENT TEAM" and "WINS AI SEARCH"

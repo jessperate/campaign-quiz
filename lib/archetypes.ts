@@ -4,6 +4,7 @@ export interface Resource {
   title: string;
   type: string;
   url: string;
+  ogImage?: string;
 }
 
 export interface RoleContent {
@@ -95,9 +96,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     ],
     growthArea: "Staying connected to hands-on execution as you scale",
     resources: [
-      { title: "Revenue impact stories (pipeline, efficiency)", type: "Case Study", url: "#" },
-      { title: "Building an AI-native content org", type: "Framework", url: "#" },
-      { title: "What top-performing marketing teams are doing differently", type: "Research", url: "#" }
+      { title: "Build an authority-first strategy with dual-purpose content", type: "Framework", url: "https://www.airops.com/blog/content-strategy", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6908fd1d6c0195a73abfd16e_content-strategy-ai-era.avif" },
+      { title: "Discover why LLM traffic converts 22x higher and how to capture it", type: "Webinar", url: "https://www.airops.com/blog/ai-search-steve-toth", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68703f26b73f3c84b4910b4f_Feature%20Peak-Steve%20Toth-July%202025-Recap%20(1).avif" },
+      { title: "Get insights from 144 content leaders on AI adoption and productivity gains", type: "Research", url: "https://www.airops.com/report/state-of-content-teams", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/67ee9640ef3c8eb974e89143_Frame%201707481908.avif" }
     ]
   },
 
@@ -171,9 +172,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     ],
     growthArea: "Balancing documentation with direct execution",
     resources: [
-      { title: "Building AI workflows that actually get adopted", type: "Guide", url: "#" },
-      { title: "The anatomy of a high-performing content system", type: "Framework", url: "#" },
-      { title: "Workflow templates you can steal", type: "Templates", url: "#" }
+      { title: "Steal our 4 workflows for webinar repurposing, blog updates, and social research", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/680033c954cfc87e533018e4_1744143929357.avif" },
+      { title: "Turn one asset into dozens of formats with evergreen refresh cycles", type: "Guide", url: "https://www.airops.com/blog/ai-workflows-content-repurposing", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6965355708d3d2b94f41f055_Feature%20Peak-content-repurposing.avif" },
+      { title: "See how Docebo captured 25% share of voice and replaced agencies with AirOps", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" }
     ]
   },
 
@@ -247,9 +248,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     ],
     growthArea: "Documenting and scaling what works for the rest of the team",
     resources: [
-      { title: "The state of AI search / AEO trends", type: "Research", url: "#" },
-      { title: "Advanced AEO tactics for early movers", type: "Guide", url: "#" },
-      { title: "Brands winning in AI search right now", type: "Case Study", url: "#" }
+      { title: "Discover why 48% of AI answers cite UGC and Reddit", type: "Research", url: "https://www.airops.com/blog/search-trends-2025", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/692eee63ec20226076d24938_search-trends-blog-2025.avif" },
+      { title: "See how early adopters are converting 8-10% of signups from AI chatbots", type: "Webinar", url: "https://www.airops.com/blog/webinar-recap-ethan-smith-graphite-alex-halliday-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/691f72f5e1bf1349ccb2ef48_Webinar-Graphite-1920x1080.avif" },
+      { title: "See how ChatGPT is expanding search and what it means for your content strategy", type: "Webinar", url: "https://www.airops.com/blog/webinar-chatgpt-vs-google-kevin-indig", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/69445da2e14b63b2cf15f360_Webinar-Recap-1920x1080-kevin-indig.avif" }
     ]
   },
 
@@ -323,9 +324,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     ],
     growthArea: "Finding ways to scale quality without bottlenecking",
     resources: [
-      { title: "Using AI to enforce quality standards at scale", type: "Guide", url: "#" },
-      { title: "How top brands maintain quality at 3x output", type: "Case Study", url: "#" },
-      { title: "Why Ranking on Page One Isn't Enough", type: "Research", url: "https://www.airops.com/report/structuring-content-for-llms" }
+      { title: "Get the sentence-level optimization tactics driving citation and traffic lifts", type: "Webinar", url: "https://www.airops.com/blog/refresh-content-steve-toth", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/67e31a6e9df015dd9454fa65_Feature%20Peak.avif" },
+      { title: "Make the right call every time—use the decision framework top teams rely on", type: "Guide", url: "https://www.airops.com/blog/refresh-vs-rewrite-vs-redirect", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68feda3dc35533528c11544f_Refresh-rewrite-redirect.avif" },
+      { title: "Build data-driven workflows that turn insights into action", type: "Webinar", url: "https://www.airops.com/blog/oshen-davidson-content-engineering-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6911deaa6f4a902830ec2045_o-date.avif" }
     ]
   },
 
@@ -399,16 +400,16 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     ],
     growthArea: "Building in quality checkpoints that don't slow you down",
     resources: [
-      { title: "Quality checks you can run in under 2 minutes", type: "Guide", url: "#" },
-      { title: "Teams shipping fast AND maintaining brand standards", type: "Case Study", url: "#" },
-      { title: "AirOps Research: Staying ahead in AI search", type: "Research", url: "https://www.airops.com/report/structuring-content-for-llms" }
+      { title: "Run 12 tactical plays that drive AI visibility, citations, and growth", type: "Playbook", url: "https://www.airops.com/blog/plays-for-the-holidays-grow-traffic-citations-revenue", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/692f5e28163bca7fb4e1ec60_12-PLAYS-HERO.avif" },
+      { title: "Download the 10-step checklist for chunk-level retrieval optimization", type: "Webinar", url: "https://www.airops.com/blog/webinar-aleyda-solis", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/688a596e08cd45656a66494f_Feature%20Peak-Aleyda%20Solis-July%202025-no-date.avif" },
+      { title: "Learn how to build systems that scale without adding headcount", type: "Webinar", url: "https://www.airops.com/blog/webinar-recap-aeo-growth", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/697a205c18a5ec6ac5c92fbd_aeo-growth-graphite-webflow-maxresdefault-.jpg" }
     ]
   },
 
   clutch: {
     id: "clutch",
-    name: "Clutch",
-    shortName: "CLUTCH",
+    name: "Hat Collector",
+    shortName: "HAT COLLECTOR",
     roleContent: {
       ic: {
         tagline: "You wear every hat and make it look easy.",
@@ -475,9 +476,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     ],
     growthArea: "Developing deep expertise in one area while maintaining breadth",
     resources: [
-      { title: "Content engineering starter kit", type: "Resource Hub", url: "#" },
-      { title: "Adapting your approach based on the situation", type: "Guide", url: "#" },
-      { title: "The Community Flywheel", type: "Research", url: "https://www.airops.com/report/the-impact-of-ugc-and-community-in-ai-search" }
+      { title: "Apply the \"30% juice rule\" and transform how you manage content", type: "Webinar", url: "https://www.airops.com/blog/smartest-cmos-build-content-product-emily-kramer", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/689602c9845512a8caab3783_emily%20kramer-webinar-main-video-thumbnail%20(1).avif" },
+      { title: "Master the \"Lurk, Listen, Leap\" framework and dominate Reddit search results", type: "Webinar", url: "https://www.airops.com/blog/webinar-ross-simmonds", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/685c53e49fac1a2062aa89b2_Feature%20Peak-Ross-Simmonds-June-25%20(2).avif" },
+      { title: "Steal our 4 workflows for webinar repurposing, blog updates, and social research", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/680033c954cfc87e533018e4_1744143929357.avif" }
     ]
   },
 
@@ -551,9 +552,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     ],
     growthArea: "Building foundational skills to level up your toolkit",
     resources: [
-      { title: "Getting started with AI content workflows", type: "Guide", url: "#" },
-      { title: "Content Engineering 101", type: "Course", url: "#" },
-      { title: "From Query to Citation: How Snippet Signals Influence AI Search", type: "Research", url: "https://www.airops.com/report/how-snippet-signals-influence-ai-search" }
+      { title: "Build research-driven workflows that win in AI search", type: "Webinar", url: "https://www.airops.com/blog/webinar-andy-crestodina", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68d3f473558b714195f7ac97_F1Without%20Dateeature%20Peak-andy-crestodina-new.avif" },
+      { title: "Build data-driven workflows that turn insights into action", type: "Webinar", url: "https://www.airops.com/blog/oshen-davidson-content-engineering-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6911deaa6f4a902830ec2045_o-date.avif" },
+      { title: "Get insights from 144 content leaders on AI adoption and productivity gains", type: "Research", url: "https://www.airops.com/report/state-of-content-teams", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/67ee9640ef3c8eb974e89143_Frame%201707481908.avif" }
     ]
   }
 };

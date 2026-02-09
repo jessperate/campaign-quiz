@@ -28,15 +28,21 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     }
 
     const parsed = typeof data === "string" ? JSON.parse(data) : data;
-    const { firstName, lastName, archetype } = parsed;
-    const title = `${firstName} ${lastName} is The ${archetype.name}`;
-    const description = archetype.tagline;
+    const { firstName, lastName, archetype, bullets, ogImageUrl: savedOgImage, cardUrl: savedCardUrl } = parsed;
+    const title = `${firstName} ${lastName} is "The ${archetype.name}" — Content Engineer Archetype`;
+
+    const descriptionParts: string[] = [];
+    if (archetype.tagline) descriptionParts.push(archetype.tagline);
+    if (bullets?.mostLikelyTo) descriptionParts.push(`Most likely to: ${bullets.mostLikelyTo}`);
+    if (bullets?.favoritePhrase) descriptionParts.push(`Favorite phrase: "${bullets.favoritePhrase}"`);
+    const description = descriptionParts.join(' | ') || archetype.tagline;
 
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "https://campaign-quiz.vercel.app";
 
-    const ogImageUrl = `${baseUrl}/api/og-image?userId=${userId}`;
+    // Prefer the pre-rendered blob image, fall back to dynamic server-side generation
+    const ogImageUrl = savedOgImage || savedCardUrl || `${baseUrl}/api/og-image?userId=${userId}`;
 
     return {
       title,
@@ -44,6 +50,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       openGraph: {
         title,
         description,
+        url: `${baseUrl}/quiz`,
         images: [
           {
             url: ogImageUrl,

@@ -12,8 +12,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Remove data URL prefix if present
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+    // Remove data URL prefix if present (handle all formats)
+    const base64Data = imageBase64.replace(/^data:[^;]+;base64,/, '');
 
     // Convert base64 to buffer
     const buffer = Buffer.from(base64Data, 'base64');

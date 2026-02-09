@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/ui/Header";
+import CardGrid from "@/components/CardGrid";
 
 export default function Home() {
   return (
@@ -92,6 +93,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Player Cards Grid */}
+        <CardGrid />
 
         {/* CTA Section */}
         <section className="relative py-20 md:py-32 px-6">

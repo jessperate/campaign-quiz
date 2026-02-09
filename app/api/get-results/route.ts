@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Redis from "ioredis";
+import { getCardTheme, getCardImages } from "@/lib/card-themes";
 
 const redis = new Redis(process.env.REDIS_URL!);
 
@@ -35,8 +36,45 @@ export async function GET(request: NextRequest) {
 
     const parsed = JSON.parse(data);
 
+    // Resolve base URL for absolute image paths
+    const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "https://campaign-quiz.vercel.app";
+
+    // Enrich with card theme colors and image URLs
+    const archetypeId = parsed.archetype?.id || "";
+    const theme = getCardTheme(archetypeId);
+    const images = getCardImages(archetypeId, baseUrl);
+
     return NextResponse.json(
-      { success: true, ...parsed },
+      {
+        success: true,
+        ...parsed,
+        // Card theme colors (for building the card natively in Webflow)
+        theme: {
+          cardBorder: theme.cardBorder,
+          cardBg: theme.cardBg,
+          artBg: theme.artBg,
+          artBorder: theme.artBorder,
+          statsBg: theme.statsBg,
+          statsBorder: theme.statsBorder,
+          labelColor: theme.labelColor,
+          dotColor: theme.dotColor,
+          dotBorder: theme.dotBorder,
+          headshotBg: theme.headshotBg,
+          headshotBorder: theme.headshotBorder,
+          fallbackInitialColor: theme.fallbackInitialColor,
+          pattern: theme.pattern,
+          patternFill: theme.patternFill,
+          patternStroke: theme.patternStroke,
+        },
+        // All image/SVG asset URLs (absolute)
+        images,
+        // Captured flat card images (populated after user visits results page)
+        stippleImageUrl: parsed.stippleImageUrl || null,
+        cardImageUrl: parsed.cardUrl || null,
+        ogImageUrl: parsed.ogImageUrl || null,
+      },
       { headers: CORS_HEADERS }
     );
   } catch (error) {

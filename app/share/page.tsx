@@ -1,9 +1,8 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
 import { archetypes } from '@/lib/archetypes';
 import type { ArchetypeId } from '@/lib/quiz-data';
 import Redis from 'ioredis';
+import ResultsClient from '../results/ResultsClient';
 
 const redis = new Redis(process.env.REDIS_URL!);
 
@@ -63,12 +62,34 @@ export async function generateMetadata({ searchParams }: SharePageProps): Promis
   const params = await searchParams;
   const data = await getShareData(params);
 
-  const title = `I'm "The ${data.archetype?.name || 'Champion'}" - What's Your Content Engineer Archetype?`;
-  const description = data.stat1 && data.stat2 && data.stat3
-    ? `🎯 Most likely to: ${data.stat1}\n⏰ Typically spending time: ${data.stat2}\n💬 Favorite phrase: ${data.stat3}\n\nTake the quiz to find yours!`
+  const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'https://campaign-quiz.vercel.app';
+
+  const quizUrl = `${baseUrl}/quiz`;
+
+  const title = data.firstName
+    ? `${data.firstName} ${data.lastName} is "The ${data.archetype?.name || 'Champion'}" — Content Engineer Archetype`
+    : `I'm "The ${data.archetype?.name || 'Champion'}" — What's Your Content Engineer Archetype?`;
+
+  const descriptionParts: string[] = [];
+  if (data.stat1) descriptionParts.push(`Most likely to: ${data.stat1}`);
+  if (data.stat2) descriptionParts.push(`Typically spending time: ${data.stat2}`);
+  if (data.stat3) descriptionParts.push(`Favorite phrase: "${data.stat3}"`);
+  if (descriptionParts.length > 0) {
+    descriptionParts.push('Take the quiz to find your Content Engineer archetype!');
+  }
+  const description = descriptionParts.length > 0
+    ? descriptionParts.join(' | ')
     : `${data.archetype?.roleContent?.ic?.tagline || 'Find your archetype'}. Take the quiz to discover your Content Engineer archetype!`;
 
-  const imageUrl = data.ogImageUrl || data.cardUrl;
+  // Use the pre-captured OG image from Vercel Blob if available,
+  // otherwise fall back to the dynamic server-side OG image generator.
+  // This ensures LinkedIn's crawler always gets an image even if the
+  // client-side html2canvas capture hasn't completed yet.
+  const imageUrl = data.ogImageUrl
+    || data.cardUrl
+    || (params.userId ? `${baseUrl}/api/og-image?userId=${params.userId}` : null);
 
   return {
     title,
@@ -77,12 +98,12 @@ export async function generateMetadata({ searchParams }: SharePageProps): Promis
       title,
       description,
       type: 'website',
-      url: 'https://campaign-quiz.vercel.app/quiz',
+      url: quizUrl,
       images: imageUrl ? [
         {
           url: imageUrl,
-          width: 1080,
-          height: 1080,
+          width: 1200,
+          height: 630,
           alt: `The ${data.archetype?.name || 'Champion'} - Content Engineer Archetype Card`,
         }
       ] : [],
@@ -96,78 +117,6 @@ export async function generateMetadata({ searchParams }: SharePageProps): Promis
   };
 }
 
-export default async function SharePage({ searchParams }: SharePageProps) {
-  const params = await searchParams;
-  const data = await getShareData(params);
-
-  return (
-    <div className="min-h-screen relative">
-      {/* Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <Image
-          src="/images/quiz-bg-v3.png"
-          alt=""
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
-
-      <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-12">
-        <div className="max-w-md mx-auto text-center">
-          {/* Card preview */}
-          {(data.ogImageUrl || data.cardUrl) && (
-            <div className="mb-8">
-              <img
-                src={data.ogImageUrl || data.cardUrl || ''}
-                alt={`The ${data.archetype?.name} card`}
-                className="w-full max-w-sm mx-auto rounded-xl shadow-2xl"
-              />
-            </div>
-          )}
-
-          <h1 className="text-[#0D3D1F] text-3xl md:text-4xl mb-4" style={{ fontFamily: 'Serrif, serif' }}>
-            The {data.archetype?.name || 'Champion'}
-          </h1>
-
-          <p className="text-[#0D3D1F]/70 text-lg mb-6 italic">
-            &quot;{data.archetype?.roleContent?.ic?.tagline}&quot;
-          </p>
-
-          {(data.stat1 || data.stat2 || data.stat3) && (
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 text-left">
-              {data.stat1 && (
-                <div className="mb-3">
-                  <p className="text-[#0D3D1F]/50 text-xs uppercase">Most likely to...</p>
-                  <p className="text-[#0D3D1F]">{data.stat1}</p>
-                </div>
-              )}
-              {data.stat2 && (
-                <div className="mb-3">
-                  <p className="text-[#0D3D1F]/50 text-xs uppercase">Typically spending time...</p>
-                  <p className="text-[#0D3D1F]">{data.stat2}</p>
-                </div>
-              )}
-              {data.stat3 && (
-                <div>
-                  <p className="text-[#0D3D1F]/50 text-xs uppercase">Favorite phrase...</p>
-                  <p className="text-[#0D3D1F]">{data.stat3}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          <Link
-            href="/quiz"
-            className="inline-flex items-center px-8 py-4 bg-[#0D3D1F] text-white rounded-full text-lg font-bold hover:bg-[#0D3D1F]/90 transition-all"
-          >
-            Take the Quiz
-            <svg className="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+export default function SharePage() {
+  return <ResultsClient />;
 }
