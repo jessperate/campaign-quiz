@@ -145,6 +145,12 @@ body {
   display: none;
 }
 
+/* Scroll chevron bounce */
+@keyframes scrollChevronBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
 /* Confetti animation placeholder */
 @keyframes confetti-fall {
   0% {
