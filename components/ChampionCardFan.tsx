@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import Image from "next/image";
 
 const cards = [
   { src: "/images/champion-cards/vivian.png", alt: "Vivian Hoang, Webflow" },
@@ -40,20 +39,19 @@ export default function ChampionCardFan() {
         style={{ transform: `translateX(${scrollShift}px)` }}
       >
         {cards.map((card, i) => (
-          <div key={i} className="card" tabIndex={0}>
-            <img
-              src={card.src}
-              alt={card.alt}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "inherit",
-              }}
-            />
-          </div>
+          <div
+            key={i}
+            className="card"
+            tabIndex={0}
+            role="img"
+            aria-label={card.alt}
+            style={{
+              backgroundImage: `url(${card.src})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
         ))}
       </div>
     </section>
