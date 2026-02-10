@@ -29,8 +29,8 @@ export default function Home() {
             <h1 className="text-[60px] md:text-[100px] lg:text-[120px] text-[#75FFB9] mb-4 tracking-tight leading-none whitespace-nowrap uppercase" style={{ fontFamily: 'Knockout-91, Knockout, sans-serif' }}>
               GET YOUR PLAYER CARD
             </h1>
-            <p className="text-white/70 text-base md:text-lg max-w-xl mx-auto mb-6">
-              A performance check for CMOs and content leaders navigating AI-driven growth.
+            <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto mb-6">
+              AI search has changed the game, but winning is easy with AirOps. Take the quiz to uncover your unique player archetype, see your best plays (and where to keep training), and get personalized resources to level up your game.
             </p>
 
             <Link
