@@ -1265,7 +1265,7 @@ export default function ResultsClient() {
           top: 0,
           zIndex: 50,
           background: '#1B1B8F',
-          padding: '56px 24px 16px',
+          padding: '80px 24px 16px',
           overflow: 'visible',
         }}
       >
