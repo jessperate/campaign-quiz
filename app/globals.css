@@ -176,11 +176,6 @@ body {
   --index: 0;
   --offset-y: 0px;
   width: 380px;
-  aspect-ratio: 560 / 780;
-  border-radius: 1.3rem;
-  overflow: hidden;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.85),
-    0 0 0 1px rgba(15, 23, 42, 0.9);
 
   margin-left: -145px;
   position: relative;

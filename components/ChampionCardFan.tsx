@@ -39,19 +39,19 @@ export default function ChampionCardFan() {
         style={{ transform: `translateX(${scrollShift}px)` }}
       >
         {cards.map((card, i) => (
-          <div
-            key={i}
-            className="card"
-            tabIndex={0}
-            role="img"
-            aria-label={card.alt}
-            style={{
-              backgroundImage: `url(${card.src})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          />
+          <div key={i} className="card" tabIndex={0}>
+            <img
+              src={card.src}
+              alt={card.alt}
+              draggable={false}
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block",
+                pointerEvents: "none",
+              }}
+            />
+          </div>
         ))}
       </div>
     </section>
