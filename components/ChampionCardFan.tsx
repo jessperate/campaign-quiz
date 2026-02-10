@@ -41,12 +41,17 @@ export default function ChampionCardFan() {
       >
         {cards.map((card, i) => (
           <div key={i} className="card" tabIndex={0}>
-            <Image
+            <img
               src={card.src}
               alt={card.alt}
-              fill
-              className="object-cover"
-              sizes="280px"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "inherit",
+              }}
             />
           </div>
         ))}
