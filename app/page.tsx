@@ -26,7 +26,7 @@ export default function Home() {
             <p className="text-white/80 text-[32px] md:text-[48px] mb-2 leading-tight" style={{ fontFamily: 'Serrif, serif' }}>
               How do you win AI search?
             </p>
-            <h1 className="text-[60px] md:text-[100px] lg:text-[120px] text-[#75FFB9] mb-4 tracking-tight leading-none whitespace-nowrap uppercase" style={{ fontFamily: 'Knockout-91, Knockout, sans-serif' }}>
+            <h1 className="text-[60px] md:text-[100px] lg:text-[120px] text-[#75FFB9] mb-4 tracking-tight leading-none uppercase text-center mx-auto" style={{ fontFamily: 'Knockout-91, Knockout, sans-serif' }}>
               GET YOUR PLAYER CARD
             </h1>
             <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto mb-6">
