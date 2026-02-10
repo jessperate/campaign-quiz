@@ -582,7 +582,6 @@ export default function ResultsClient() {
           justifyContent: 'center',
           alignItems: 'center',
           padding: '60px 24px 80px',
-          overflowX: 'hidden',
         }}
       >
         {/* Leaf pattern overlay */}
@@ -1251,51 +1250,41 @@ export default function ResultsClient() {
                 border: '1.5px solid rgba(230,230,255,0.15)',
               }}
             >
-              {/* Your Winning Play */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span
-                    className="text-xs uppercase tracking-[0.15em] font-semibold"
-                    style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
-                  >
-                    Your Winning Play
-                  </span>
-                </div>
-                <div
-                  className="rounded-2xl p-6"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(230,230,255,0.1)' }}
-                >
+              {/* What You're Great At + Level Up Zone — side by side */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span
+                      className="text-[10px] uppercase tracking-[0.15em] font-semibold"
+                      style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
+                    >
+                      What You&apos;re Great At
+                    </span>
+                  </div>
                   <p
-                    className="text-[#E6E6FF]"
+                    className="text-[#E6E6FF] text-sm leading-relaxed"
                     style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
                   >
                     {roleContent.winningPlay}
                   </p>
                 </div>
-              </div>
-
-              {/* Where to Focus */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                  <span
-                    className="text-xs uppercase tracking-[0.15em] font-semibold"
-                    style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
-                  >
-                    Where to Focus
-                  </span>
-                </div>
-                <div
-                  className="rounded-2xl p-6"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(230,230,255,0.1)' }}
-                >
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    <span
+                      className="text-[10px] uppercase tracking-[0.15em] font-semibold"
+                      style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
+                    >
+                      Level Up Zone
+                    </span>
+                  </div>
                   <p
-                    className="text-[#E6E6FF]"
+                    className="text-[#E6E6FF] text-sm leading-relaxed"
                     style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
                   >
                     {roleContent.whereToFocus}
@@ -1303,19 +1292,31 @@ export default function ResultsClient() {
                 </div>
               </div>
 
+              {/* Divider */}
+              <div style={{ height: '1px', background: 'rgba(230,230,255,0.1)' }} />
+
               {/* Your Training Playbook */}
               <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
+                <div className="flex items-center gap-2 mb-3">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                   <span
-                    className="text-xs uppercase tracking-[0.15em] font-semibold"
+                    className="text-[10px] uppercase tracking-[0.15em] font-semibold"
                     style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
                   >
                     Your Training Playbook
                   </span>
                 </div>
+                <p
+                  className="text-[#E6E6FF]/70 text-sm mb-6"
+                  style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
+                >
+                  Resources from AirOps that will help you level up.{' '}
+                  <a href="https://www.airops.com/cohort" target="_blank" rel="noopener noreferrer" className="underline text-[#E6E6FF]">
+                    Enroll in the Content Engineering Cohort.
+                  </a>
+                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {roleContent.resources.map((resource, i) => {
                     const placeholderColors = ['#2A2A7A', '#2D2A6E', '#252580'];
@@ -1328,17 +1329,12 @@ export default function ResultsClient() {
                         className="block rounded-2xl overflow-hidden hover:shadow-lg transition-shadow"
                         style={{ border: '1px solid rgba(230,230,255,0.1)' }}
                       >
-                        {/* Thumbnail */}
                         <div
                           className="flex items-center justify-center relative overflow-hidden"
                           style={{ backgroundColor: placeholderColors[i % 3], aspectRatio: '16 / 9' }}
                         >
                           {resource.ogImage && (
-                            <img
-                              src={resource.ogImage}
-                              alt=""
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
+                            <img src={resource.ogImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                           )}
                           <span
                             className="absolute top-2 left-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-semibold"
@@ -1348,11 +1344,11 @@ export default function ResultsClient() {
                           </span>
                         </div>
                         <div className="p-4" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
-                          <p
-                            className="text-[#E6E6FF] font-medium text-sm"
-                            style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
-                          >
+                          <p className="text-[#E6E6FF] font-medium text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
                             {resource.title}
+                          </p>
+                          <p className="text-[#E6E6FF]/40 text-xs mt-1" style={{ fontFamily: 'SaansMono, monospace' }}>
+                            Update November 19th, 2025
                           </p>
                         </div>
                       </a>
@@ -1361,32 +1357,95 @@ export default function ResultsClient() {
                 </div>
               </div>
 
-              {/* Level Up */}
+              {/* Divider */}
+              <div style={{ height: '1px', background: 'rgba(230,230,255,0.1)' }} />
+
+              {/* Personality Match */}
               <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                <div className="flex items-center gap-2 mb-3">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <span
-                    className="text-xs uppercase tracking-[0.15em] font-semibold"
+                    className="text-[10px] uppercase tracking-[0.15em] font-semibold"
                     style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
                   >
-                    Level Up
+                    Personality Match
                   </span>
                 </div>
+                <p
+                  className="text-[#E6E6FF]/70 text-sm mb-6"
+                  style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
+                >
+                  You have the same personality type as yadda. Links to webinar, case study, or blog post content, youtube etc.{' '}
+                  <a href="https://www.airops.com/cohort" target="_blank" rel="noopener noreferrer" className="underline text-[#E6E6FF]">
+                    Enroll in the Content Engineering Cohort.
+                  </a>
+                </p>
+                <a
+                  href={roleContent.resources[0]?.url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-2xl overflow-hidden hover:shadow-lg transition-shadow max-w-sm"
+                  style={{ border: '1px solid rgba(230,230,255,0.1)' }}
+                >
+                  <div
+                    className="flex items-center justify-center relative overflow-hidden"
+                    style={{ backgroundColor: '#2A2A7A', aspectRatio: '16 / 9' }}
+                  />
+                  <div className="p-4" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
+                    <p className="text-[#E6E6FF] font-medium text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
+                      Webinar from this personality type match linked here
+                    </p>
+                    <p className="text-[#E6E6FF]/40 text-xs mt-1" style={{ fontFamily: 'SaansMono, monospace' }}>
+                      Update November 19th, 2025
+                    </p>
+                  </div>
+                </a>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: '1px', background: 'rgba(230,230,255,0.1)' }} />
+
+              {/* Next Steps */}
+              <div>
+                <div className="flex items-center gap-2 mb-6">
+                  <span
+                    className="text-[10px] uppercase tracking-[0.15em] font-semibold"
+                    style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
+                  >
+                    &gt;&gt; Next Steps
+                  </span>
+                </div>
+                <h3
+                  className="text-[#E6E6FF] text-2xl sm:text-3xl leading-tight mb-4"
+                  style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
+                >
+                  You&apos;re ready to play ball.<br />
+                  Get started with AirOps today.
+                </h3>
+                <p
+                  className="text-[#E6E6FF]/60 text-sm mb-8"
+                  style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
+                >
+                  Body text which supports this component&apos;s goal. Interested in registering straight to the platform?{' '}
+                  <a href="https://app.airops.com" target="_blank" rel="noopener noreferrer" className="underline text-[#E6E6FF]">
+                    click here
+                  </a>
+                </p>
                 <a
                   href={roleContent.levelUpUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-2xl p-6 hover:shadow-lg transition-shadow"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(230,230,255,0.1)' }}
+                  className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-full text-base font-medium transition-colors hover:bg-[#F5F5F5]"
+                  style={{
+                    fontFamily: 'Saans, sans-serif',
+                    background: '#FFFFFF',
+                    color: '#000D05',
+                    border: '1.5px solid #E0E0E0',
+                  }}
                 >
-                  <p
-                    className="text-[#E6E6FF] font-medium"
-                    style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
-                  >
-                    {results.role === 'ic' ? 'Enroll in Cohort \u2192' : 'Book a Call \u2192'}
-                  </p>
+                  Book your Demo &rarr;
                 </a>
               </div>
             </div>
@@ -1449,46 +1508,88 @@ export default function ResultsClient() {
                 )}
               </div>
 
-              {/* Share section */}
-              <div className="text-center">
+              {/* Archetype name + bullet stats */}
+              <div>
                 <p
-                  className="font-semibold mb-4"
+                  className="text-[10px] uppercase tracking-[0.2em] mb-1"
+                  style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
+                >
+                  The
+                </p>
+                <h3
+                  className="text-[#E6E6FF] text-2xl font-bold uppercase tracking-wide mb-5"
+                  style={{ fontFamily: 'Knockout-91, Impact, sans-serif' }}
+                >
+                  {archetype.shortName}
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}>
+                      Most Likely To:
+                    </p>
+                    <p className="text-[#E6E6FF] text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
+                      {results.bullets.mostLikelyTo}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}>
+                      Typically Spending Time:
+                    </p>
+                    <p className="text-[#E6E6FF] text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
+                      {results.bullets.typicallySpending}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}>
+                      Favorite Phrase:
+                    </p>
+                    <p className="text-[#E6E6FF] text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
+                      &ldquo;{results.bullets.favoritePhrase}&rdquo;
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Share section */}
+              <div>
+                <p
+                  className="text-xl font-semibold mb-4"
                   style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif', color: '#E6E6FF' }}
                 >
-                  Share your player card
+                  Share your<br />player card
                 </p>
                 <div className="flex flex-col gap-3">
-                  {/* Twitter / X */}
+                  {/* Twitter / X — green */}
                   <a
                     href={twitterUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors hover:bg-white/10"
-                    style={{ border: '1.5px solid rgba(230,230,255,0.3)', color: '#E6E6FF' }}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-90"
+                    style={{ background: '#00FF64', color: '#000D05' }}
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                     </svg>
-                    Share on X
+                    Share on Twitter
                   </a>
-                  {/* LinkedIn */}
+                  {/* LinkedIn — green */}
                   {shareableCardUrl ? (
                     <a
                       href={linkedinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors hover:bg-white/10"
-                      style={{ border: '1.5px solid rgba(230,230,255,0.3)', color: '#E6E6FF' }}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-90"
+                      style={{ background: '#00FF64', color: '#000D05' }}
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                       </svg>
-                      Share on LinkedIn
+                      In Share on LinkedIn
                     </a>
                   ) : (
                     <div
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold opacity-50 cursor-not-allowed"
-                      style={{ border: '1.5px solid rgba(230,230,255,0.3)', color: '#E6E6FF' }}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold opacity-50 cursor-not-allowed"
+                      style={{ background: '#00FF64', color: '#000D05' }}
                     >
                       <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -1497,77 +1598,19 @@ export default function ResultsClient() {
                       Preparing...
                     </div>
                   )}
-                  {/* Slack */}
-                  <button
-                    onClick={() => {
-                      const slackMessage = `${shareText}\n\n${sharePageUrlStr}`;
-                      navigator.clipboard.writeText(slackMessage);
-                      setSlackCopied(true);
-                      setTimeout(() => setSlackCopied(false), 3000);
-                      // Open Slack app via protocol handler
-                      window.location.href = 'slack://open';
-                    }}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors cursor-pointer hover:bg-white/10"
-                    style={{ border: '1.5px solid rgba(230,230,255,0.3)', color: '#E6E6FF' }}
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.27 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.163 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.163 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.163 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.27a2.527 2.527 0 0 1-2.52-2.523 2.527 2.527 0 0 1 2.52-2.52h6.315A2.528 2.528 0 0 1 24 15.163a2.528 2.528 0 0 1-2.522 2.523h-6.315z" />
-                    </svg>
-                    {slackCopied ? 'Copied! Paste in Slack' : 'Share on Slack'}
-                  </button>
-                  {/* Download Card */}
-                  {shareableCardUrl ? (
-                    <button
-                      onClick={async () => {
-                        try {
-                          const res = await fetch(shareableCardUrl);
-                          const blob = await res.blob();
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `the-${archetype.id}-player-card.png`;
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                          URL.revokeObjectURL(url);
-                        } catch {
-                          // Fallback: open in new tab
-                          window.open(shareableCardUrl, '_blank');
-                        }
-                      }}
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors cursor-pointer hover:bg-white/10"
-                      style={{ border: '1.5px solid rgba(230,230,255,0.3)', color: '#E6E6FF' }}
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Download Card
-                    </button>
-                  ) : (
-                    <div
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold opacity-50 cursor-not-allowed"
-                      style={{ border: '1.5px solid rgba(230,230,255,0.3)', color: '#E6E6FF' }}
-                    >
-                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Preparing...
-                    </div>
-                  )}
-                  {/* Challenge / Copy Link */}
+                  {/* Challenge your team — green */}
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(sharePageUrlStr);
                       alert('Link copied!');
                     }}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors cursor-pointer hover:bg-white/10"
-                    style={{ border: '1.5px solid rgba(230,230,255,0.3)', color: '#E6E6FF' }}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity cursor-pointer hover:opacity-90"
+                    style={{ background: '#00FF64', color: '#000D05' }}
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    Challenge a Friend
+                    Challenge your team
                   </button>
                 </div>
               </div>
@@ -1576,6 +1619,136 @@ export default function ResultsClient() {
 
         </div>
       </div>
+
+      {/* Take the quiz CTA section */}
+      <div
+        style={{
+          background: '#0D0D6B',
+          padding: '100px 24px',
+          textAlign: 'center',
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: 'SerrifVF, Serrif, Georgia, serif',
+            fontSize: 'clamp(40px, 6vw, 72px)',
+            color: '#E6E6FF',
+            marginBottom: '16px',
+          }}
+        >
+          Take the quiz
+        </h2>
+        <p
+          className="text-[#E6E6FF]/60 text-sm mb-8 max-w-md mx-auto"
+          style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
+        >
+          Body text which supports this component&apos;s goal. Interested in registering straight to the platform?{' '}
+          <a href="https://app.airops.com" target="_blank" rel="noopener noreferrer" className="underline text-[#E6E6FF]">
+            click here
+          </a>
+        </p>
+        <a
+          href="/quiz"
+          className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-full text-base font-medium transition-opacity hover:opacity-90"
+          style={{
+            fontFamily: 'Saans, sans-serif',
+            background: '#00FF64',
+            color: '#000D05',
+          }}
+        >
+          Take the quiz &rarr;
+        </a>
+      </div>
+
+      {/* Footer */}
+      <footer style={{ background: '#0A0A5C', padding: '48px 24px 24px', color: '#E6E6FF' }}>
+        <div className="max-w-[1200px] mx-auto">
+          {/* Top nav */}
+          <div className="flex gap-6 mb-8 text-sm" style={{ fontFamily: 'Saans, sans-serif' }}>
+            <a href="https://www.airops.com/platform" className="hover:underline">Platform</a>
+            <a href="https://www.airops.com/careers" className="hover:underline">Careers</a>
+            <a href="https://www.airops.com/resources" className="hover:underline">Resources</a>
+          </div>
+          <div style={{ height: '1px', background: 'rgba(230,230,255,0.15)', marginBottom: '32px' }} />
+          {/* Link columns */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 mb-12 text-xs" style={{ fontFamily: 'Saans, sans-serif', color: '#E6E6FF' }}>
+            <div>
+              <p className="font-semibold mb-3 text-[#E6E6FF]">Product</p>
+              <div className="space-y-2 text-[#E6E6FF]/60">
+                <a href="https://www.airops.com/insights" className="block hover:underline">Insights</a>
+                <a href="https://www.airops.com/actions" className="block hover:underline">Actions</a>
+                <a href="https://www.airops.com/platform" className="block hover:underline">Platform</a>
+                <a href="https://www.airops.com/grids" className="block hover:underline">Grids</a>
+                <a href="https://www.airops.com/workflows" className="block hover:underline">Workflows</a>
+                <a href="https://www.airops.com/knowledge-bases" className="block hover:underline">Knowledge Bases</a>
+              </div>
+            </div>
+            <div>
+              <p className="font-semibold mb-3 text-[#E6E6FF]">Solutions</p>
+              <div className="space-y-2 text-[#E6E6FF]/60">
+                <a href="https://www.airops.com/solutions/content-seo" className="block hover:underline">Content & SEO</a>
+                <a href="https://www.airops.com/solutions/teams" className="block hover:underline">Teams</a>
+                <a href="https://www.airops.com/solutions/marketing-agencies" className="block hover:underline">Marketing Agencies</a>
+                <a href="https://www.airops.com/solutions/content-refresh" className="block hover:underline">Content Refresh</a>
+                <a href="https://www.airops.com/solutions/content-creation" className="block hover:underline">Content Creation</a>
+              </div>
+            </div>
+            <div>
+              <p className="font-semibold mb-3 text-[#E6E6FF]">General</p>
+              <div className="space-y-2 text-[#E6E6FF]/60">
+                <a href="https://www.airops.com/pricing" className="block hover:underline">Pricing</a>
+                <a href="https://www.airops.com/careers" className="block hover:underline">Careers</a>
+                <a href="https://docs.airops.com" className="block hover:underline">Documentation</a>
+                <a href="https://www.airops.com/affiliate" className="block hover:underline">Affiliate</a>
+              </div>
+            </div>
+            <div>
+              <p className="font-semibold mb-3 text-[#E6E6FF]">Resources</p>
+              <div className="space-y-2 text-[#E6E6FF]/60">
+                <a href="https://www.airops.com/academy" className="block hover:underline">Academy</a>
+                <a href="https://www.airops.com/blog" className="block hover:underline">Blog</a>
+                <a href="https://www.airops.com/research" className="block hover:underline">AirOps Research</a>
+                <a href="https://www.airops.com/aeo-analysis" className="block hover:underline">AEO Analysis</a>
+                <a href="https://www.airops.com/growth-plays" className="block hover:underline">AI Growth Plays</a>
+                <a href="https://www.airops.com/search-hub" className="block hover:underline">AI Search Hub</a>
+                <a href="https://www.airops.com/prompts" className="block hover:underline">Prompts</a>
+              </div>
+            </div>
+            <div>
+              <p className="font-semibold mb-3 text-[#E6E6FF]">Support</p>
+              <div className="space-y-2 text-[#E6E6FF]/60">
+                <a href="https://www.airops.com/contact" className="block hover:underline">Talk to Us</a>
+                <a href="https://community.airops.com" className="block hover:underline">Community</a>
+                <a href="https://www.airops.com/careers" className="block hover:underline">AirOps Job Board</a>
+                <a href="https://www.airops.com/experts" className="block hover:underline">Experts</a>
+              </div>
+            </div>
+          </div>
+          {/* Large airOps logo */}
+          <div className="mb-6">
+            <img
+              src="/images/airops-logo.svg"
+              alt="airOps"
+              style={{ width: '100%', maxWidth: '100%', height: 'auto', opacity: 0.9 }}
+              onError={(e) => {
+                // Fallback: render as text if SVG doesn't exist
+                const el = e.currentTarget;
+                el.style.display = 'none';
+                const text = document.createElement('span');
+                text.textContent = 'airOps';
+                text.style.cssText = 'font-family: Knockout-91, Impact, sans-serif; font-size: clamp(80px, 15vw, 200px); color: #E6E6FF; display: block;';
+                el.parentElement?.appendChild(text);
+              }}
+            />
+          </div>
+          {/* Bottom links */}
+          <div className="flex gap-6 text-[10px] uppercase tracking-[0.15em]" style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}>
+            <a href="https://www.airops.com/privacy" className="hover:underline">Privacy Policy</a>
+            <a href="https://www.airops.com/careers" className="hover:underline">Careers</a>
+            <a href="https://www.airops.com/resources" className="hover:underline">Resources</a>
+          </div>
+        </div>
+      </footer>
 
       {/* Floating card — travels from hero to sidebar on scroll */}
       {scrollProgress > 0 && !cardLanded && (() => {
