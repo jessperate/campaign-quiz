@@ -541,7 +541,10 @@ export default function ResultsClient() {
   const sharePageUrlStr = buildSharePageUrl();
   const quizUrl = typeof window !== 'undefined' ? `${window.location.origin}/quiz` : 'https://airops.com/win';
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(sharePageUrlStr)}`;
-  // LinkedIn: pre-populate compose with TLDR results + share URL (for OG image) + quiz URL
+  // LinkedIn: pre-populate compose with TLDR results + the single share URL.
+  // The share URL MUST be the only URL so LinkedIn crawls it for OG metadata
+  // (personalized image + title). The share page's og:url already points to /quiz,
+  // so clicking the preview card takes people to the quiz.
   const linkedinTldr = [
     `I just took the Content Engineer quiz and I'm "The ${archetype.name}" — ${roleContent.tagline}`,
     ``,
@@ -549,8 +552,7 @@ export default function ResultsClient() {
     `Typically spending time: ${results.bullets.typicallySpending}`,
     `Favorite phrase: "${results.bullets.favoritePhrase}"`,
     ``,
-    `Find your archetype: ${quizUrl}`,
-    ``,
+    `Find your archetype:`,
     sharePageUrlStr,
   ].join('\n');
   const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(linkedinTldr)}`;
