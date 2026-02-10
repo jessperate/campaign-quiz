@@ -1,6 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
+// Allow up to 60s for Gemini image generation
+export const maxDuration = 60;
+
 const STIPPLE_PROMPT = `Transform this exact person's photo into a high-resolution stipple engraving portrait in the authentic Wall Street Journal hedcut style. You MUST preserve the exact likeness, facial features, hair style, and expression of the person in the photo. The image must be composed entirely of fine, distinct dark green (hex #001408) dots on a pure white background. Use directional stippling techniques where rows of dots follow the flow of hair and facial contours to define form. Achieve shading strictly through dot density (halftone), creating strong contrast between deep shadows and bright highlights. No solid lines, outlines, or gray washes—only distinct ink dots. The final output should look like a masterful hand-drawn engraving of THIS specific person. Color: #001408.`;
 
 export async function POST(request: NextRequest) {
