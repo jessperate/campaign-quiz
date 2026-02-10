@@ -1253,6 +1253,26 @@ export default function ResultsClient() {
         </div>
       </div>
 
+      {/* Sticky archetype title banner */}
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: '#1B1B8F',
+          padding: '16px 24px',
+          overflow: 'visible',
+        }}
+      >
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <img
+            src={`/headers/the-${archetype.id}-header.svg`}
+            alt={`The ${archetype.name}`}
+            style={{ width: '100%', height: 'auto' }}
+          />
+        </div>
+      </div>
+
       {/* Content below hero — Two-column layout */}
       <div className="px-6 sm:px-10 py-16" style={{ position: 'relative' }}>
         <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row gap-6">
