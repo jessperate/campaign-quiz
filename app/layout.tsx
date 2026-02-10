@@ -21,13 +21,13 @@ export const metadata: Metadata = {
   title: "Content Engineer Performance Lab | AirOps",
   description: "A performance check for CMOs and content leaders navigating AI-driven growth. Take the quiz to discover your Content Engineer archetype.",
   openGraph: {
-    title: "Do you have what it takes to WIN AI SEARCH?",
+    title: "How do you win AI search?",
     description: "A performance check for CMOs and content leaders navigating AI-driven growth.",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Do you have what it takes to WIN AI SEARCH?",
+    title: "How do you win AI search?",
     description: "A performance check for CMOs and content leaders navigating AI-driven growth.",
     images: ["/og-image.png"],
   },

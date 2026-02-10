@@ -24,10 +24,10 @@ export default function Home() {
         <section className="relative pt-36 md:pt-44 pb-16 px-6">
           <div className="relative max-w-4xl mx-auto text-center">
             <p className="text-white/80 text-[32px] md:text-[48px] mb-2 leading-tight" style={{ fontFamily: 'Serrif, serif' }}>
-              Do you have what it takes?
+              How do you win AI search?
             </p>
-            <h1 className="text-[60px] md:text-[100px] lg:text-[120px] text-[#75FFB9] mb-4 tracking-tight leading-none whitespace-nowrap" style={{ fontFamily: 'Knockout, sans-serif' }}>
-              WIN AI SEARCH
+            <h1 className="text-[60px] md:text-[100px] lg:text-[120px] text-[#75FFB9] mb-4 tracking-tight leading-none whitespace-nowrap uppercase" style={{ fontFamily: 'Knockout-91, Knockout, sans-serif' }}>
+              GET YOUR PLAYER CARD
             </h1>
             <p className="text-white/70 text-base md:text-lg max-w-xl mx-auto mb-6">
               A performance check for CMOs and content leaders navigating AI-driven growth.
