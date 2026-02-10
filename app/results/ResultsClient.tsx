@@ -355,9 +355,9 @@ export default function ResultsClient() {
 
           let resultData = data;
 
-          // If linkedinUrl is present but enrichment hasn't happened yet, trigger it
-          // and WAIT for it so we have the headshot for stipple generation
-          if (data.linkedinUrl && !data.enriched) {
+          // Always call enrichment when linkedinUrl is present - this validates
+          // the headshot blob URL and re-downloads if it's gone (404)
+          if (data.linkedinUrl) {
             try {
               const enrichRes = await fetch('/api/enrich-linkedin', {
                 method: 'POST',

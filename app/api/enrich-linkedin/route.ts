@@ -42,12 +42,53 @@ export async function POST(request: NextRequest) {
 
     const data = JSON.parse(existing);
 
-    // If already enriched (has firstName and headshotUrl), skip
+    // If already enriched, verify the headshot blob is still accessible
     if (data.firstName && data.headshotUrl && data.enriched) {
-      return NextResponse.json(
-        { success: true, alreadyEnriched: true, ...data },
-        { headers: CORS_HEADERS }
-      );
+      let headshotValid = false;
+      try {
+        const headCheck = await fetch(data.headshotUrl, { method: 'HEAD' });
+        headshotValid = headCheck.ok;
+      } catch {
+        // Network error - treat as invalid
+      }
+
+      if (headshotValid) {
+        return NextResponse.json(
+          { success: true, alreadyEnriched: true, ...data },
+          { headers: CORS_HEADERS }
+        );
+      }
+
+      // Headshot blob is gone - try to re-download from LinkedIn CDN URL
+      console.warn('Headshot blob returned 404, re-downloading from LinkedIn CDN');
+      const linkedinImageUrl = data.linkedinProfileImageUrl || "";
+      if (linkedinImageUrl) {
+        try {
+          const imageResponse = await fetch(linkedinImageUrl);
+          if (imageResponse.ok) {
+            const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
+            const imageBuffer = await imageResponse.arrayBuffer();
+            const blob = await put(
+              `headshots/${crypto.randomUUID()}.jpg`,
+              Buffer.from(imageBuffer),
+              { access: "public", contentType }
+            );
+            data.headshotUrl = blob.url;
+            await redis.set(`quiz:${userId}`, JSON.stringify(data), "EX", TTL_SECONDS);
+            console.log('Re-uploaded headshot to blob:', blob.url);
+            return NextResponse.json(
+              { success: true, alreadyEnriched: true, ...data },
+              { headers: CORS_HEADERS }
+            );
+          }
+        } catch (err) {
+          console.warn('Failed to re-download LinkedIn image:', err);
+        }
+      }
+      // Fall through to full re-enrichment — clear stale headshot URL
+      console.warn('LinkedIn CDN URL also failed, running full re-enrichment');
+      data.headshotUrl = "";
+      data.enriched = false;
     }
 
     // Call PhantomBuster
@@ -80,13 +121,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update Redis with enriched data
+    // Update Redis with enriched data (store LinkedIn CDN URL as fallback)
     const updatedData = {
       ...data,
       firstName: profile.firstName || data.firstName || "",
       lastName: profile.lastName || data.lastName || "",
       company: profile.company || data.company || "",
       headshotUrl: storedHeadshotUrl,
+      linkedinProfileImageUrl: profile.profileImageUrl || data.linkedinProfileImageUrl || "",
       enriched: true,
     };
 
