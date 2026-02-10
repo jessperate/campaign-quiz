@@ -1169,42 +1169,6 @@ export default function ResultsClient() {
             Click card to flip
           </p>
 
-          {/* Share CTA button */}
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(sharePageUrlStr);
-              alert('Link copied!');
-            }}
-            style={{
-              width: '374px',
-              maxWidth: '100%',
-              padding: '16px',
-              background: '#00FF64',
-              borderRadius: '58px',
-              display: 'inline-flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '4px',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-            className="hover:opacity-90 transition-opacity"
-          >
-            <span
-              style={{
-                color: '#000D05',
-                fontSize: '20px',
-                fontFamily: 'Saans, sans-serif',
-                fontWeight: 500,
-                lineHeight: '20px',
-              }}
-            >
-              Share My Player Card
-            </span>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ overflow: 'hidden' }}>
-              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="#000D05" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
         </div>
 
         {/* Loading indicator */}
@@ -1236,24 +1200,22 @@ export default function ResultsClient() {
         {/* Scroll chevron indicator */}
         <div
           style={{
-            position: 'absolute',
-            bottom: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            position: 'relative',
+            marginTop: '16px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '2px',
-            opacity: heroAnimStage === 'card-in' ? 0.5 : 0,
+            opacity: heroAnimStage === 'card-in' ? 0.7 : 0,
             transition: 'opacity 0.6s ease-out 0.5s',
             animation: 'scrollChevronBounce 2s ease-in-out infinite',
           }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9L12 15L18 9" stroke="#E6E6FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9L12 15L18 9" stroke="#E6E6FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ marginTop: '-12px' }}>
-            <path d="M6 9L12 15L18 9" stroke="#E6E6FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{ marginTop: '-20px' }}>
+            <path d="M6 9L12 15L18 9" stroke="#E6E6FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
       </div>
