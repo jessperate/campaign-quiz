@@ -49,36 +49,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Winning Section */}
-        <section className="relative py-16 md:py-24 px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-              <div>
-                <h2 className="text-[36px] md:text-[56px] lg:text-[64px] text-white leading-[1.1]" style={{ fontFamily: 'Serrif, serif' }}>
-                  Winning isn&apos;t just about speed.
-                </h2>
-              </div>
-              <div>
-                <p className="text-white/70 text-base md:text-lg mb-6">
-                  This quiz helps you understand whether your content operation is built to compete in the next era, or still training for it.
-                </p>
-                <Link
-                  href="/quiz"
-                  className="inline-flex items-center px-6 py-3 bg-[#00FF64] text-black rounded-full text-base font-bold hover:bg-[#00ff64]/90 transition-all"
-                >
-                  Take the quiz
-                  <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-                <p className="text-text-muted text-sm mt-3" style={{ fontFamily: 'SaansMono, monospace' }}>
-                  Estimated time: 90 seconds (10 data points)
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Champion Cards - Horizontal Scroll */}
         <section className="relative py-8 overflow-hidden">
           <div className="overflow-x-auto scrollbar-hide">
