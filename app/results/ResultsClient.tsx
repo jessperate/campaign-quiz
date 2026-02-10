@@ -1265,15 +1265,18 @@ export default function ResultsClient() {
           top: 0,
           zIndex: 50,
           background: '#1B1B8F',
-          padding: '16px 24px',
+          padding: '56px 24px 16px',
           overflow: 'visible',
         }}
       >
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <img
-            src={`/headers/the-${archetype.id}-header.svg`}
+            src={`/headers/card-title-${archetype.id}.svg`}
             alt={`The ${archetype.name}`}
             style={{ width: '100%', height: 'auto' }}
+            onError={(e) => {
+              e.currentTarget.src = `/headers/the-${archetype.id}-header.svg`;
+            }}
           />
         </div>
       </div>
@@ -1492,9 +1495,9 @@ export default function ResultsClient() {
             </div>
           </div>
 
-          {/* ── Right Column (34%) ── */}
+          {/* ── Right Column (34%) — sticky card sidebar ── */}
           <div className="w-full md:w-1/3">
-            <div className="md:sticky md:top-8 space-y-5">
+            <div className="md:sticky md:top-[200px] space-y-5" style={{ maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}>
               {/* Player card landing zone */}
               <div
                 ref={(el) => {
