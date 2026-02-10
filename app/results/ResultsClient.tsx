@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import html2canvas from "html2canvas";
-import { archetypes, getRandomBullets } from "@/lib/archetypes";
+import { archetypes, getBullets } from "@/lib/archetypes";
 import type { Role, ArchetypeId } from "@/lib/quiz-data";
 import { ShareCard } from "@/components/Results/ShareCard";
 
@@ -423,7 +423,7 @@ export default function ResultsClient() {
       return;
     }
 
-    const bullets = getRandomBullets(archetype, role);
+    const bullets = getBullets(archetype, role);
     const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
       email: "",
       linkedinUrl: "",
@@ -1119,7 +1119,7 @@ export default function ResultsClient() {
                 border: '1.5px solid #586605',
               }}
             >
-              {/* What You're Great At */}
+              {/* Your Winning Play */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <svg className="w-5 h-5 text-[#586605]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1129,40 +1129,7 @@ export default function ResultsClient() {
                     className="text-xs uppercase tracking-[0.15em] text-[#586605] font-semibold"
                     style={{ fontFamily: 'SaansMono, monospace' }}
                   >
-                    What You&apos;re Great At
-                  </span>
-                </div>
-                <div
-                  className="rounded-2xl p-6"
-                  style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}
-                >
-                  <ul className="space-y-3">
-                    {archetype.strengths.map((strength, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span className="text-[#586605] mt-0.5">&#10003;</span>
-                        <span
-                          className="text-[#0C0D01]"
-                          style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
-                        >
-                          {strength}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Level Up Zone */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <svg className="w-5 h-5 text-[#586605]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                  <span
-                    className="text-xs uppercase tracking-[0.15em] text-[#586605] font-semibold"
-                    style={{ fontFamily: 'SaansMono, monospace' }}
-                  >
-                    Level Up Zone
+                    Your Winning Play
                   </span>
                 </div>
                 <div
@@ -1173,7 +1140,33 @@ export default function ResultsClient() {
                     className="text-[#0C0D01]"
                     style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
                   >
-                    {archetype.growthArea}
+                    {roleContent.winningPlay}
+                  </p>
+                </div>
+              </div>
+
+              {/* Where to Focus */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <svg className="w-5 h-5 text-[#586605]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                  <span
+                    className="text-xs uppercase tracking-[0.15em] text-[#586605] font-semibold"
+                    style={{ fontFamily: 'SaansMono, monospace' }}
+                  >
+                    Where to Focus
+                  </span>
+                </div>
+                <div
+                  className="rounded-2xl p-6"
+                  style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}
+                >
+                  <p
+                    className="text-[#0C0D01]"
+                    style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
+                  >
+                    {roleContent.whereToFocus}
                   </p>
                 </div>
               </div>
@@ -1192,7 +1185,7 @@ export default function ResultsClient() {
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {archetype.resources.map((resource, i) => {
+                  {roleContent.resources.map((resource, i) => {
                     const placeholderColors = ['#E8F0FE', '#FEF3E2', '#E8F5E9'];
                     return (
                       <a
@@ -1236,30 +1229,33 @@ export default function ResultsClient() {
                 </div>
               </div>
 
-              {/* Personality Match */}
+              {/* Level Up */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <svg className="w-5 h-5 text-[#586605]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
                   <span
                     className="text-xs uppercase tracking-[0.15em] text-[#586605] font-semibold"
                     style={{ fontFamily: 'SaansMono, monospace' }}
                   >
-                    Personality Match
+                    Level Up
                   </span>
                 </div>
-                <div
-                  className="rounded-2xl p-6"
+                <a
+                  href={roleContent.levelUpUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-2xl p-6 hover:shadow-md transition-shadow"
                   style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}
                 >
                   <p
-                    className="text-[#0C0D01]"
+                    className="text-[#0C0D01] font-medium"
                     style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
                   >
-                    {roleContent.description}
+                    {results.role === 'ic' ? 'Enroll in Cohort \u2192' : 'Book a Call \u2192'}
                   </p>
-                </div>
+                </a>
               </div>
             </div>
           </div>

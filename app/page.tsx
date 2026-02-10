@@ -30,7 +30,7 @@ export default function Home() {
               GET YOUR PLAYER CARD
             </h1>
             <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto mb-6">
-              AI search has changed the game, but winning is easy with AirOps. Take the quiz to uncover your unique player archetype, see your best plays (and where to keep training), and get personalized resources to level up your game.
+              AI search has rewritten the rules of marketing. To win, you need a team of different players: strategists, experimenters, and people who anchor your brand in taste. Take the quiz to discover which kind of player you are so you can own your value, sharpen your strengths, and train your weak spots.
             </p>
 
             <Link
@@ -44,7 +44,7 @@ export default function Home() {
             </Link>
 
             <p className="text-[#00FF64]/60 text-[14px] mt-4 uppercase tracking-[0.2em]" style={{ fontFamily: 'SaansMono, monospace' }}>
-              Estimated time: 90 seconds (10 data points)
+              Estimated time: 90 seconds
             </p>
           </div>
         </section>

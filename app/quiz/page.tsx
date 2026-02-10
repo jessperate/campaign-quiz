@@ -11,7 +11,7 @@ import {
   type ArchetypeId,
 } from "@/lib/quiz-data";
 import { ShareCard } from "@/components/Results/ShareCard";
-import { archetypes, getRandomBullets } from "@/lib/archetypes";
+import { archetypes, getBullets } from "@/lib/archetypes";
 
 export default function QuizPage() {
   const router = useRouter();
@@ -76,7 +76,7 @@ export default function QuizPage() {
     }
   }, [role]);
 
-  const totalQuestions = 6;
+  const totalQuestions = 7;
   const currentQuestion = questions[currentQuestionIndex];
 
   const handleSelectAnswer = (answerId: string) => {
@@ -156,7 +156,7 @@ export default function QuizPage() {
     // Build answer array from stored answers (q2-q6 → question 1-5)
     const quizRole = role || sessionStorage.getItem("quizRole") as Role;
     const answerArray = [];
-    for (let i = 2; i <= 6; i++) {
+    for (let i = 2; i <= 7; i++) {
       const ans = answers[`q${i}`];
       if (ans) {
         answerArray.push({ question: i - 1, answer: ans });
@@ -262,7 +262,7 @@ export default function QuizPage() {
     const previewArchetypeId = sessionStorage.getItem("quizArchetype") as ArchetypeId | null;
     const previewArchetype = previewArchetypeId ? archetypes[previewArchetypeId] : null;
     const previewBullets = previewArchetype && role
-      ? getRandomBullets(previewArchetype, role)
+      ? getBullets(previewArchetype, role)
       : { mostLikelyTo: "???", typicallySpending: "???", favoritePhrase: "???" };
 
     return (

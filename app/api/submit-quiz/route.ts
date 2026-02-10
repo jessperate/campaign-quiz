@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Redis from "ioredis";
 import { put } from "@vercel/blob";
 import { calculateArchetype, type Role } from "@/lib/quiz-data";
-import { archetypes, getRandomBullets } from "@/lib/archetypes";
+import { archetypes, getBullets } from "@/lib/archetypes";
 import { enrichLinkedInProfile } from "@/lib/phantombuster";
 import crypto from "crypto";
 
@@ -12,8 +12,8 @@ export const maxDuration = 60;
 const redis = new Redis(process.env.REDIS_URL!);
 
 const VALID_ROLES = new Set<Role>(["ic", "manager", "executive"]);
-const VALID_ANSWERS = new Set(["a", "b", "c", "d"]);
-const REQUIRED_ANSWER_COUNT = 5;
+const VALID_ANSWERS = new Set(["a", "b", "c", "d", "e"]);
+const REQUIRED_ANSWER_COUNT = 6;
 const TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
 const CORS_HEADERS = {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     for (const ans of answers) {
-      if (!ans.question || typeof ans.question !== "number" || ans.question < 1 || ans.question > 5) {
+      if (!ans.question || typeof ans.question !== "number" || ans.question < 1 || ans.question > 6) {
         return NextResponse.json(
           { success: false, error: "Each answer must have a question number between 1 and 5." },
           { status: 400, headers: CORS_HEADERS }
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
     // Calculate archetype
     const archetypeId = calculateArchetype(answerMap, role as Role);
     const archetype = archetypes[archetypeId];
-    const bullets = getRandomBullets(archetype, role as Role);
+    const bullets = getBullets(archetype, role as Role);
 
     // Generate userId
     const userId = crypto.randomUUID();
@@ -178,12 +178,12 @@ export async function POST(request: NextRequest) {
         name: archetype.name,
         shortName: archetype.shortName,
         tagline: roleContent.tagline,
-        description: roleContent.description,
       },
       bullets,
-      strengths: archetype.strengths,
-      growthArea: archetype.growthArea,
-      resources: archetype.resources,
+      winningPlay: roleContent.winningPlay,
+      whereToFocus: roleContent.whereToFocus,
+      resources: roleContent.resources,
+      levelUpUrl: roleContent.levelUpUrl,
       createdAt: new Date().toISOString(),
     };
 

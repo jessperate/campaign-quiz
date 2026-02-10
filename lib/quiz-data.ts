@@ -24,7 +24,7 @@ export interface Question {
 // Q1: Role selection (same for everyone)
 export const roleQuestion: Question = {
   id: "q1",
-  text: "What's your role?",
+  text: "First, what\u2019s your role?",
   options: [
     {
       id: "executive",
@@ -33,415 +33,223 @@ export const roleQuestion: Question = {
     },
     {
       id: "manager",
-      text: "I manage a team or function. (Director, Lead, Sr. Manager)",
+      text: "I manage a team or function. (Marketing Director, Team Lead, Sr. Manager)",
       signals: []
     },
     {
       id: "ic",
-      text: "I'm in the game every day doing the work. (Writer, Ops, Analyst, Creator)",
+      text: "I create and execute the work. (Writer, Designer, Analyst, Specialist)",
       signals: []
     }
   ]
 };
 
-// IC Track Questions (Q2-Q6)
+// IC Track Questions (Q2-Q7)
 export const icQuestions: Question[] = [
   {
     id: "q2",
-    text: "It's game day and your work isn't quite publish-ready. You:",
+    text: "It\u2019s game day and your content isn\u2019t quite publish-ready. You:",
     options: [
-      {
-        id: "a",
-        text: "Ship it. You miss 100% of the shots you don't take.",
-        signals: ["goGoGoer"]
-      },
-      {
-        id: "b",
-        text: "Delay it. I don't put my name on anything that's not ready.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "c",
-        text: "Stay late to run the full pre-launch checklist. We have a plan, let's follow it.",
-        signals: ["glue"]
-      },
-      {
-        id: "d",
-        text: "Ask my manager to gut-check it before it goes out.",
-        signals: ["heart"]
-      }
+      { id: "a", text: "Ship it now. Real-world feedback beats perfect planning.", signals: ["goGoGoer"] },
+      { id: "b", text: "Hold it until it\u2019s ready. I don\u2019t publish anything below my standards.", signals: ["tastemaker"] },
+      { id: "c", text: "Rally the team to make one last pass. We\u2019re in this together.", signals: ["heart"] },
+      { id: "d", text: "Stay up late to get it over the finish line. I do whatever it takes.", signals: ["clutch"] },
+      { id: "e", text: "Spin up a new AI workflow to refine and finalize.", signals: ["trendsetter"] }
     ]
   },
   {
     id: "q3",
-    text: "What's your AI playbook look like?",
+    text: "What\u2019s your approach to new AI tools and workflows?",
     options: [
-      {
-        id: "a",
-        text: "AI handles the kickoff. I bring it to the end-zone.",
-        signals: ["goGoGoer"]
-      },
-      {
-        id: "b",
-        text: "I've built custom playbooks for most situations that get thrown at me.",
-        signals: ["glue", "trendsetter"]
-      },
-      {
-        id: "c",
-        text: "Limited use. I don't trust it with the important stuff yet.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "Experimenting and building my toolkit.",
-        signals: ["heart"]
-      }
+      { id: "a", text: "AI handles 80% of the work, I finish up. Speed is the most important.", signals: ["goGoGoer"] },
+      { id: "b", text: "I\u2019m constantly running new tools and playbooks. Experimentation is my edge.", signals: ["trendsetter"] },
+      { id: "c", text: "I\u2019m learning something new every week, but not an expert. This stuff is exciting.", signals: ["heart"] },
+      { id: "d", text: "I focus on AI that enhances creativity and quality, not just speed.", signals: ["tastemaker"] },
+      { id: "e", text: "I think about how AI fits our content strategy before diving in.", signals: ["vision"] }
     ]
   },
   {
     id: "q4",
-    text: "AI search is changing the marketing game. How are you adjusting to win on ChatGPT, Perplexity, and other AI tools?",
+    text: "A major trend breaks in your space. Your move:",
     options: [
-      {
-        id: "a",
-        text: "Already training for it. This is where the competition is going.",
-        signals: ["trendsetter"]
-      },
-      {
-        id: "b",
-        text: "I know it matters but haven't figured out my approach yet.",
-        signals: ["goGoGoer", "clutch", "heart"]
-      },
-      {
-        id: "c",
-        text: "Overhyped. Traditional playbooks are how humans still work.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "I volunteered to be my company's dedicated AEO player.",
-        signals: ["vision"]
-      }
+      { id: "a", text: "I start dreaming up what our unique and creative take is.", signals: ["tastemaker"] },
+      { id: "b", text: "I brainstorm a hot take to stir reactions in the market.", signals: ["trendsetter"] },
+      { id: "c", text: "I start thinking about how Product, Sales, and CX could react.", signals: ["clutch"] },
+      { id: "d", text: "I have systems ready to respond quickly when trends hit.", signals: ["glue"] },
+      { id: "e", text: "I move fast. First to market with a post or ad usually wins.", signals: ["goGoGoer"] }
     ]
   },
   {
     id: "q5",
-    text: "A trend just broke in your industry. What's the play?",
+    text: "How do you approach your work?",
     options: [
-      {
-        id: "a",
-        text: "I've got a standard rapid-response workflow ready to go.",
-        signals: ["glue", "trendsetter"]
-      },
-      {
-        id: "b",
-        text: "Deprioritize everything else to come up with the best play. First to market wins.",
-        signals: ["goGoGoer"]
-      },
-      {
-        id: "c",
-        text: "Research first, act when ready. Hot takes don't land without insight.",
-        signals: ["vision", "tastemaker"]
-      },
-      {
-        id: "d",
-        text: "Huddle up with my team and learn as I go. This is how we get better.",
-        signals: ["heart", "clutch"]
-      }
+      { id: "a", text: "Quality-focused. Every piece should represent the best I can do.", signals: ["tastemaker"] },
+      { id: "b", text: "Strategic. I think about how my work connects to bigger goals.", signals: ["vision"] },
+      { id: "c", text: "Adaptable. I figure out what each situation needs.", signals: ["clutch"] },
+      { id: "d", text: "Experimental. I\u2019m always testing new approaches or tools.", signals: ["trendsetter"] },
+      { id: "e", text: "Growth-oriented. I\u2019m early in my career but improving rapidly.", signals: ["heart"] }
     ]
   },
   {
     id: "q6",
-    text: "How would you describe your working style?",
+    text: "How do you stay sharp and improve?",
     options: [
-      {
-        id: "a",
-        text: "Craftsperson. Every detail matters.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "b",
-        text: "Systematic. I run proven plays because they work.",
-        signals: ["glue"]
-      },
-      {
-        id: "c",
-        text: "Versatile. Put me anywhere, I'll figure it out.",
-        signals: ["clutch"]
-      },
-      {
-        id: "d",
-        text: "Scrappy. Still building my game, but I deliver.",
-        signals: ["heart", "goGoGoer"]
-      }
+      { id: "a", text: "I love to learn. I ask questions and try new things constantly.", signals: ["heart"] },
+      { id: "b", text: "I test every new tool hands-on and keep what works for me.", signals: ["trendsetter"] },
+      { id: "c", text: "I adapt my learning based on what projects are coming up.", signals: ["clutch"] },
+      { id: "d", text: "I\u2019ve built learning routines that keep me consistent.", signals: ["glue"] },
+      { id: "e", text: "I learn by doing. I pick up skills as I ship work.", signals: ["goGoGoer"] }
+    ]
+  },
+  {
+    id: "q7",
+    text: "When working with other teams or stakeholders, you:",
+    options: [
+      { id: "a", text: "Focus on delivering quickly and efficiently.", signals: ["goGoGoer"] },
+      { id: "b", text: "Make sure the quality meets standards before sharing anything.", signals: ["tastemaker"] },
+      { id: "c", text: "Ask lots of questions to understand what would be most helpful.", signals: ["heart"] },
+      { id: "d", text: "Build it, plan an enablement session, and follow up to make sure it\u2019s used.", signals: ["clutch"] },
+      { id: "e", text: "Share insights about how this connects to bigger company goals.", signals: ["vision"] }
     ]
   }
 ];
 
-// Manager Track Questions (Q2-Q6)
+// Manager Track Questions (Q2-Q7)
 export const managerQuestions: Question[] = [
   {
     id: "q2",
-    text: "Your team's work is going out but the quality is inconsistent. You:",
+    text: "Your team\u2019s output quality is falling. What do you do?",
     options: [
-      {
-        id: "a",
-        text: "Ship it. We'll learn and iterate. Can't let perfect be the enemy of done.",
-        signals: ["goGoGoer", "trendsetter"]
-      },
-      {
-        id: "b",
-        text: "Hold it. I'll personally review everything before it goes out.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "c",
-        text: "Build a checklist or workflow so this doesn't happen again.",
-        signals: ["glue", "vision"]
-      },
-      {
-        id: "d",
-        text: "Huddle with the team to figure out what went wrong.",
-        signals: ["heart"]
-      }
+      { id: "a", text: "We ship and learn from feedback. Perfect is the enemy of done.", signals: ["goGoGoer"] },
+      { id: "b", text: "I run through the process myself to see where things are breaking.", signals: ["clutch"] },
+      { id: "c", text: "I build better quality checkpoints into our workflow.", signals: ["glue"] },
+      { id: "d", text: "I set up coaching sessions to make sure they have the support they need.", signals: ["heart"] },
+      { id: "e", text: "We experiment with new AI tools for quality control.", signals: ["trendsetter"] }
     ]
   },
   {
     id: "q3",
-    text: "How are you thinking about AI for your team?",
+    text: "How are you rolling out AI across your team?",
     options: [
-      {
-        id: "a",
-        text: "We're shipping faster than ever. AI handles the first draft, humans close it out.",
-        signals: ["goGoGoer"]
-      },
-      {
-        id: "b",
-        text: "I've built workflows and templates so the team can use AI consistently.",
-        signals: ["glue"]
-      },
-      {
-        id: "c",
-        text: "Cautiously. I need to make sure quality doesn't slip.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "Experimenting. We're figuring out what works for us.",
-        signals: ["heart", "trendsetter"]
-      }
+      { id: "a", text: "Fast adoption. AI drafts, humans finish. We\u2019re shipping more than ever.", signals: ["goGoGoer"] },
+      { id: "b", text: "I work with each team member to develop a personalized plan.", signals: ["clutch"] },
+      { id: "c", text: "Everyone is encouraged to suggest ideas and experiments.", signals: ["heart"] },
+      { id: "d", text: "I think hard about how AI helps us achieve our strategic goals.", signals: ["vision"] },
+      { id: "e", text: "Carefully and slowly. I need to maintain our quality standards as we scale.", signals: ["tastemaker"] }
     ]
   },
   {
     id: "q4",
-    text: "AI search is changing the marketing game. How is your team adjusting?",
+    text: "AI search is changing how audiences find content. Your approach:",
     options: [
-      {
-        id: "a",
-        text: "We're optimizing for it. I've already shared our new playbook.",
-        signals: ["trendsetter", "goGoGoer"]
-      },
-      {
-        id: "b",
-        text: "We're taking some steps but not giving up the traditional plays.",
-        signals: ["vision", "clutch"]
-      },
-      {
-        id: "c",
-        text: "Skeptical. We're focused on what's working now.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "Learning together. I'm bringing insights back to the team.",
-        signals: ["heart"]
-      }
+      { id: "a", text: "I rolled out a new AEO tool last year and we\u2019re experimenting fast.", signals: ["trendsetter"] },
+      { id: "b", text: "I\u2019ve assigned ownership and we\u2019re developing our systematic approach.", signals: ["vision"] },
+      { id: "c", text: "I\u2019m talking to a ton of colleagues and peers to come up with the best approach.", signals: ["clutch"] },
+      { id: "d", text: "I\u2019m practicing patience. It\u2019s an intense time with no perfect answers. We\u2019re learning.", signals: ["heart"] },
+      { id: "e", text: "We\u2019re rethinking our stack and processes to set us up for this new era.", signals: ["glue"] }
     ]
   },
   {
     id: "q5",
-    text: "A major trend breaks in your industry. How does your team respond?",
+    text: "Major industry trend breaks. How does your team handle it?",
     options: [
-      {
-        id: "a",
-        text: "We've got a rapid-response workflow. The team knows exactly what to do.",
-        signals: ["glue", "trendsetter"]
-      },
-      {
-        id: "b",
-        text: "All hands on deck. We figure it out and ship fast.",
-        signals: ["goGoGoer"]
-      },
-      {
-        id: "c",
-        text: "We take our time. Rushed work reflects poorly on the team.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "We debrief first, then decide if it's worth chasing.",
-        signals: ["clutch", "heart"]
-      }
+      { id: "a", text: "Run it through an LLM to create content and ship our response before the competition.", signals: ["goGoGoer"] },
+      { id: "b", text: "I adapt our response based on team strengths and the specific trend.", signals: ["clutch"] },
+      { id: "c", text: "I designed our content calendar to be reactive, so we move things around to engage.", signals: ["glue"] },
+      { id: "d", text: "I plan a working session for my team to chat this through together.", signals: ["heart"] },
+      { id: "e", text: "We make sure we have something worth saying before committing resources.", signals: ["vision"] }
     ]
   },
   {
     id: "q6",
-    text: "How would you describe your management style?",
+    text: "Your management style:",
     options: [
-      {
-        id: "a",
-        text: "High standards. I push the team to do their best work.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "b",
-        text: "Systems-builder. I create the plays so the team can run them.",
-        signals: ["glue"]
-      },
-      {
-        id: "c",
-        text: "Flexible. I adapt to what the team and situation need.",
-        signals: ["clutch"]
-      },
-      {
-        id: "d",
-        text: "In the trenches. I'm still learning but I lead by doing.",
-        signals: ["heart", "goGoGoer"]
-      }
+      { id: "a", text: "Adaptive. I meet each team member and situation where they are.", signals: ["clutch"] },
+      { id: "b", text: "Strategic. I help the team see how their work drives business results.", signals: ["vision"] },
+      { id: "c", text: "Systems-focused. I build the infrastructure for team success.", signals: ["glue"] },
+      { id: "d", text: "Experimental. We\u2019re always testing new approaches together.", signals: ["trendsetter"] },
+      { id: "e", text: "Results-driven. We focus on shipping and hitting our goals.", signals: ["goGoGoer"] }
+    ]
+  },
+  {
+    id: "q7",
+    text: "How do you help your team grow?",
+    options: [
+      { id: "a", text: "I\u2019m hands-on, working alongside them and coaching as we go.", signals: ["heart"] },
+      { id: "b", text: "I help them understand how their work connects to company strategy.", signals: ["vision"] },
+      { id: "c", text: "I encourage them to experiment and try new approaches.", signals: ["trendsetter"] },
+      { id: "d", text: "I create clear processes and training so they can excel consistently.", signals: ["glue"] },
+      { id: "e", text: "I push them to maintain high standards in everything they do.", signals: ["tastemaker"] }
     ]
   }
 ];
 
-// Executive Track Questions (Q2-Q6)
+// Executive Track Questions (Q2-Q7)
 export const executiveQuestions: Question[] = [
   {
     id: "q2",
-    text: "Your team needs to 2x output next quarter. Your move:",
+    text: "Your marketing org needs to 2x output next quarter. Your move:",
     options: [
-      {
-        id: "a",
-        text: "Hire. We need more people to hit the number.",
-        signals: ["heart"]
-      },
-      {
-        id: "b",
-        text: "Build the systems and workflows so we can scale without adding headcount.",
-        signals: ["glue"]
-      },
-      {
-        id: "c",
-        text: "Dig in and re-motivate the team. We've got more in the tank.",
-        signals: ["goGoGoer"]
-      },
-      {
-        id: "d",
-        text: "Try out new AI tools. That's the leverage play in 2026.",
-        signals: ["trendsetter"]
-      }
+      { id: "a", text: "Rally the team. We have untapped energy to unlock.", signals: ["goGoGoer"] },
+      { id: "b", text: "Invest in a new AI tool. That\u2019s our force multiplier.", signals: ["trendsetter"] },
+      { id: "c", text: "Restructure priorities to align with the strategic shift.", signals: ["vision"] },
+      { id: "d", text: "Think about how to maintain quality as we scale. No compromising brand.", signals: ["tastemaker"] },
+      { id: "e", text: "Have an honest conversation with the team that we\u2019ll need to push, together.", signals: ["heart"] }
     ]
   },
   {
     id: "q3",
-    text: "How are you thinking about AI for your marketing org?",
+    text: "Your approach to AI across the marketing organization:",
     options: [
-      {
-        id: "a",
-        text: "It's central to our strategy. We're building an AI-native team.",
-        signals: ["trendsetter", "vision"]
-      },
-      {
-        id: "b",
-        text: "We've got workflows in place. The team is enabled and shipping faster.",
-        signals: ["glue"]
-      },
-      {
-        id: "c",
-        text: "Cautiously optimistic. I need to see ROI before going all in.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "Still evaluating. We're running pilots to figure out what works.",
-        signals: ["heart", "clutch"]
-      }
+      { id: "a", text: "It\u2019s central to our strategy. We\u2019re building an AI-native operation.", signals: ["trendsetter"] },
+      { id: "b", text: "We\u2019re implementing structured workflows that enable the whole team.", signals: ["glue"] },
+      { id: "c", text: "Thoughtful investment. I need clear proof we won\u2019t produce slop as we adopt.", signals: ["tastemaker"] },
+      { id: "d", text: "I need to understand exactly how it supports our strategy before investing.", signals: ["vision"] },
+      { id: "e", text: "I\u2019m personally invested in the implications and opportunities for my team.", signals: ["heart"] }
     ]
   },
   {
     id: "q4",
-    text: "AI search is disrupting how buyers find solutions. What's your strategy?",
+    text: "AI search is reshaping buyer discovery. Your response:",
     options: [
-      {
-        id: "a",
-        text: "We're already repositioning. This is a board-level priority.",
-        signals: ["vision", "trendsetter"]
-      },
-      {
-        id: "b",
-        text: "We're testing and learning. I've got a team on it.",
-        signals: ["glue", "clutch"]
-      },
-      {
-        id: "c",
-        text: "Watching closely, but not ready to shift budget yet.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "Honestly, we're behind on this. I need to get on it.",
-        signals: ["heart"]
-      }
+      { id: "a", text: "We\u2019re repositioning proactively, org-wide. It\u2019s a board-level strategic priority.", signals: ["vision"] },
+      { id: "b", text: "We\u2019re testing approaches across segments and use cases.", signals: ["clutch"] },
+      { id: "c", text: "Making sure we are still building for humans, not just bots.", signals: ["tastemaker"] },
+      { id: "d", text: "We\u2019re moving early and aggressively. We can\u2019t miss the competitive advantage.", signals: ["trendsetter"] },
+      { id: "e", text: "I\u2019m talking to my team to figure out where we need to upskill and invest.", signals: ["heart"] }
     ]
   },
   {
     id: "q5",
-    text: "How do you prove marketing's impact to the board?",
+    text: "In times of uncertainty, how do you tell the story of marketing\u2019s impact:",
     options: [
-      {
-        id: "a",
-        text: "Pipeline and revenue. I tie everything to business outcomes.",
-        signals: ["vision", "goGoGoer"]
-      },
-      {
-        id: "b",
-        text: "Efficiency metrics. Cost-per-asset, velocity, team utilization.",
-        signals: ["glue"]
-      },
-      {
-        id: "c",
-        text: "Quality and brand. Not everything fits in a spreadsheet.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "Still building the measurement framework. It's a work in progress.",
-        signals: ["heart", "clutch"]
-      }
+      { id: "a", text: "Business growth. Business outcomes is always #1, the rest is fluff.", signals: ["vision"] },
+      { id: "b", text: "Brand and quality. Long-term value can help us survive short-term disruption.", signals: ["tastemaker"] },
+      { id: "c", text: "Team learning and development. Our team is always getting closer to the win.", signals: ["heart"] },
+      { id: "d", text: "Innovation. An experimental attitude wins, despite missteps along the way.", signals: ["trendsetter"] },
+      { id: "e", text: "Adaptability. We\u2019ll win if we are able to constantly assess and adapt.", signals: ["clutch"] }
     ]
   },
   {
     id: "q6",
-    text: "How would you describe your leadership style?",
+    text: "Your leadership approach:",
     options: [
-      {
-        id: "a",
-        text: "Visionary. I set the direction and align the org around it.",
-        signals: ["vision"]
-      },
-      {
-        id: "b",
-        text: "Process-oriented. I build the systems that make the team run.",
-        signals: ["glue"]
-      },
-      {
-        id: "c",
-        text: "Quality-obsessed. I hold a high bar and the team rises to it.",
-        signals: ["tastemaker"]
-      },
-      {
-        id: "d",
-        text: "Adaptive. I read the situation and adjust.",
-        signals: ["clutch"]
-      }
+      { id: "a", text: "Visionary. I set direction and align the organization around it.", signals: ["vision"] },
+      { id: "b", text: "Quality-focused. I maintain standards and the organization rises to meet them.", signals: ["tastemaker"] },
+      { id: "c", text: "Innovation-driven. We stay ahead by moving early on opportunities.", signals: ["trendsetter"] },
+      { id: "d", text: "Growth-minded. I\u2019m personally invested in building organizational capability.", signals: ["heart"] },
+      { id: "e", text: "Adaptive. I read situations and adjust our approach accordingly.", signals: ["clutch"] }
+    ]
+  },
+  {
+    id: "q7",
+    text: "When facing major organizational challenges, you:",
+    options: [
+      { id: "a", text: "Step back and develop a strategic plan that addresses root causes.", signals: ["vision"] },
+      { id: "b", text: "Build new systems and processes to prevent similar issues.", signals: ["glue"] },
+      { id: "c", text: "Talk to the team to understand and solve problems hands-on.", signals: ["heart"] },
+      { id: "d", text: "Talk to other leaders to figure out what\u2019s worked for others.", signals: ["clutch"] },
+      { id: "e", text: "Focus on the foundations. You know what works. Just execute well.", signals: ["tastemaker"] }
     ]
   }
 ];
