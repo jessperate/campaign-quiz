@@ -584,21 +584,22 @@ export default function ResultsClient() {
           padding: '40px 24px 80px',
         }}
       >
-        {/* AirOps logo at top */}
-        <p
+        {/* AirOps logo — fixed to top of page */}
+        <div
           style={{
-            position: 'relative',
-            fontFamily: 'Saans, sans-serif',
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#E6E6FF',
-            letterSpacing: '0.5px',
-            marginBottom: '40px',
-            zIndex: 1,
+            position: 'fixed',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 100,
           }}
         >
-          airops
-        </p>
+          <img
+            src="/images/airops-logo.svg"
+            alt="airops"
+            style={{ width: '100px', height: 'auto' }}
+          />
+        </div>
 
         {/* Leaf pattern overlay */}
         <div
@@ -667,7 +668,7 @@ export default function ResultsClient() {
             alignItems: 'center',
           }}
         >
-          {/* Archetype title SVG — full viewport width so laurels aren't clipped */}
+          {/* Archetype card-title SVG — behind the card */}
           <div
             style={{
               position: 'relative',
@@ -679,9 +680,13 @@ export default function ResultsClient() {
             }}
           >
             <img
-              src={`/headers/the-${archetype.id}-header.svg`}
+              src={`/headers/card-title-${archetype.id}.svg`}
               alt={`The ${archetype.name}`}
               style={{ width: '100%', height: 'auto' }}
+              onError={(e) => {
+                // Fallback to original header if card-title variant doesn't exist
+                e.currentTarget.src = `/headers/the-${archetype.id}-header.svg`;
+              }}
             />
           </div>
 
