@@ -83,13 +83,13 @@ export async function generateMetadata({ searchParams }: SharePageProps): Promis
     ? descriptionParts.join(' | ')
     : `${data.archetype?.roleContent?.ic?.tagline || 'Find your archetype'}. Take the quiz to discover your Content Engineer archetype!`;
 
-  // Use the pre-captured OG image from Vercel Blob if available,
-  // otherwise fall back to the dynamic server-side OG image generator.
-  // This ensures LinkedIn's crawler always gets an image even if the
-  // client-side html2canvas capture hasn't completed yet.
-  const imageUrl = data.ogImageUrl
-    || data.cardUrl
-    || (params.userId ? `${baseUrl}/api/og-image?userId=${params.userId}` : null);
+  // Always use the dynamic /api/og-image endpoint which generates a proper
+  // 1200x630 image inline (no redirects). LinkedIn crawlers don't reliably
+  // follow 302s, and the html2canvas captures are 1080x1080 (wrong aspect
+  // ratio for LinkedIn large image cards which need ~1.91:1).
+  const imageUrl = params.userId
+    ? `${baseUrl}/api/og-image?userId=${params.userId}`
+    : null;
 
   return {
     title,

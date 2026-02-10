@@ -28,7 +28,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     }
 
     const parsed = typeof data === "string" ? JSON.parse(data) : data;
-    const { firstName, lastName, archetype, bullets, ogImageUrl: savedOgImage, cardUrl: savedCardUrl } = parsed;
+    const { firstName, lastName, archetype, bullets } = parsed;
     const title = `${firstName} ${lastName} is "The ${archetype.name}" — Content Engineer Archetype`;
 
     const descriptionParts: string[] = [];
@@ -41,8 +41,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "https://campaign-quiz.vercel.app";
 
-    // Prefer the pre-rendered blob image, fall back to dynamic server-side generation
-    const ogImageUrl = savedOgImage || savedCardUrl || `${baseUrl}/api/og-image?userId=${userId}`;
+    // Always use the dynamic OG image endpoint — it generates a proper 1200x630
+    // image inline. The blob captures are 1080x1080 (wrong aspect ratio for LinkedIn).
+    const ogImageUrl = `${baseUrl}/api/og-image?userId=${userId}`;
 
     return {
       title,

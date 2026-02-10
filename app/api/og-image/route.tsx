@@ -21,10 +21,9 @@ export async function GET(request: NextRequest) {
     return new Response("User not found", { status: 404 });
   }
 
-  // If the rendered card has been captured and saved, redirect to it
-  if (parsed.cardUrl) {
-    return Response.redirect(parsed.cardUrl, 302);
-  }
+  // Always generate a fresh 1200x630 image inline (no redirects).
+  // LinkedIn crawlers don't reliably follow 302s for og:image URLs,
+  // and the captured card is 1080x1080 (wrong aspect ratio for LinkedIn).
 
   const firstName = parsed.firstName || "";
   const lastName = parsed.lastName || "";
