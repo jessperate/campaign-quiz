@@ -3,11 +3,7 @@ import Redis from "ioredis";
 import { put } from "@vercel/blob";
 import { calculateArchetype, type Role } from "@/lib/quiz-data";
 import { archetypes, getBullets } from "@/lib/archetypes";
-import { enrichLinkedInProfile } from "@/lib/phantombuster";
 import crypto from "crypto";
-
-// Allow up to 60s for PhantomBuster enrichment
-export const maxDuration = 60;
 
 const redis = new Redis(process.env.REDIS_URL!);
 
@@ -112,39 +108,8 @@ export async function POST(request: NextRequest) {
       console.log(`No headshot URL provided`);
     }
 
-    // If linkedinUrl provided, enrich via PhantomBuster (best-effort)
-    if (linkedinUrl && typeof linkedinUrl === "string") {
-      try {
-        const profile = await enrichLinkedInProfile(linkedinUrl);
-        if (profile) {
-          firstName = profile.firstName || firstName;
-          lastName = profile.lastName || lastName;
-          company = profile.company || company;
-          title = profile.title || title;
-
-          // Download and store LinkedIn headshot if we don't already have one
-          if (profile.profileImageUrl && !storedHeadshotUrl) {
-            try {
-              const imgRes = await fetch(profile.profileImageUrl);
-              if (imgRes.ok) {
-                const contentType = imgRes.headers.get("content-type") || "image/jpeg";
-                const imgBuffer = await imgRes.arrayBuffer();
-                const blob = await put(
-                  `headshots/${crypto.randomUUID()}.jpg`,
-                  Buffer.from(imgBuffer),
-                  { access: "public", contentType }
-                );
-                storedHeadshotUrl = blob.url;
-              }
-            } catch (err) {
-              console.warn("Failed to store LinkedIn profile image:", err);
-            }
-          }
-        }
-      } catch (err) {
-        console.warn("PhantomBuster enrichment failed, continuing without:", err);
-      }
-    }
+    // LinkedIn enrichment is handled by the results page (/api/enrich-linkedin)
+    // to avoid blocking the quiz submission for 30-60s.
 
     // Transform answers: { q1: role, q2: "a", q3: "b", ... }
     const answerMap: Record<string, string> = { q1: role };

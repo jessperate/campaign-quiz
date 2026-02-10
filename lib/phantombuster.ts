@@ -32,8 +32,9 @@ function parseProfile(
   console.log("[PhantomBuster] Looking for profile matching:", normalizedInput, "in", results.length, "results");
 
   const profile = results.find((r) => {
-    const url = normalizeLinkedInUrl((r.profileUrl as string) || (r.linkedinProfile as string) || "");
-    console.log("[PhantomBuster] Comparing:", url, "vs", normalizedInput);
+    const url = normalizeLinkedInUrl(
+      (r.profileUrl as string) || (r.linkedinProfileUrl as string) || (r.linkedinProfile as string) || ""
+    );
     return url === normalizedInput;
   });
 
@@ -51,6 +52,77 @@ function parseProfile(
   };
   console.log("[PhantomBuster] Parsed profile:", JSON.stringify(result));
   return result;
+}
+
+/**
+ * Parse CSV into an array of objects. Handles quoted fields with commas,
+ * newlines inside quotes, and escaped quotes ("").
+ */
+function parseCsv(csvText: string): Record<string, string>[] {
+  // Normalize \r\n to \n, standalone \r to \n
+  const text = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  // State-machine parser: splits text into rows of fields,
+  // correctly handling quoted fields that contain commas or newlines.
+  const rows: string[][] = [];
+  let fields: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') {
+          // Escaped quote
+          current += '"';
+          i++;
+        } else {
+          // End of quoted field
+          inQuotes = false;
+        }
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ",") {
+        fields.push(current);
+        current = "";
+      } else if (ch === "\n") {
+        fields.push(current);
+        current = "";
+        rows.push(fields);
+        fields = [];
+      } else {
+        current += ch;
+      }
+    }
+  }
+
+  // Push last field/row
+  if (current || fields.length > 0) {
+    fields.push(current);
+    rows.push(fields);
+  }
+
+  if (rows.length < 2) return [];
+
+  const headers = rows[0];
+  const results: Record<string, string>[] = [];
+  for (let i = 1; i < rows.length; i++) {
+    const values = rows[i];
+    // Skip empty/malformed rows
+    if (values.length < 2) continue;
+    const obj: Record<string, string> = {};
+    for (let j = 0; j < headers.length; j++) {
+      obj[headers[j]] = (values[j] || "").trim();
+    }
+    results.push(obj);
+  }
+  return results;
 }
 
 export async function enrichLinkedInProfile(
@@ -153,60 +225,88 @@ export async function enrichLinkedInProfile(
       return null;
     }
 
-    // 3. Fetch container-specific output (NOT agent-level, which could return another user's data)
+    // 3. Try container-specific result object first (fastest, per-container data)
+    console.log("[PhantomBuster] Fetching container result object for:", containerId);
+    try {
+      const resultObjRes = await fetch(
+        `${API_BASE}/containers/fetch-result-object?id=${containerId}`,
+        { headers: getHeaders() }
+      );
+      if (resultObjRes.ok) {
+        const resultObjData = await resultObjRes.json();
+        if (resultObjData.resultObject) {
+          const results = Array.isArray(resultObjData.resultObject)
+            ? resultObjData.resultObject
+            : [resultObjData.resultObject];
+          const profile = parseProfile(results as Record<string, unknown>[], linkedinUrl);
+          if (profile) return profile;
+        }
+      }
+    } catch (err) {
+      console.warn("[PhantomBuster] fetch-result-object failed:", err);
+    }
+
+    // 4. Try console output for JSON URL (works for fresh non-deduped scrapes)
     console.log("[PhantomBuster] Fetching container output for:", containerId);
     const outputRes = await fetch(
       `${API_BASE}/containers/fetch-output?id=${containerId}`,
       { headers: getHeaders() }
     );
 
-    if (!outputRes.ok) {
-      console.warn("[PhantomBuster] Container fetch-output failed:", outputRes.status);
-      return null;
-    }
+    if (outputRes.ok) {
+      const outputData = await outputRes.json();
+      const outputLog = (outputData.output as string) || "";
+      console.log("[PhantomBuster] Container output tail:", outputLog.slice(-500));
 
-    const outputData = await outputRes.json();
-    const outputLog = (outputData.output as string) || "";
-    console.log("[PhantomBuster] Container output tail:", outputLog.slice(-500));
-
-    // Results are saved to S3 — extract the JSON URL from the output logs
-    const jsonUrlMatch = outputLog.match(/JSON saved at (https:\/\/\S+\.json)/);
-
-    if (!jsonUrlMatch) {
-      // Fallback: try the known S3 path, but ONLY trust results that match the requested URL
-      const s3Folder = agentData.s3Folder;
-      const orgS3Folder = agentData.orgS3Folder;
-      if (s3Folder && orgS3Folder) {
-        const s3Url = `https://phantombuster.s3.amazonaws.com/${orgS3Folder}/${s3Folder}/result.json`;
-        console.log("[PhantomBuster] No JSON URL in output, trying known S3 path:", s3Url);
-        const resultRes = await fetch(s3Url);
+      const jsonUrlMatch = outputLog.match(/JSON saved at (https:\/\/\S+\.json)/);
+      if (jsonUrlMatch) {
+        console.log("[PhantomBuster] Fetching results from:", jsonUrlMatch[1]);
+        const resultRes = await fetch(jsonUrlMatch[1]);
         if (resultRes.ok) {
           const results: Record<string, unknown>[] = await resultRes.json();
-          if (results.length) {
-            return parseProfile(results, linkedinUrl);
-          }
+          const profile = parseProfile(results, linkedinUrl);
+          if (profile) return profile;
         }
       }
-      console.warn("[PhantomBuster] No result JSON found.");
-      return null;
     }
 
-    // 4. Fetch the actual result data from S3
-    console.log("[PhantomBuster] Fetching results from:", jsonUrlMatch[1]);
-    const resultRes = await fetch(jsonUrlMatch[1]);
-    if (!resultRes.ok) {
-      console.warn("[PhantomBuster] Result fetch failed:", resultRes.status);
-      return null;
+    // 5. Fallback: check S3 result.json, then result.csv (has ALL accumulated profiles)
+    const s3Folder = agentData.s3Folder;
+    const orgS3Folder = agentData.orgS3Folder;
+    if (s3Folder && orgS3Folder) {
+      const s3Base = `https://phantombuster.s3.amazonaws.com/${orgS3Folder}/${s3Folder}`;
+
+      // Try result.json first (fast, but only has latest run's data)
+      try {
+        const jsonRes = await fetch(`${s3Base}/result.json`);
+        if (jsonRes.ok) {
+          const results: Record<string, unknown>[] = await jsonRes.json();
+          const profile = parseProfile(results, linkedinUrl);
+          if (profile) return profile;
+        }
+      } catch (err) {
+        console.warn("[PhantomBuster] S3 result.json fetch failed:", err);
+      }
+
+      // Try result.csv — contains ALL profiles accumulated across all runs
+      // This handles the deduplication case where a profile was scraped previously
+      console.log("[PhantomBuster] Trying S3 result.csv (accumulated results)...");
+      try {
+        const csvRes = await fetch(`${s3Base}/result.csv`);
+        if (csvRes.ok) {
+          const csvText = await csvRes.text();
+          const csvResults = parseCsv(csvText);
+          console.log("[PhantomBuster] CSV has", csvResults.length, "accumulated profiles");
+          const profile = parseProfile(csvResults as Record<string, unknown>[], linkedinUrl);
+          if (profile) return profile;
+        }
+      } catch (err) {
+        console.warn("[PhantomBuster] S3 result.csv fetch failed:", err);
+      }
     }
 
-    const results: Record<string, unknown>[] = await resultRes.json();
-
-    if (!results.length) {
-      console.warn("[PhantomBuster] No results in JSON file");
-      return null;
-    }
-
-    return parseProfile(results, linkedinUrl);
+    console.warn("[PhantomBuster] No matching profile found in any result source.");
+    return null;
   } catch (err) {
     console.warn("PhantomBuster enrichment error:", err);
     return null;

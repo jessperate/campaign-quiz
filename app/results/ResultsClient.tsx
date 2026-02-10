@@ -356,6 +356,7 @@ export default function ResultsClient() {
           let resultData = data;
 
           // If linkedinUrl is present but enrichment hasn't happened yet, trigger it
+          // and WAIT for it so we have the headshot for stipple generation
           if (data.linkedinUrl && !data.enriched) {
             try {
               const enrichRes = await fetch('/api/enrich-linkedin', {
@@ -392,6 +393,7 @@ export default function ResultsClient() {
           setResults(newResults);
 
           // Use cached stipple image if available, otherwise generate via Gemini
+          // The headshot URL should now be available from enrichment above
           if (resultData.stippleImageUrl) {
             setStippleImage(resultData.stippleImageUrl);
           } else {
