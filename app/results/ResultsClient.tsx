@@ -581,9 +581,25 @@ export default function ResultsClient() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: '60px 24px 80px',
+          padding: '40px 24px 80px',
         }}
       >
+        {/* AirOps logo at top */}
+        <p
+          style={{
+            position: 'relative',
+            fontFamily: 'Saans, sans-serif',
+            fontSize: '14px',
+            fontWeight: 600,
+            color: '#E6E6FF',
+            letterSpacing: '0.5px',
+            marginBottom: '40px',
+            zIndex: 1,
+          }}
+        >
+          airops
+        </p>
+
         {/* Leaf pattern overlay */}
         <div
           style={{
@@ -1238,13 +1254,13 @@ export default function ResultsClient() {
       </div>
 
       {/* Content below hero — Two-column layout */}
-      <div className="px-4 sm:px-6 py-12" style={{ position: 'relative' }}>
-        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8">
+      <div className="px-6 sm:px-10 py-16" style={{ position: 'relative' }}>
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row gap-6">
 
           {/* ── Left Column (66%) ── */}
           <div className="w-full md:w-2/3">
             <div
-              className="rounded-3xl p-6 sm:p-10 space-y-10"
+              className="rounded-3xl p-6 sm:p-8 space-y-8"
               style={{
                 backgroundColor: 'rgba(255,255,255,0.08)',
                 border: '1.5px solid rgba(230,230,255,0.15)',
@@ -1253,7 +1269,7 @@ export default function ResultsClient() {
               {/* What You're Great At + Level Up Zone — side by side */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-3">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
@@ -1272,7 +1288,7 @@ export default function ResultsClient() {
                   </p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-3">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#8B8BFF" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
@@ -1409,7 +1425,7 @@ export default function ResultsClient() {
 
               {/* Next Steps */}
               <div>
-                <div className="flex items-center gap-2 mb-6">
+                <div className="flex items-center gap-2 mb-4">
                   <span
                     className="text-[10px] uppercase tracking-[0.15em] font-semibold"
                     style={{ fontFamily: 'SaansMono, monospace', color: '#A5A5FF' }}
@@ -1453,7 +1469,7 @@ export default function ResultsClient() {
 
           {/* ── Right Column (34%) ── */}
           <div className="w-full md:w-1/3">
-            <div className="md:sticky md:top-8 space-y-6">
+            <div className="md:sticky md:top-8 space-y-5">
               {/* Player card landing zone */}
               <div
                 ref={(el) => {
@@ -1624,7 +1640,7 @@ export default function ResultsClient() {
       <div
         style={{
           background: '#0D0D6B',
-          padding: '100px 24px',
+          padding: '160px 24px 120px',
           textAlign: 'center',
         }}
       >
@@ -1661,7 +1677,7 @@ export default function ResultsClient() {
       </div>
 
       {/* Footer */}
-      <footer style={{ background: '#0A0A5C', padding: '48px 24px 24px', color: '#E6E6FF' }}>
+      <footer style={{ background: '#0A0A5C', padding: '60px 24px 32px', color: '#E6E6FF' }}>
         <div className="max-w-[1200px] mx-auto">
           {/* Top nav */}
           <div className="flex gap-6 mb-8 text-sm" style={{ fontFamily: 'Saans, sans-serif' }}>
@@ -1671,7 +1687,7 @@ export default function ResultsClient() {
           </div>
           <div style={{ height: '1px', background: 'rgba(230,230,255,0.15)', marginBottom: '32px' }} />
           {/* Link columns */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 mb-12 text-xs" style={{ fontFamily: 'Saans, sans-serif', color: '#E6E6FF' }}>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 mb-16 text-xs" style={{ fontFamily: 'Saans, sans-serif', color: '#E6E6FF' }}>
             <div>
               <p className="font-semibold mb-3 text-[#E6E6FF]">Product</p>
               <div className="space-y-2 text-[#E6E6FF]/60">
