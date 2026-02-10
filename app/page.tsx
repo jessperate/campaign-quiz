@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/ui/Header";
-import CardGrid from "@/components/CardGrid";
+import ChampionCardFan from "@/components/ChampionCardFan";
 
 export default function Home() {
   return (
@@ -49,23 +49,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Champion Cards - Horizontal Scroll */}
-        <section className="relative py-8 overflow-hidden">
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex justify-center gap-4 md:gap-6 px-6 min-w-max pb-4">
-              <Image
-                src="/images/champion-cards.png"
-                alt="Champion cards showing marketing leaders who win AI search"
-                width={1920}
-                height={400}
-                className="h-[320px] md:h-[400px] lg:h-[480px] w-auto object-contain"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Player Cards Grid */}
-        <CardGrid />
+        {/* Champion Cards Fan */}
+        <ChampionCardFan />
 
         {/* CTA Section */}
         <section className="relative py-20 md:py-32 px-6">
