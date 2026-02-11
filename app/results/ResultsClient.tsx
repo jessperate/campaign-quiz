@@ -511,21 +511,29 @@ export default function ResultsClient() {
     const b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
+  const darken = (hex: string, pct: number) => {
+    const f = 1 - pct / 100;
+    const r = Math.round(parseInt(hex.slice(1, 3), 16) * f);
+    const g = Math.round(parseInt(hex.slice(3, 5), 16) * f);
+    const b = Math.round(parseInt(hex.slice(5, 7), 16) * f);
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+  };
 
   const RESULTS_THEMES: Record<string, {
-    bg: string; bgDark: string; bgDarkest: string;
-    text: string; accent: string;
-    cardBg: string; cardBorder: string; divider: string;
+    bg: string; cardBg: string; headline: string; body: string; secondaryBtn: string;
   }> = {
-    trendsetter: { bg: '#1B1B8F', bgDark: '#12126B', bgDarkest: '#0A0A5C', text: '#E6E6FF', accent: '#A5A5FF', cardBg: 'rgba(255,255,255,0.08)', cardBorder: 'rgba(255,255,255,0.15)', divider: 'rgba(255,255,255,0.1)' },
-    vision:      { bg: '#196C80', bgDark: '#114E5C', bgDarkest: '#0C3A45', text: '#E0F4F9', accent: '#80D8EC', cardBg: 'rgba(255,255,255,0.08)', cardBorder: 'rgba(255,255,255,0.15)', divider: 'rgba(255,255,255,0.1)' },
-    glue:        { bg: '#EEFF8C', bgDark: '#D6E87A', bgDarkest: '#C0D168', text: '#2A3300', accent: '#5A6B00', cardBg: 'rgba(0,0,0,0.06)', cardBorder: 'rgba(0,0,0,0.12)', divider: 'rgba(0,0,0,0.08)' },
-    goGoGoer:    { bg: '#802828', bgDark: '#601E1E', bgDarkest: '#461515', text: '#FFE6E6', accent: '#FF9B9B', cardBg: 'rgba(255,255,255,0.08)', cardBorder: 'rgba(255,255,255,0.15)', divider: 'rgba(255,255,255,0.1)' },
-    tastemaker:  { bg: '#5A3480', bgDark: '#3E2359', bgDarkest: '#2E1A43', text: '#F0E6FF', accent: '#C9A5FF', cardBg: 'rgba(255,255,255,0.08)', cardBorder: 'rgba(255,255,255,0.15)', divider: 'rgba(255,255,255,0.1)' },
-    clutch:      { bg: '#008C44', bgDark: '#006B34', bgDarkest: '#004D24', text: '#E0FFF0', accent: '#7DFFB8', cardBg: 'rgba(255,255,255,0.08)', cardBorder: 'rgba(255,255,255,0.15)', divider: 'rgba(255,255,255,0.1)' },
-    heart:       { bg: '#C54B9B', bgDark: '#9A3778', bgDarkest: '#752960', text: '#FFE6F5', accent: '#FFB8E4', cardBg: 'rgba(255,255,255,0.08)', cardBorder: 'rgba(255,255,255,0.15)', divider: 'rgba(255,255,255,0.1)' },
+    trendsetter: { bg: '#1B1B8F', cardBg: '#0F0F57', headline: '#F5F6FF', body: '#E5E5FF', secondaryBtn: '#000D05' },
+    vision:      { bg: '#196C80', cardBg: '#0A3945', headline: '#F2FCFF', body: '#C9EBF2', secondaryBtn: '#020B0D' },
+    glue:        { bg: '#586605', cardBg: '#242603', headline: '#FDFFF3', body: '#EEFF8C', secondaryBtn: '#0C0D01' },
+    goGoGoer:    { bg: '#802828', cardBg: '#331010', headline: '#FFF0F0', body: '#FFE2E2', secondaryBtn: '#0D0404' },
+    tastemaker:  { bg: '#5A3480', cardBg: '#2A084D', headline: '#F8F7FF', body: '#DDD3F2', secondaryBtn: '#07010D' },
+    clutch:      { bg: '#008C44', cardBg: '#002910', headline: '#F8FFFB', body: '#DFEAE3', secondaryBtn: '#000D05' },
+    heart:       { bg: '#C54B9B', cardBg: '#3A092C', headline: '#FFF7FF', body: '#FEE7FD', secondaryBtn: '#0D020A' },
   };
-  const rTheme = RESULTS_THEMES[results.archetype] || RESULTS_THEMES.trendsetter;
+  const rt = RESULTS_THEMES[results.archetype] || RESULTS_THEMES.trendsetter;
+  const cardInner = darken(rt.cardBg, 30);
+  const cardBorder = hexToRgba(rt.body, 0.15);
+  const dividerColor = hexToRgba(rt.body, 0.1);
 
   // Parse name into first/last
   const nameParts = userName.trim().split(/\s+/);
@@ -569,21 +577,21 @@ export default function ResultsClient() {
   const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(linkedinTldr)}`;
 
   return (
-    <div className="min-h-screen relative rp" style={{ background: rTheme.bg }}>
+    <div className="min-h-screen relative rp" style={{ background: rt.bg }}>
       {/* Dynamic theme CSS overrides for Tailwind color classes */}
       <style dangerouslySetInnerHTML={{ __html: `
-        .rp [class*="text-[#E6E6FF]"] { color: ${rTheme.text} !important; }
-        .rp [class*="text-[#E6E6FF]/70"] { color: ${hexToRgba(rTheme.text, 0.7)} !important; }
-        .rp [class*="text-[#E6E6FF]/60"] { color: ${hexToRgba(rTheme.text, 0.6)} !important; }
-        .rp [class*="text-[#E6E6FF]/50"] { color: ${hexToRgba(rTheme.text, 0.5)} !important; }
-        .rp [class*="text-[#E6E6FF]/40"] { color: ${hexToRgba(rTheme.text, 0.4)} !important; }
+        .rp [class*="text-[#E6E6FF]"] { color: ${rt.body} !important; }
+        .rp [class*="text-[#E6E6FF]/70"] { color: ${hexToRgba(rt.body, 0.7)} !important; }
+        .rp [class*="text-[#E6E6FF]/60"] { color: ${hexToRgba(rt.body, 0.6)} !important; }
+        .rp [class*="text-[#E6E6FF]/50"] { color: ${hexToRgba(rt.body, 0.5)} !important; }
+        .rp [class*="text-[#E6E6FF]/40"] { color: ${hexToRgba(rt.body, 0.4)} !important; }
       `}} />
       {/* Hero section */}
       <div
         ref={heroRef}
         className="relative w-full"
         style={{
-          background: rTheme.bg,
+          background: rt.bg,
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
@@ -631,7 +639,7 @@ export default function ResultsClient() {
             top: 0,
             bottom: 0,
             width: '1px',
-            background: rTheme.text,
+            background: rt.body,
             opacity: 0.3,
           }}
         />
@@ -643,7 +651,7 @@ export default function ResultsClient() {
             top: 0,
             bottom: 0,
             width: '1px',
-            background: rTheme.text,
+            background: rt.body,
             opacity: 0.3,
           }}
         />
@@ -654,7 +662,7 @@ export default function ResultsClient() {
             position: 'relative',
             fontFamily: 'SaansMono, monospace',
             fontSize: '12px',
-            color: rTheme.text,
+            color: rt.headline,
             textTransform: 'uppercase',
             letterSpacing: '4px',
             marginBottom: '32px',
@@ -1139,7 +1147,7 @@ export default function ResultsClient() {
             position: 'relative',
             fontFamily: 'Serrif, serif',
             fontSize: '18px',
-            color: rTheme.text,
+            color: rt.headline,
             maxWidth: '1200px',
             width: '100%',
             textAlign: 'right',
@@ -1220,10 +1228,10 @@ export default function ResultsClient() {
           }}
         >
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9L12 15L18 9" stroke={rTheme.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M6 9L12 15L18 9" stroke={rt.body} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{ marginTop: '-20px' }}>
-            <path d="M6 9L12 15L18 9" stroke={rTheme.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M6 9L12 15L18 9" stroke={rt.body} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
       </div>
@@ -1234,7 +1242,7 @@ export default function ResultsClient() {
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          background: rTheme.bg,
+          background: rt.bg,
           padding: '80px 24px 16px',
           overflow: 'visible',
         }}
@@ -1260,20 +1268,20 @@ export default function ResultsClient() {
             <div
               className="rounded-3xl p-6 sm:p-8 space-y-8"
               style={{
-                backgroundColor: rTheme.cardBg,
-                border: `1.5px solid ${rTheme.cardBorder}`,
+                backgroundColor: rt.cardBg,
+                border: `1.5px solid ${cardBorder}`,
               }}
             >
               {/* What You're Great At + Level Up Zone — side by side */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={rTheme.accent} strokeWidth={2}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={rt.headline} strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     <span
                       className="text-[10px] uppercase tracking-[0.15em] font-semibold"
-                      style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}
+                      style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}
                     >
                       What You&apos;re Great At
                     </span>
@@ -1287,12 +1295,12 @@ export default function ResultsClient() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={rTheme.accent} strokeWidth={2}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={rt.headline} strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                     <span
                       className="text-[10px] uppercase tracking-[0.15em] font-semibold"
-                      style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}
+                      style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}
                     >
                       Level Up Zone
                     </span>
@@ -1307,17 +1315,17 @@ export default function ResultsClient() {
               </div>
 
               {/* Divider */}
-              <div style={{ height: '1px', background: rTheme.divider }} />
+              <div style={{ height: '1px', background: dividerColor }} />
 
               {/* Your Training Playbook */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={rTheme.accent} strokeWidth={2}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={rt.headline} strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                   <span
                     className="text-[10px] uppercase tracking-[0.15em] font-semibold"
-                    style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}
+                    style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}
                   >
                     Your Training Playbook
                   </span>
@@ -1333,7 +1341,7 @@ export default function ResultsClient() {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {roleContent.resources.map((resource, i) => {
-                    const placeholderColors = [rTheme.bgDark, rTheme.bgDarkest, rTheme.bgDark];
+                    const placeholderColors = [rt.cardBg, cardInner, rt.cardBg];
                     return (
                       <a
                         key={i}
@@ -1341,7 +1349,7 @@ export default function ResultsClient() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block rounded-2xl overflow-hidden hover:shadow-lg transition-shadow"
-                        style={{ border: `1px solid ${rTheme.divider}` }}
+                        style={{ border: `1px solid ${dividerColor}` }}
                       >
                         <div
                           className="flex items-center justify-center relative overflow-hidden"
@@ -1352,12 +1360,12 @@ export default function ResultsClient() {
                           )}
                           <span
                             className="absolute top-2 left-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-semibold"
-                            style={{ fontFamily: 'SaansMono, monospace', backgroundColor: hexToRgba(rTheme.bgDarkest, 0.85), color: rTheme.accent }}
+                            style={{ fontFamily: 'SaansMono, monospace', backgroundColor: hexToRgba(cardInner, 0.85), color: rt.headline }}
                           >
                             {resource.type}
                           </span>
                         </div>
-                        <div className="p-4" style={{ backgroundColor: rTheme.cardBg }}>
+                        <div className="p-4" style={{ backgroundColor: cardInner }}>
                           <p className="text-[#E6E6FF] font-medium text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
                             {resource.title}
                           </p>
@@ -1372,17 +1380,17 @@ export default function ResultsClient() {
               </div>
 
               {/* Divider */}
-              <div style={{ height: '1px', background: rTheme.divider }} />
+              <div style={{ height: '1px', background: dividerColor }} />
 
               {/* Personality Match */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={rTheme.accent} strokeWidth={2}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={rt.headline} strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <span
                     className="text-[10px] uppercase tracking-[0.15em] font-semibold"
-                    style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}
+                    style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}
                   >
                     Personality Match
                   </span>
@@ -1401,13 +1409,13 @@ export default function ResultsClient() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block rounded-2xl overflow-hidden hover:shadow-lg transition-shadow max-w-sm"
-                  style={{ border: `1px solid ${rTheme.divider}` }}
+                  style={{ border: `1px solid ${dividerColor}` }}
                 >
                   <div
                     className="flex items-center justify-center relative overflow-hidden"
-                    style={{ backgroundColor: rTheme.bgDark, aspectRatio: '16 / 9' }}
+                    style={{ backgroundColor: rt.cardBg, aspectRatio: '16 / 9' }}
                   />
-                  <div className="p-4" style={{ backgroundColor: rTheme.cardBg }}>
+                  <div className="p-4" style={{ backgroundColor: cardInner }}>
                     <p className="text-[#E6E6FF] font-medium text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
                       Webinar from this personality type match linked here
                     </p>
@@ -1419,14 +1427,14 @@ export default function ResultsClient() {
               </div>
 
               {/* Divider */}
-              <div style={{ height: '1px', background: rTheme.divider }} />
+              <div style={{ height: '1px', background: dividerColor }} />
 
               {/* Next Steps */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <span
                     className="text-[10px] uppercase tracking-[0.15em] font-semibold"
-                    style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}
+                    style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}
                   >
                     &gt;&gt; Next Steps
                   </span>
@@ -1454,9 +1462,9 @@ export default function ResultsClient() {
                   className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-full text-base font-medium transition-colors hover:bg-[#F5F5F5]"
                   style={{
                     fontFamily: 'Saans, sans-serif',
-                    background: '#FFFFFF',
-                    color: '#000D05',
-                    border: '1.5px solid #E0E0E0',
+                    background: rt.secondaryBtn,
+                    color: '#FFFFFF',
+                    border: `1.5px solid ${hexToRgba(rt.body, 0.2)}`,
                   }}
                 >
                   Book your Demo &rarr;
@@ -1526,7 +1534,7 @@ export default function ResultsClient() {
               <div>
                 <p
                   className="text-[10px] uppercase tracking-[0.2em] mb-1"
-                  style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}
+                  style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}
                 >
                   The
                 </p>
@@ -1538,7 +1546,7 @@ export default function ResultsClient() {
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}>
+                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}>
                       Most Likely To:
                     </p>
                     <p className="text-[#E6E6FF] text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
@@ -1546,7 +1554,7 @@ export default function ResultsClient() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}>
+                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}>
                       Typically Spending Time:
                     </p>
                     <p className="text-[#E6E6FF] text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
@@ -1554,7 +1562,7 @@ export default function ResultsClient() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}>
+                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-1" style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}>
                       Favorite Phrase:
                     </p>
                     <p className="text-[#E6E6FF] text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
@@ -1568,7 +1576,7 @@ export default function ResultsClient() {
               <div>
                 <p
                   className="text-xl font-semibold mb-4"
-                  style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif', color: rTheme.text }}
+                  style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif', color: rt.headline }}
                 >
                   Share your<br />player card
                 </p>
@@ -1637,7 +1645,7 @@ export default function ResultsClient() {
       {/* Take the quiz CTA section */}
       <div
         style={{
-          background: rTheme.bgDark,
+          background: rt.cardBg,
           padding: '160px 24px 120px',
           textAlign: 'center',
         }}
@@ -1646,7 +1654,7 @@ export default function ResultsClient() {
           style={{
             fontFamily: 'SerrifVF, Serrif, Georgia, serif',
             fontSize: 'clamp(40px, 6vw, 72px)',
-            color: rTheme.text,
+            color: rt.headline,
             marginBottom: '16px',
           }}
         >
@@ -1675,7 +1683,7 @@ export default function ResultsClient() {
       </div>
 
       {/* Footer */}
-      <footer style={{ background: rTheme.bgDarkest, padding: '60px 24px 32px', color: rTheme.text }}>
+      <footer style={{ background: cardInner, padding: '60px 24px 32px', color: rt.body }}>
         <div className="max-w-[1200px] mx-auto">
           {/* Top nav */}
           <div className="flex gap-6 mb-8 text-sm" style={{ fontFamily: 'Saans, sans-serif' }}>
@@ -1683,9 +1691,9 @@ export default function ResultsClient() {
             <a href="https://www.airops.com/careers" className="hover:underline">Careers</a>
             <a href="https://www.airops.com/resources" className="hover:underline">Resources</a>
           </div>
-          <div style={{ height: '1px', background: rTheme.cardBorder, marginBottom: '32px' }} />
+          <div style={{ height: '1px', background: cardBorder, marginBottom: '32px' }} />
           {/* Link columns */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 mb-16 text-xs" style={{ fontFamily: 'Saans, sans-serif', color: rTheme.text }}>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 mb-16 text-xs" style={{ fontFamily: 'Saans, sans-serif', color: rt.body }}>
             <div>
               <p className="font-semibold mb-3 text-[#E6E6FF]">Product</p>
               <div className="space-y-2 text-[#E6E6FF]/60">
@@ -1750,13 +1758,13 @@ export default function ResultsClient() {
                 el.style.display = 'none';
                 const text = document.createElement('span');
                 text.textContent = 'airOps';
-                text.style.cssText = `font-family: Knockout-91, Impact, sans-serif; font-size: clamp(80px, 15vw, 200px); color: ${rTheme.text}; display: block;`;
+                text.style.cssText = `font-family: Knockout-91, Impact, sans-serif; font-size: clamp(80px, 15vw, 200px); color: ${rt.body}; display: block;`;
                 el.parentElement?.appendChild(text);
               }}
             />
           </div>
           {/* Bottom links */}
-          <div className="flex gap-6 text-[10px] uppercase tracking-[0.15em]" style={{ fontFamily: 'SaansMono, monospace', color: rTheme.accent }}>
+          <div className="flex gap-6 text-[10px] uppercase tracking-[0.15em]" style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}>
             <a href="https://www.airops.com/privacy" className="hover:underline">Privacy Policy</a>
             <a href="https://www.airops.com/careers" className="hover:underline">Careers</a>
             <a href="https://www.airops.com/resources" className="hover:underline">Resources</a>
