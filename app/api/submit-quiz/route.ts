@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     let { firstName, lastName, company, title } = body;
-    const { role, answers, email, headshotUrl, linkedinUrl, wantsDemo } = body;
+    const { role, answers, email, headshotUrl, stippleImageUrl, linkedinUrl, wantsDemo } = body;
 
     // Validate role
     if (!role || !VALID_ROLES.has(role)) {
@@ -138,6 +138,7 @@ export async function POST(request: NextRequest) {
       linkedinUrl: linkedinUrl || "",
       wantsDemo: !!wantsDemo,
       headshotUrl: storedHeadshotUrl,
+      stippleImageUrl: stippleImageUrl || "",
       archetype: {
         id: archetype.id,
         name: archetype.name,
@@ -180,10 +181,6 @@ export async function POST(request: NextRequest) {
     hubspotFields.push({
       name: "brand_campaign__archetype__2026q1",
       value: archetype.name,
-    });
-    hubspotFields.push({
-      name: "brand_campaign__og_image_url__2026q1",
-      value: `${baseUrl}/api/og-image?userId=${userId}`,
     });
     const hubspotPayload = { fields: hubspotFields };
 

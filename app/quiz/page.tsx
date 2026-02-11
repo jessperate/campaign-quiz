@@ -31,6 +31,7 @@ export default function QuizPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [headshot, setHeadshot] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
+  const stipplePromise = useRef<Promise<string | null> | null>(null);
   const [cardTilt, setCardTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
   const cardTiltRef = useRef<HTMLDivElement>(null);
 
@@ -90,7 +91,18 @@ export default function QuizPage() {
       setHeadshot(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setHeadshotPreview(reader.result as string);
+        const base64 = reader.result as string;
+        setHeadshotPreview(base64);
+
+        // Start stipple generation immediately in the background
+        stipplePromise.current = fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ photoBase64: base64, userName: '', archetype: '', tagline: '' }),
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => data?.imageUrl || null)
+          .catch(() => null);
       };
       reader.readAsDataURL(file);
     }
@@ -108,22 +120,45 @@ export default function QuizPage() {
     sessionStorage.setItem("quizFormData", JSON.stringify(dataToStore));
 
     // Upload headshot to blob if provided, then submit through API
+    // Also resolve the pre-generated stipple if ready
     let headshotBlobUrl = "";
+    let stippleBlobUrl = "";
+
     if (headshotPreview) {
-      try {
-        const res = await fetch("/api/upload-card", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            imageBase64: headshotPreview,
-            uniqueId: `headshot-${Date.now()}`,
-          }),
-        });
-        const data = await res.json();
-        if (data.url) headshotBlobUrl = data.url;
-      } catch (err) {
-        console.warn("Failed to upload headshot:", err);
-      }
+      // Upload headshot and resolve stipple in parallel
+      const headshotUpload = fetch("/api/upload-card", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageBase64: headshotPreview,
+          uniqueId: `headshot-${Date.now()}`,
+        }),
+      })
+        .then(res => res.json())
+        .then(data => { if (data.url) headshotBlobUrl = data.url; })
+        .catch(err => console.warn("Failed to upload headshot:", err));
+
+      const stippleUpload = stipplePromise.current
+        ? stipplePromise.current.then(async (stippleBase64) => {
+            if (!stippleBase64) return;
+            try {
+              const res = await fetch("/api/upload-card", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  imageBase64: stippleBase64,
+                  uniqueId: `stipple-${Date.now()}`,
+                }),
+              });
+              const data = await res.json();
+              if (data.url) stippleBlobUrl = data.url;
+            } catch (err) {
+              console.warn("Failed to upload stipple:", err);
+            }
+          })
+        : Promise.resolve();
+
+      await Promise.all([headshotUpload, stippleUpload]);
     }
 
     // Parse name into first/last
@@ -154,6 +189,7 @@ export default function QuizPage() {
           company: formData.company || "",
           email: formData.email,
           headshotUrl: headshotBlobUrl,
+          stippleImageUrl: stippleBlobUrl || undefined,
           wantsDemo: formData.wantsDemo || false,
         }),
       });
