@@ -165,47 +165,48 @@ export default function ResultsClient() {
     }
   }, [shareableCardUrl, isCapturingCard]);
 
-  // Capture the OG card (card on archetype OG background) as the share image
+  // Generate the 1200x630 OG image via the server-side Satori endpoint,
+  // upload to Blob, and save the static URL in Redis so LinkedIn can fetch it instantly.
   const captureAndUploadOgImage = useCallback(async () => {
-    if (!ogCardRef.current || ogImageUrl) return;
+    if (ogImageUrl) return;
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('userId');
+      if (!userId) return;
 
-      const canvas = await html2canvas(ogCardRef.current, {
-        scale: 1,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#000000',
-        width: 1080,
-        height: 1080,
+      // Fetch the server-rendered 1200x630 OG image
+      const ogRes = await fetch(`/api/og-image?userId=${encodeURIComponent(userId)}`);
+      if (!ogRes.ok) {
+        console.warn('OG image generation failed:', ogRes.status);
+        return;
+      }
+
+      const blob = await ogRes.blob();
+      const reader = new FileReader();
+      const imageBase64 = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
       });
 
-      const imageBase64 = canvas.toDataURL('image/png');
       const uniqueId = `og-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-      const response = await fetch('/api/upload-card', {
+      const uploadRes = await fetch('/api/upload-card', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64, uniqueId }),
       });
 
-      const data = await response.json();
+      const data = await uploadRes.json();
       if (data.url) {
         setOgImageUrl(data.url);
         console.log('OG image uploaded:', data.url);
 
-        // Save OG image URL to Redis
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userId');
-        if (userId) {
-          await fetch('/api/save-card-url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, cardUrl: data.url, field: 'ogImageUrl' }),
-          });
-          console.log('OG image URL saved to Redis');
-        }
+        await fetch('/api/save-card-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, cardUrl: data.url, field: 'ogImageUrl' }),
+        });
+        console.log('OG image URL saved to Redis');
       }
     } catch (err) {
       console.error('Failed to capture OG image:', err);
@@ -547,7 +548,26 @@ export default function ResultsClient() {
 
   // Share URLs — use userId so the share page can fetch OG image from Redis
   const userId = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('userId') : null;
-  const shareText = `I just discovered I'm "The ${archetype.name}" — ${roleContent.tagline}. Take the quiz to find your Content Engineer archetype!`;
+  const SHARE_CTAS: Record<string, string> = {
+    vision: "AI search is rewriting the rules. Find out what kind of player you are. \u{1F447}",
+    glue: "AI search needs new playbooks. Find out what kind of player you are. \u{1F447}",
+    trendsetter: "Find out what kind of player you are. \u{1F447}",
+    goGoGoer: "AI search rewards speed. Find out what kind of player you are. \u{1F447}",
+    tastemaker: "In a world of AI slop, taste wins. Find out what kind of player you are. \u{1F447}",
+    clutch: "Find out what kind of player you are. \u{1F447}",
+    heart: "Find out what kind of player you are. \u{1F447}",
+  };
+  const closingCta = SHARE_CTAS[results.archetype] || SHARE_CTAS.trendsetter;
+
+  const shareBody = [
+    `I took the AirOps Content Engineer quiz and got The ${archetype.name} -- ${roleContent.tagline}`,
+    ``,
+    `- Most likely to: ${results.bullets.mostLikelyTo}`,
+    `- Spend time: ${results.bullets.typicallySpending}`,
+    `- Favorite phrase: ${results.bullets.favoritePhrase}`,
+    ``,
+    closingCta,
+  ].join('\n');
 
   const buildSharePageUrl = () => {
     if (typeof window === 'undefined') return 'https://airops.com/win';
@@ -559,22 +579,9 @@ export default function ResultsClient() {
 
   const sharePageUrlStr = buildSharePageUrl();
   const quizUrl = typeof window !== 'undefined' ? `${window.location.origin}/quiz` : 'https://airops.com/win';
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(sharePageUrlStr)}`;
-  // LinkedIn: pre-populate compose with TLDR results + the single share URL.
-  // The share URL MUST be the only URL so LinkedIn crawls it for OG metadata
-  // (personalized image + title). The share page's og:url already points to /quiz,
-  // so clicking the preview card takes people to the quiz.
-  const linkedinTldr = [
-    `I just took the Content Engineer quiz and I'm "The ${archetype.name}" — ${roleContent.tagline}`,
-    ``,
-    `Most likely to: ${results.bullets.mostLikelyTo}`,
-    `Typically spending time: ${results.bullets.typicallySpending}`,
-    `Favorite phrase: "${results.bullets.favoritePhrase}"`,
-    ``,
-    `Find your archetype:`,
-    sharePageUrlStr,
-  ].join('\n');
-  const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(linkedinTldr)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareBody)}&url=${encodeURIComponent(sharePageUrlStr)}`;
+  const linkedinText = shareBody;
+  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrlStr)}`;
 
   return (
     <div className="min-h-screen relative rp" style={{ background: rt.bg }}>
@@ -1369,9 +1376,6 @@ export default function ResultsClient() {
                           <p className="text-[#E6E6FF] font-medium text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
                             {resource.title}
                           </p>
-                          <p className="text-[#E6E6FF]/40 text-xs mt-1" style={{ fontFamily: 'SaansMono, monospace' }}>
-                            Update November 19th, 2025
-                          </p>
                         </div>
                       </a>
                     );
@@ -1594,32 +1598,20 @@ export default function ResultsClient() {
                     </svg>
                     Share on Twitter
                   </a>
-                  {/* LinkedIn — green */}
-                  {shareableCardUrl ? (
-                    <a
-                      href={linkedinUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-90"
-                      style={{ background: '#00FF64', color: '#000D05' }}
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                      </svg>
-                      In Share on LinkedIn
-                    </a>
-                  ) : (
-                    <div
-                      className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold opacity-50 cursor-not-allowed"
-                      style={{ background: '#00FF64', color: '#000D05' }}
-                    >
-                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Preparing...
-                    </div>
-                  )}
+                  {/* LinkedIn — copy text to clipboard + open share-offsite for OG card */}
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(linkedinText);
+                      window.open(linkedinShareUrl, '_blank');
+                    }}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity cursor-pointer hover:opacity-90"
+                    style={{ background: '#00FF64', color: '#000D05' }}
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    </svg>
+                    Share on LinkedIn
+                  </button>
                   {/* Challenge your team — green */}
                   <button
                     onClick={() => {

@@ -39,9 +39,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Connecting all the dots",
         favoritePhrase: "\"But have we considered\u2026\"",
         resources: [
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "The 10x Content Engineer", type: "Guide", url: "https://www.airops.com/blog/10x-content-engineer" },
-          { title: "How Carta Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/carta-case-study" }
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "The 10x Content Engineer", type: "Guide", url: "https://www.airops.com/blog/10x-content-engineer", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6932e25ebcf2019d2c1e4875_Feature%20Peak-contnt%20eng.avif" },
+          { title: "How Carta Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/carta-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68edaceddab2221243f33497_Carta%20Case%20Study.avif" }
         ],
         levelUpUrl: "https://www.airops.com/cohort"
       },
@@ -53,9 +53,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Finding signal through noise",
         favoritePhrase: "\"OK, here\u2019s how we\u2019ll proceed\"",
         resources: [
-          { title: "Content Engineering for Growth Orgs", type: "Guide", url: "https://www.airops.com/blog/content-engineering-growth-org" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Carta Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/carta-case-study" }
+          { title: "Content Engineering for Growth Orgs", type: "Guide", url: "https://www.airops.com/blog/content-engineering-growth-org", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68d1b63564f22455ef4d8b7b_Feature%20Peak-Content%20Growth%20Org%20(1).avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Carta Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/carta-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68edaceddab2221243f33497_Carta%20Case%20Study.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       },
@@ -67,9 +67,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "White-boarding (so satisfying)",
         favoritePhrase: "\"I\u2019ll socialize this with leadership\"",
         resources: [
-          { title: "How Carta Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/carta-case-study" },
-          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study" },
-          { title: "Content Engineering for Growth Orgs", type: "Guide", url: "https://www.airops.com/blog/content-engineering-growth-org" }
+          { title: "How Carta Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/carta-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68edaceddab2221243f33497_Carta%20Case%20Study.avif" },
+          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/696f9f24e62355f798009c1a_XPonent21%20OG%20image.jpg" },
+          { title: "Content Engineering for Growth Orgs", type: "Guide", url: "https://www.airops.com/blog/content-engineering-growth-org", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68d1b63564f22455ef4d8b7b_Feature%20Peak-Content%20Growth%20Org%20(1).avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       }
@@ -89,9 +89,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Keeping people in the loop",
         favoritePhrase: "\"I have a doc for that\"",
         resources: [
-          { title: "How We Use AirOps to Grow AirOps", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study" }
+          { title: "How We Use AirOps to Grow AirOps", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/680033c954cfc87e533018e4_1744143929357.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" }
         ],
         levelUpUrl: "https://www.airops.com/cohort"
       },
@@ -103,9 +103,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Building projects and assigning tasks",
         favoritePhrase: "\"Let\u2019s document as we go\"",
         resources: [
-          { title: "How We Use AirOps to Grow AirOps", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study" }
+          { title: "How We Use AirOps to Grow AirOps", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/680033c954cfc87e533018e4_1744143929357.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       },
@@ -117,9 +117,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Explaining frameworks vs SOPs",
         favoritePhrase: "\"Let\u2019s make this a playbook\"",
         resources: [
-          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study" },
-          { title: "Harvard Business Publishing and AirOps", type: "Case Study", url: "https://www.airops.com/blog/harvard-business-publishing-and-airops" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" }
+          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" },
+          { title: "Harvard Business Publishing and AirOps", type: "Case Study", url: "https://www.airops.com/blog/harvard-business-publishing-and-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/685218f6d32eb0102e684a16_Frame%201707482181.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       }
@@ -139,9 +139,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Reading industry reports nobody else has time for",
         favoritePhrase: "\"I\u2019ve been experimenting with...\"",
         resources: [
-          { title: "2025 SEO Research with Kevin Indig", type: "Webinar", url: "https://www.airops.com/blog/webinar-recap-2025-research-kevin-indig" },
-          { title: "The 10x Content Engineer", type: "Guide", url: "https://www.airops.com/blog/10x-content-engineer" },
-          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study" }
+          { title: "2025 SEO Research with Kevin Indig", type: "Webinar", url: "https://www.airops.com/blog/webinar-recap-2025-research-kevin-indig", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/693b3cc8b363620ec009a555_kevin-indig-Webinar-1920x1080%20(1).avif" },
+          { title: "The 10x Content Engineer", type: "Guide", url: "https://www.airops.com/blog/10x-content-engineer", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6932e25ebcf2019d2c1e4875_Feature%20Peak-contnt%20eng.avif" },
+          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/696f9f24e62355f798009c1a_XPonent21%20OG%20image.jpg" }
         ],
         levelUpUrl: "https://www.airops.com/cohort"
       },
@@ -153,9 +153,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Running pilots",
         favoritePhrase: "\"Trust me on this one\"",
         resources: [
-          { title: "2025 SEO Research with Kevin Indig", type: "Webinar", url: "https://www.airops.com/blog/webinar-recap-2025-research-kevin-indig" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study" }
+          { title: "2025 SEO Research with Kevin Indig", type: "Webinar", url: "https://www.airops.com/blog/webinar-recap-2025-research-kevin-indig", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/693b3cc8b363620ec009a555_kevin-indig-Webinar-1920x1080%20(1).avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/696f9f24e62355f798009c1a_XPonent21%20OG%20image.jpg" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       },
@@ -167,9 +167,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Reading TechCrunch with morning coffee",
         favoritePhrase: "\"I\u2019ve been saying this for months\"",
         resources: [
-          { title: "How Chime Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/chime-case-study" },
-          { title: "How Lightspeed Increased Content Conversion", type: "Case Study", url: "https://www.airops.com/blog/how-lightspeed-increased-content-conversion" },
-          { title: "The 10x Content Engineer", type: "Guide", url: "https://www.airops.com/blog/10x-content-engineer" }
+          { title: "How Chime Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/chime-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68c2f2c8c0b4ccd00d64b5d4_Chime%20Case%20Study%203.avif" },
+          { title: "How Lightspeed Increased Content Conversion", type: "Case Study", url: "https://www.airops.com/blog/how-lightspeed-increased-content-conversion", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6827958b05f371293f2084f7_Frame%201707482176.avif" },
+          { title: "The 10x Content Engineer", type: "Guide", url: "https://www.airops.com/blog/10x-content-engineer", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6932e25ebcf2019d2c1e4875_Feature%20Peak-contnt%20eng.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       }
@@ -189,9 +189,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Peer-reviewing your own work",
         favoritePhrase: "\"Let\u2019s take one more pass\"",
         resources: [
-          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Lightspeed Increased Content Conversion", type: "Case Study", url: "https://www.airops.com/blog/how-lightspeed-increased-content-conversion" }
+          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/693338fd5a23fd1120d766a9_Feature%20Peak-content-ent-hire.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Lightspeed Increased Content Conversion", type: "Case Study", url: "https://www.airops.com/blog/how-lightspeed-increased-content-conversion", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6827958b05f371293f2084f7_Frame%201707482176.avif" }
         ],
         levelUpUrl: "https://www.airops.com/cohort"
       },
@@ -203,9 +203,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Reading copy out loud",
         favoritePhrase: "\"How can we push this further?\"",
         resources: [
-          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Lightspeed Increased Content Conversion", type: "Case Study", url: "https://www.airops.com/blog/how-lightspeed-increased-content-conversion" }
+          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/693338fd5a23fd1120d766a9_Feature%20Peak-content-ent-hire.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Lightspeed Increased Content Conversion", type: "Case Study", url: "https://www.airops.com/blog/how-lightspeed-increased-content-conversion", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6827958b05f371293f2084f7_Frame%201707482176.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       },
@@ -217,9 +217,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Explaining what \"elevated\" means",
         favoritePhrase: "\"Can we make it more [gestures vaguely] us?\"",
         resources: [
-          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study" },
-          { title: "How Lightspeed Increased Content Conversion", type: "Case Study", url: "https://www.airops.com/blog/how-lightspeed-increased-content-conversion" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" }
+          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" },
+          { title: "How Lightspeed Increased Content Conversion", type: "Case Study", url: "https://www.airops.com/blog/how-lightspeed-increased-content-conversion", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6827958b05f371293f2084f7_Frame%201707482176.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       }
@@ -239,9 +239,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Executing (iterate later)",
         favoritePhrase: "\"I\u2019ll have it to you by EOD\"",
         resources: [
-          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Chime Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/chime-case-study" }
+          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/693338fd5a23fd1120d766a9_Feature%20Peak-content-ent-hire.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Chime Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/chime-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68c2f2c8c0b4ccd00d64b5d4_Chime%20Case%20Study%203.avif" }
         ],
         levelUpUrl: "https://www.airops.com/cohort"
       },
@@ -253,9 +253,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Unblocking",
         favoritePhrase: "\"Ship now, iterate later\"",
         resources: [
-          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Chime Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/chime-case-study" }
+          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/693338fd5a23fd1120d766a9_Feature%20Peak-content-ent-hire.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Chime Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/chime-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68c2f2c8c0b4ccd00d64b5d4_Chime%20Case%20Study%203.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       },
@@ -267,9 +267,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Refreshing analytics dashboards",
         favoritePhrase: "\"Up and to the right!\"",
         resources: [
-          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study" },
-          { title: "How Chime Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/chime-case-study" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" }
+          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" },
+          { title: "How Chime Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/chime-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68c2f2c8c0b4ccd00d64b5d4_Chime%20Case%20Study%203.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       }
@@ -289,9 +289,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Collecting hats",
         favoritePhrase: "\"Yeah, I can take that on\"",
         resources: [
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How We Use AirOps to Grow AirOps", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops" },
-          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study" }
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How We Use AirOps to Grow AirOps", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/680033c954cfc87e533018e4_1744143929357.avif" },
+          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" }
         ],
         levelUpUrl: "https://www.airops.com/cohort"
       },
@@ -303,9 +303,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Saving the day",
         favoritePhrase: "\"What does the team need right now?\"",
         resources: [
-          { title: "How We Use AirOps to Grow AirOps", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study" }
+          { title: "How We Use AirOps to Grow AirOps", type: "Case Study", url: "https://www.airops.com/blog/how-we-use-airops-to-grow-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/680033c954cfc87e533018e4_1744143929357.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       },
@@ -317,9 +317,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Context switching between completely different initiatives",
         favoritePhrase: "\"It depends\" (on literally everything)",
         resources: [
-          { title: "How Carta Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/carta-case-study" },
-          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" }
+          { title: "How Carta Wins with AirOps", type: "Case Study", url: "https://www.airops.com/blog/carta-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68edaceddab2221243f33497_Carta%20Case%20Study.avif" },
+          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/696f9f24e62355f798009c1a_XPonent21%20OG%20image.jpg" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       }
@@ -339,9 +339,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Asking questions others are scared to ask",
         favoritePhrase: "\"I\u2019ll take a crack at it\"",
         resources: [
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire" },
-          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study" }
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/693338fd5a23fd1120d766a9_Feature%20Peak-content-ent-hire.avif" },
+          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/696f9f24e62355f798009c1a_XPonent21%20OG%20image.jpg" }
         ],
         levelUpUrl: "https://www.airops.com/cohort"
       },
@@ -353,9 +353,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Proving management is about progress, not perfection",
         favoritePhrase: "\"Let\u2019s see what happens\"",
         resources: [
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" },
-          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire" },
-          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study" }
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" },
+          { title: "The Content Engineer: Growth Hire", type: "Guide", url: "https://www.airops.com/blog/content-engineer-growth-hire", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/693338fd5a23fd1120d766a9_Feature%20Peak-content-ent-hire.avif" },
+          { title: "How Xponent21 Scaled Content", type: "Case Study", url: "https://www.airops.com/blog/xponent21-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/696f9f24e62355f798009c1a_XPonent21%20OG%20image.jpg" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       },
@@ -367,9 +367,9 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
         spendTime: "Learning from your direct reports",
         favoritePhrase: "\"Let\u2019s experiment!\"",
         resources: [
-          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study" },
-          { title: "Harvard Business Publishing and AirOps", type: "Case Study", url: "https://www.airops.com/blog/harvard-business-publishing-and-airops" },
-          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering" }
+          { title: "How Docebo Captured 25% Share of Voice", type: "Case Study", url: "https://www.airops.com/blog/docebo-case-study", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/68e53672acdd1586c053fcdc_Docebo%20Case%20Study.avif" },
+          { title: "Harvard Business Publishing and AirOps", type: "Case Study", url: "https://www.airops.com/blog/harvard-business-publishing-and-airops", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/685218f6d32eb0102e684a16_Frame%201707482181.avif" },
+          { title: "What is Content Engineering?", type: "Guide", url: "https://www.airops.com/blog/content-engineering", ogImage: "https://cdn.prod.website-files.com/62203be3930f396b6cdb3478/6940828036ead57b2f0eaf55_Feature%20Peak-content-eng-overview.avif" }
         ],
         levelUpUrl: "https://www.airops.com/book-a-call"
       }
