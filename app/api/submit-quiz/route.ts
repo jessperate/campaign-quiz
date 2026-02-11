@@ -173,6 +173,10 @@ export async function POST(request: NextRequest) {
     if (wantsDemo) {
       hubspotFields.push({ name: "yes_to_book_a_demo", value: "true" });
     }
+    hubspotFields.push({
+      name: "brand_campaign__quiz_url__2026q1",
+      value: `${baseUrl}/results?userId=${userId}`,
+    });
     const hubspotPayload = { fields: hubspotFields };
 
     fetch(
