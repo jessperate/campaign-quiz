@@ -3,6 +3,23 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
+// Cache font ArrayBuffers after first load
+let fontCache: { serrif: ArrayBuffer; saans: ArrayBuffer; saansMono: ArrayBuffer } | null = null;
+
+async function loadFonts(baseUrl: string) {
+  if (fontCache) return fontCache;
+  const cdnBase = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : baseUrl;
+  const [serrif, saans, saansMono] = await Promise.all([
+    fetch(`${cdnBase}/fonts/Serrif-Regular.ttf`).then((r) => r.arrayBuffer()),
+    fetch(`${cdnBase}/fonts/Saans-Regular.woff`).then((r) => r.arrayBuffer()),
+    fetch(`${cdnBase}/fonts/SaansMono-Medium.otf`).then((r) => r.arrayBuffer()),
+  ]);
+  fontCache = { serrif, saans, saansMono };
+  return fontCache;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const userId = request.nextUrl.searchParams.get("userId");
@@ -12,9 +29,21 @@ export async function GET(request: NextRequest) {
     }
 
     const baseUrl = request.nextUrl.origin;
+
+    // Load fonts (cached after first request) + results data in parallel
+    let fonts;
+    try {
+      fonts = await loadFonts(baseUrl);
+    } catch (fontErr) {
+      console.error("Font loading failed:", String(fontErr));
+      return new Response(`Font loading error: ${String(fontErr)}`, { status: 500 });
+    }
+    const { serrif: serrifFont, saans: saansFont, saansMono: saansMonoFont } = fonts;
+
     const res = await fetch(
       `${baseUrl}/api/get-results?userId=${encodeURIComponent(userId)}`
     );
+
     if (!res.ok) {
       return new Response("User not found", { status: 404 });
     }
@@ -33,7 +62,9 @@ export async function GET(request: NextRequest) {
     const mostLikelyTo = parsed.bullets?.mostLikelyTo || "";
     const typicallySpending = parsed.bullets?.typicallySpending || "";
     const favoritePhrase = parsed.bullets?.favoritePhrase || "";
-    const headshotUrl = parsed.headshotUrl || "";
+
+    // Prefer stipple portrait over original headshot
+    const headshotUrl = parsed.stippleImageUrl || parsed.headshotUrl || "";
 
     const theme = parsed.theme || {};
     const images = parsed.images || {};
@@ -58,7 +89,7 @@ export async function GET(request: NextRequest) {
     const CARD_W = 408;
     const CARD_H = 590;
     const CARD_X = Math.round((1200 - CARD_W) / 2);
-    const CARD_Y = 12;
+    const CARD_Y = Math.round((630 - CARD_H) / 2);
     const PAD = 10;
     const INNER_W = CARD_W - PAD * 2; // 388
     const STATS_H = 253;
@@ -75,6 +106,9 @@ export async function GET(request: NextRequest) {
             ? 72
             : 87;
 
+    console.log(`OG render: fonts loaded (serrif=${serrifFont.byteLength}, saans=${saansFont.byteLength}, mono=${saansMonoFont.byteLength}), user=${firstName} ${lastName}, archetype=${parsed.archetype?.id}, stipple=${!!parsed.stippleImageUrl}`);
+
+    try {
     return new ImageResponse(
       (
         <div
@@ -83,6 +117,7 @@ export async function GET(request: NextRequest) {
             height: 630,
             display: "flex",
             backgroundColor: cardBg,
+            fontFamily: "Saans",
           }}
         >
           {/* OG background image */}
@@ -204,19 +239,16 @@ export async function GET(request: NextRequest) {
                     }}
                   />
                 ) : (
-                  <div
+                  <img
+                    src={`${baseUrl}/images/smiley-fallback.svg`}
+                    width={HS}
+                    height={HS}
                     style={{
-                      fontSize: 50,
-                      fontWeight: 700,
-                      color: fallbackInitialColor,
-                      opacity: 0.3,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      width: HS,
+                      height: HS,
+                      backgroundColor: headshotBg,
                     }}
-                  >
-                    {firstName ? firstName.charAt(0).toUpperCase() : "?"}
-                  </div>
+                  />
                 )}
               </div>
 
@@ -228,6 +260,7 @@ export async function GET(request: NextRequest) {
                   top: 16,
                   display: "flex",
                   flexDirection: "column",
+                  fontFamily: "Serrif",
                 }}
               >
                 <div
@@ -293,6 +326,7 @@ export async function GET(request: NextRequest) {
                     letterSpacing: 1.5,
                     marginBottom: 3,
                     display: "flex",
+                    fontFamily: "SaansMono",
                   }}
                 >
                   MOST LIKELY TO:
@@ -304,6 +338,7 @@ export async function GET(request: NextRequest) {
                     color: "#0C0D01",
                     lineHeight: 1.15,
                     display: "flex",
+                    fontFamily: "Serrif",
                   }}
                 >
                   {mostLikelyTo}
@@ -320,6 +355,7 @@ export async function GET(request: NextRequest) {
                     letterSpacing: 1.5,
                     marginBottom: 3,
                     display: "flex",
+                    fontFamily: "SaansMono",
                   }}
                 >
                   TYPICALLY SPENDING TIME:
@@ -331,6 +367,7 @@ export async function GET(request: NextRequest) {
                     color: "#0C0D01",
                     lineHeight: 1.15,
                     display: "flex",
+                    fontFamily: "Serrif",
                   }}
                 >
                   {typicallySpending}
@@ -347,6 +384,7 @@ export async function GET(request: NextRequest) {
                     letterSpacing: 1.5,
                     marginBottom: 3,
                     display: "flex",
+                    fontFamily: "SaansMono",
                   }}
                 >
                   FAVORITE PHRASE:
@@ -359,6 +397,7 @@ export async function GET(request: NextRequest) {
                     color: "#0C0D01",
                     lineHeight: 1.15,
                     display: "flex",
+                    fontFamily: "Serrif",
                   }}
                 >
                   {favoritePhrase}
@@ -382,45 +421,23 @@ export async function GET(request: NextRequest) {
             }}
           />
 
-          {/* Footer */}
-          <div
-            style={{
-              position: "absolute",
-              left: 40,
-              bottom: 6,
-              width: 1120,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 16,
-                fontWeight: 600,
-                color: "#FFFFFF",
-                letterSpacing: 1,
-                display: "flex",
-              }}
-            >
-              airops
-            </div>
-            <div
-              style={{
-                fontSize: 16,
-                fontWeight: 600,
-                color: "#FFFFFF",
-                letterSpacing: 1,
-                display: "flex",
-              }}
-            >
-              Win AI Search.
-            </div>
-          </div>
         </div>
       ),
-      { width: 1200, height: 630 }
+      {
+        width: 1200,
+        height: 630,
+        fonts: [
+          { name: "Serrif", data: serrifFont, style: "normal" as const, weight: 400 as const },
+          { name: "Serrif", data: serrifFont, style: "italic" as const, weight: 400 as const },
+          { name: "Saans", data: saansFont, style: "normal" as const, weight: 400 as const },
+          { name: "SaansMono", data: saansMonoFont, style: "normal" as const, weight: 500 as const },
+        ],
+      }
     );
+    } catch (renderErr) {
+      console.error("ImageResponse render error:", renderErr);
+      return new Response(`Render error: ${String(renderErr)}`, { status: 500 });
+    }
   } catch (err) {
     console.error("OG image generation error:", err);
     return new Response(`OG image error: ${String(err)}`, { status: 500 });

@@ -317,22 +317,16 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
                   crossOrigin="anonymous"
                 />
               ) : (
-                <div
+                <img
+                  src="/images/smiley-fallback.svg"
+                  alt=""
                   style={{
                     width: "100%",
                     height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    objectFit: "cover",
                     backgroundColor: theme.artBg,
-                    fontSize: "80px",
-                    fontWeight: "bold",
-                    color: theme.fallbackInitialColor,
-                    opacity: 0.3,
                   }}
-                >
-                  {firstName.charAt(0).toUpperCase()}
-                </div>
+                />
               )}
             </div>
 
