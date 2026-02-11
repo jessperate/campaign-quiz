@@ -23,14 +23,12 @@ export default function QuizPage() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
-    linkedinUrl: "",
     fullName: "",
     title: "",
     company: "",
     wantsDemo: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [headshot, setHeadshot] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
   const [cardTilt, setCardTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
@@ -49,26 +47,6 @@ export default function QuizPage() {
   const handleCardTiltLeave = useCallback(() => {
     setCardTilt({ rotateX: 0, rotateY: 0, pointerX: 0.5, pointerY: 0.5, isHovering: false });
   }, []);
-
-  const loadingMessages = [
-    "Finding your LinkedIn profile...",
-    "Pulling in your details...",
-    "Analyzing your content style...",
-    "Crunching the numbers...",
-    "Matching you to an archetype...",
-    "Building your player card...",
-    "Almost there...",
-  ];
-
-  useEffect(() => {
-    if (!isSubmitting || !formData.linkedinUrl) return;
-    const interval = setInterval(() => {
-      setLoadingMessageIndex((prev) =>
-        prev < loadingMessages.length - 1 ? prev + 1 : prev
-      );
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [isSubmitting, formData.linkedinUrl, loadingMessages.length]);
 
   useEffect(() => {
     if (role) {
@@ -176,7 +154,6 @@ export default function QuizPage() {
           company: formData.company || "",
           email: formData.email,
           headshotUrl: headshotBlobUrl,
-          linkedinUrl: formData.linkedinUrl || "",
           wantsDemo: formData.wantsDemo || false,
         }),
       });
@@ -194,9 +171,6 @@ export default function QuizPage() {
     router.push("/results");
   };
 
-  // Check if fallback fields are needed (no LinkedIn URL provided)
-  const needsFallbackFields = !formData.linkedinUrl;
-
   if (!currentQuestion && !showForm) {
     return null;
   }
@@ -209,55 +183,6 @@ export default function QuizPage() {
 
   // Form view after quiz completion
   if (showForm) {
-    // Full-screen loading view while enriching LinkedIn
-    if (isSubmitting && formData.linkedinUrl) {
-      return (
-        <div className="min-h-screen relative">
-          <div className="fixed inset-0 pointer-events-none">
-            <Image
-              src="/images/quiz-bg-v3.png"
-              alt=""
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-
-          <div className="relative min-h-screen flex flex-col items-center justify-center px-6">
-            <div className="max-w-lg mx-auto text-center">
-              {/* Spinner */}
-              <div className="mb-8 flex justify-center">
-                <div className="w-12 h-12 border-4 border-[#0D3D1F]/20 border-t-[#0D3D1F] rounded-full animate-spin" />
-              </div>
-
-              {/* Rotating message */}
-              <p
-                key={loadingMessageIndex}
-                className="text-[#0D3D1F] text-[28px] md:text-[36px] leading-[1.2] animate-fade-in"
-                style={{ fontFamily: 'Serrif, serif' }}
-              >
-                {loadingMessages[loadingMessageIndex]}
-              </p>
-
-              <p className="text-[#0D3D1F]/50 text-sm mt-6" style={{ fontFamily: 'SaansMono, monospace' }}>
-                This usually takes 15-30 seconds
-              </p>
-            </div>
-          </div>
-
-          <style jsx>{`
-            @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(8px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            .animate-fade-in {
-              animation: fadeIn 0.5s ease-out;
-            }
-          `}</style>
-        </div>
-      );
-    }
-
     // Get archetype for the preview card
     const previewArchetypeId = sessionStorage.getItem("quizArchetype") as ArchetypeId | null;
     const previewArchetype = previewArchetypeId ? archetypes[previewArchetypeId] : null;
@@ -302,64 +227,53 @@ export default function QuizPage() {
                     className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
                   />
 
-                  {/* LinkedIn URL - optional */}
+                  {/* Full name */}
                   <input
-                    type="url"
-                    placeholder="LinkedIn URL (optional - we'll grab your info)"
-                    value={formData.linkedinUrl}
-                    onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
+                    type="text"
+                    placeholder="Full name *"
+                    required
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
                   />
 
-                  {/* Fallback fields - shown if no LinkedIn URL */}
-                  {needsFallbackFields && (
-                    <>
-                      <input
-                        type="text"
-                        placeholder="Full name *"
-                        required
-                        value={formData.fullName}
-                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                      />
+                  {/* Title */}
+                  <input
+                    type="text"
+                    placeholder="Title *"
+                    required
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                  />
 
-                      <input
-                        type="text"
-                        placeholder="Title *"
-                        required
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
-                      />
+                  {/* Company */}
+                  <input
+                    type="text"
+                    placeholder="Company *"
+                    required
+                    value={formData.company}
+                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                    className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                  />
 
+                  {/* Headshot upload */}
+                  <div className="flex items-center gap-4">
+                    <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-left">
                       <input
-                        type="text"
-                        placeholder="Company *"
-                        required
-                        value={formData.company}
-                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                        className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleHeadshotChange}
+                        className="hidden"
                       />
-
-                      {/* Headshot upload - optional */}
-                      <div className="flex items-center gap-4">
-                        <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-left">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleHeadshotChange}
-                            className="hidden"
-                          />
-                          {headshotPreview ? "Photo uploaded ✓" : "Upload headshot (optional)"}
-                        </label>
-                        {headshotPreview && (
-                          <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white">
-                            <img src={headshotPreview} alt="Preview" className="w-full h-full object-cover" />
-                          </div>
-                        )}
+                      {headshotPreview ? "Photo uploaded ✓" : "Upload headshot (optional)"}
+                    </label>
+                    {headshotPreview && (
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white">
+                        <img src={headshotPreview} alt="Preview" className="w-full h-full object-cover" />
                       </div>
-                    </>
-                  )}
+                    )}
+                  </div>
 
                   {/* Demo checkbox */}
                   <label className="flex items-center gap-3 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">

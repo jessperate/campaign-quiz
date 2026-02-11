@@ -10,7 +10,6 @@ import { ShareCard } from "@/components/Results/ShareCard";
 
 interface FormData {
   email: string;
-  linkedinUrl: string;
   fullName: string;
   title: string;
   company: string;
@@ -354,25 +353,7 @@ export default function ResultsClient() {
             return;
           }
 
-          let resultData = data;
-
-          // Always call enrichment when linkedinUrl is present - this validates
-          // the headshot blob URL and re-downloads if it's gone (404)
-          if (data.linkedinUrl) {
-            try {
-              const enrichRes = await fetch('/api/enrich-linkedin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, linkedinUrl: data.linkedinUrl }),
-              });
-              const enrichData = await enrichRes.json();
-              if (enrichData.success) {
-                resultData = enrichData;
-              }
-            } catch (err) {
-              console.warn("LinkedIn enrichment failed, using original data:", err);
-            }
-          }
+          const resultData = data;
 
           const archetypeId = resultData.archetype.id as ArchetypeId;
           const role = resultData.role as Role;
@@ -383,7 +364,6 @@ export default function ResultsClient() {
             bullets: resultData.bullets,
             formData: {
               email: resultData.email || "",
-              linkedinUrl: resultData.linkedinUrl || "",
               fullName: `${resultData.firstName || ""} ${resultData.lastName || ""}`.trim(),
               title: "",
               company: resultData.company || "",
@@ -429,7 +409,6 @@ export default function ResultsClient() {
     const bullets = getBullets(archetype, role);
     const formData: FormData = formDataStr ? JSON.parse(formDataStr) : {
       email: "",
-      linkedinUrl: "",
       fullName: "Champion",
       title: "",
       company: "",
@@ -475,8 +454,6 @@ export default function ResultsClient() {
 
   // Loading state with rotating messages
   const loadingMessages = [
-    "Finding your LinkedIn profile...",
-    "Pulling in your details...",
     "Analyzing your content style...",
     "Crunching the numbers...",
     "Matching you to an archetype...",
