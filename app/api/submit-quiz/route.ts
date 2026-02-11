@@ -175,7 +175,15 @@ export async function POST(request: NextRequest) {
     }
     hubspotFields.push({
       name: "brand_campaign__quiz_url__2026q1",
-      value: `${baseUrl}/results?userId=${userId}`,
+      value: `${baseUrl}/share?userId=${userId}`,
+    });
+    hubspotFields.push({
+      name: "brand_campaign__archetype__2026q1",
+      value: archetype.name,
+    });
+    hubspotFields.push({
+      name: "brand_campaign__og_image_url__2026q1",
+      value: `${baseUrl}/api/og-image?userId=${userId}`,
     });
     const hubspotPayload = { fields: hubspotFields };
 
