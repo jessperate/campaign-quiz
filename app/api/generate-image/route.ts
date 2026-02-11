@@ -51,56 +51,67 @@ export async function POST(request: NextRequest) {
 
       console.log(`Calling Gemini with photo (${mimeType}, ${cleanBase64.length} chars base64)`);
 
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3-pro-image-preview',
-          contents: {
-            parts: [
-              {
-                inlineData: {
-                  mimeType: mimeType,
-                  data: cleanBase64,
-                },
-              },
-              {
-                text: STIPPLE_PROMPT,
-              },
-            ],
-          },
-          config: {
-            imageConfig: {
-              imageSize: '1K',
-              aspectRatio: '1:1',
-            },
-          },
-        });
+      const MAX_RETRIES = 3;
+      let lastError: unknown = null;
 
-        // Extract image from response
-        if (response.candidates && response.candidates[0]?.content?.parts) {
-          for (const part of response.candidates[0].content.parts) {
-            if (part.inlineData && part.inlineData.data) {
-              // Re-attach header for browser display
-              const imageUrl = `data:image/png;base64,${part.inlineData.data}`;
-              console.log('SUCCESS - stipple image generated');
-              return NextResponse.json({
-                imageUrl,
-                isStippleOnly: true,
-              });
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          console.log(`Gemini stipple attempt ${attempt}/${MAX_RETRIES}`);
+          const response = await ai.models.generateContent({
+            model: 'gemini-3-pro-image-preview',
+            contents: {
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: cleanBase64,
+                  },
+                },
+                {
+                  text: STIPPLE_PROMPT,
+                },
+              ],
+            },
+            config: {
+              imageConfig: {
+                imageSize: '1K',
+                aspectRatio: '1:1',
+              },
+            },
+          });
+
+          // Extract image from response
+          if (response.candidates && response.candidates[0]?.content?.parts) {
+            for (const part of response.candidates[0].content.parts) {
+              if (part.inlineData && part.inlineData.data) {
+                const imageUrl = `data:image/png;base64,${part.inlineData.data}`;
+                console.log(`SUCCESS - stipple image generated on attempt ${attempt}`);
+                return NextResponse.json({
+                  imageUrl,
+                  isStippleOnly: true,
+                });
+              }
             }
           }
+
+          lastError = new Error("No image data found in response");
+          console.warn(`Attempt ${attempt}: no image data in Gemini response`);
+        } catch (error) {
+          lastError = error;
+          console.warn(`Attempt ${attempt} failed:`, String(error).substring(0, 200));
         }
 
-        return NextResponse.json({
-          error: "No image data found in response",
-        }, { status: 500 });
-
-      } catch (error) {
-        console.error("Gemini Generation Error:", error);
-        return NextResponse.json({
-          error: "Stipple generation failed",
-          details: String(error),
-        }, { status: 500 });
+        // Wait before retrying (1s, 2s)
+        if (attempt < MAX_RETRIES) {
+          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+        }
       }
+
+      console.error("All Gemini stipple attempts failed:", String(lastError));
+      return NextResponse.json({
+        error: "Stipple generation failed after retries",
+        details: String(lastError),
+      }, { status: 500 });
     }
 
     // No photo - generate full card (fallback)
