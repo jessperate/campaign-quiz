@@ -1175,7 +1175,7 @@ export default function ResultsClient() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: '16px',
-            marginTop: '24px',
+            marginTop: '40px',
             opacity: heroAnimStage === 'card-in' ? 1 : 0,
             transition: 'opacity 0.6s ease-out 0.3s',
           }}
