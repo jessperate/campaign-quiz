@@ -9,6 +9,16 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+const SHARE_CTAS: Record<string, string> = {
+  vision: "AI search is rewriting the rules. Find out what kind of player you are. \u{1F447}",
+  glue: "AI search needs new playbooks. Find out what kind of player you are. \u{1F447}",
+  trendsetter: "Find out what kind of player you are. \u{1F447}",
+  goGoGoer: "AI search rewards speed. Find out what kind of player you are. \u{1F447}",
+  tastemaker: "In a world of AI slop, taste wins. Find out what kind of player you are. \u{1F447}",
+  clutch: "Find out what kind of player you are. \u{1F447}",
+  heart: "Find out what kind of player you are. \u{1F447}",
+};
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
 }
@@ -35,8 +45,7 @@ export async function GET(request: NextRequest) {
 
     const parsed = JSON.parse(data);
 
-    const firstName = parsed.firstName || "";
-    const lastName = parsed.lastName || "";
+    const archetypeId = parsed.archetype?.id || "trendsetter";
     const archetypeName = parsed.archetype?.name || "Champion";
     const tagline = parsed.archetype?.tagline || "";
     const mostLikelyTo = parsed.bullets?.mostLikelyTo || "";
@@ -49,23 +58,27 @@ export async function GET(request: NextRequest) {
 
     const sharePageUrl = `${baseUrl}/share?userId=${userId}`;
     const quizUrl = `${baseUrl}/quiz`;
+    const closingCta = SHARE_CTAS[archetypeId] || SHARE_CTAS.trendsetter;
 
-    // X / Twitter
-    const twitterText = `I just discovered I'm "The ${archetypeName}" — ${tagline} Take the quiz to find your Content Engineer archetype!`;
+    // Shared body (bullets + CTA)
+    const shareBody = [
+      `I took the AirOps Content Engineer quiz and got The ${archetypeName} -- ${tagline}`,
+      ``,
+      `- Most likely to: ${mostLikelyTo}`,
+      `- Spend time: ${typicallySpending}`,
+      `- Favorite phrase: ${favoritePhrase}`,
+      ``,
+      closingCta,
+    ].join("\n");
+
+    // X / Twitter — URL passed separately via intent param
+    const twitterText = shareBody;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}&url=${encodeURIComponent(sharePageUrl)}`;
 
-    // LinkedIn
-    const linkedinText = [
-      `I just took the Content Engineer quiz and I'm "The ${archetypeName}" — ${tagline}`,
-      ``,
-      `Most likely to: ${mostLikelyTo}`,
-      `Typically spending time: ${typicallySpending}`,
-      `Favorite phrase: "${favoritePhrase}"`,
-      ``,
-      `Find your archetype:`,
-      sharePageUrl,
-    ].join("\n");
-    const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(linkedinText)}`;
+    // LinkedIn — use share-offsite to guarantee OG card preview.
+    // Text is provided separately for the client to copy to clipboard.
+    const linkedinText = shareBody;
+    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrl)}`;
 
     return NextResponse.json(
       {

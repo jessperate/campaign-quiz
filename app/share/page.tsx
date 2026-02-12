@@ -83,13 +83,13 @@ export async function generateMetadata({ searchParams }: SharePageProps): Promis
     ? descriptionParts.join(' | ')
     : `${data.archetype?.roleContent?.ic?.tagline || 'Find your archetype'}. Take the quiz to discover your Content Engineer archetype!`;
 
-  // Always use the dynamic /api/og-image endpoint which generates a proper
-  // 1200x630 image inline (no redirects). LinkedIn crawlers don't reliably
-  // follow 302s, and the html2canvas captures are 1080x1080 (wrong aspect
-  // ratio for LinkedIn large image cards which need ~1.91:1).
-  const imageUrl = params.userId
-    ? `${baseUrl}/api/og-image?userId=${params.userId}`
-    : null;
+  // Prefer static pre-uploaded OG image (fast CDN URL, instant for LinkedIn crawlers).
+  // Fall back to dynamic /api/og-image endpoint if no pre-uploaded image exists yet.
+  const imageUrl = data.ogImageUrl
+    ? data.ogImageUrl
+    : params.userId
+      ? `${baseUrl}/api/og-image?userId=${params.userId}`
+      : null;
 
   return {
     title,

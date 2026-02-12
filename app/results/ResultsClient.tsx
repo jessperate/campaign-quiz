@@ -70,9 +70,11 @@ export default function ResultsClient() {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [galleryVisible, setGalleryVisible] = useState(false);
 
-  const generateCardImage = async (resultsData: QuizResults) => {
+  const generateCardImage = async (resultsData: QuizResults, retryCount = 0) => {
     setIsGeneratingImage(true);
     setImageError(null);
+
+    const MAX_CLIENT_RETRIES = 3;
 
     try {
       const archetype = archetypes[resultsData.archetype];
@@ -121,10 +123,19 @@ export default function ResultsClient() {
             console.warn('Failed to cache stipple image:', err);
           }
         }
+      } else if (retryCount < MAX_CLIENT_RETRIES) {
+        console.warn(`Stipple generation failed (attempt ${retryCount + 1}/${MAX_CLIENT_RETRIES}), retrying in ${(retryCount + 1) * 3}s...`);
+        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 3000));
+        return generateCardImage(resultsData, retryCount + 1);
       } else {
         setImageError(data.error || 'Failed to generate image');
       }
     } catch (err) {
+      if (retryCount < MAX_CLIENT_RETRIES) {
+        console.warn(`Stipple generation error (attempt ${retryCount + 1}/${MAX_CLIENT_RETRIES}), retrying...`);
+        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 3000));
+        return generateCardImage(resultsData, retryCount + 1);
+      }
       setImageError(err instanceof Error ? err.message : 'Failed to generate image');
     } finally {
       setIsGeneratingImage(false);

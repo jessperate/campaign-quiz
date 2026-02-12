@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
       console.log(`Calling Gemini with photo (${mimeType}, ${cleanBase64.length} chars base64)`);
 
-      const MAX_RETRIES = 3;
+      const MAX_RETRIES = 5;
       let lastError: unknown = null;
 
       for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -101,9 +101,9 @@ export async function POST(request: NextRequest) {
           console.warn(`Attempt ${attempt} failed:`, String(error).substring(0, 200));
         }
 
-        // Wait before retrying (1s, 2s)
+        // Exponential backoff: 2s, 4s, 6s, 8s
         if (attempt < MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+          await new Promise(resolve => setTimeout(resolve, attempt * 2000));
         }
       }
 
