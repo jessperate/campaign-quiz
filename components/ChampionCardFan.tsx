@@ -12,25 +12,22 @@ const cards = [
 
 export default function ChampionCardFan() {
   return (
-    <section className="relative overflow-hidden py-8 md:py-16">
+    <section className="relative overflow-hidden py-8 md:py-16 px-4">
       <div
-        className="flex gap-4 md:gap-6 px-6 overflow-x-auto justify-center"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
+        className="flex gap-3 md:gap-4 justify-center items-start max-w-[1200px] mx-auto"
       >
-        <style>{`.card-row::-webkit-scrollbar { display: none; }`}</style>
         {cards.map((card, i) => (
           <div
             key={i}
-            className="shrink-0 cursor-pointer"
+            className="cursor-pointer"
             style={{
-              width: "clamp(160px, 18vw, 280px)",
+              flex: "1 1 0",
+              maxWidth: "160px",
+              minWidth: "0",
               transition: "transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-12px)";
+              e.currentTarget.style.transform = "translateY(-8px)";
               e.currentTarget.style.zIndex = "10";
             }}
             onMouseLeave={(e) => {
@@ -46,8 +43,8 @@ export default function ChampionCardFan() {
                 width: "100%",
                 height: "auto",
                 display: "block",
-                borderRadius: "12px",
-                border: "1.5px solid #00ce50",
+                borderRadius: "8px",
+                border: "1px solid #00ce50",
                 pointerEvents: "none",
               }}
             />
