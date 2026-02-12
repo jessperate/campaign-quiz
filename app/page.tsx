@@ -1,21 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import ChampionCardFan from "@/components/ChampionCardFan";
 import HomeRecentPlayers from "@/components/HomeRecentPlayers";
 
 export default function Home() {
   return (
-    <div className="min-h-screen relative bg-[#00A642]">
-      {/* Full page background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <Image
-          src="/images/background-full.png"
-          alt=""
-          fill
-          className="object-cover object-top"
-          priority
-        />
-      </div>
+    <div className="min-h-screen relative" style={{ background: 'linear-gradient(180deg, #00CE50 0%, #00250E 31.25%)' }}>
 
       <div className="relative">
         {/* Hero Section */}
