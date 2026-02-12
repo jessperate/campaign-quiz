@@ -282,12 +282,13 @@ export default function QuizPage() {
       const data = await res.json();
 
       if (data.success && data.userId) {
+        const shareBase = process.env.NEXT_PUBLIC_SHARE_BASE_URL || 'https://www.airops.com';
+        const resultsUrl = `${shareBase}/results?userId=${data.userId}`;
         // If inside an iframe, break out so the results page gets a unique URL
-        const resultsUrl = `${window.location.origin}/results?userId=${data.userId}`;
         if (window.top !== window.self) {
           window.top!.location.href = resultsUrl;
         } else {
-          router.push(`/results?userId=${data.userId}`);
+          window.location.href = resultsUrl;
         }
         return;
       }
