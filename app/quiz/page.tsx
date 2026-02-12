@@ -317,17 +317,7 @@ export default function QuizPage() {
   // Form view after quiz completion
   if (showForm) {
     return (
-      <div className="min-h-screen relative">
-        {/* Full page background */}
-        <div className="fixed inset-0 pointer-events-none">
-          <Image
-            src="/images/question-bg.svg"
-            alt=""
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
+      <div className="min-h-screen relative" style={{ background: 'linear-gradient(180deg, #75FFB9 0%, #DCFFED 86%)' }}>
 
         <div className="relative min-h-screen flex flex-col">
           <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
@@ -496,17 +486,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      {/* Full page background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <Image
-          src="/images/question-bg.svg"
-          alt=""
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
+    <div className="min-h-screen relative" style={{ background: 'linear-gradient(180deg, #75FFB9 0%, #DCFFED 86%)' }}>
 
       <div className="relative min-h-screen flex flex-col">
         {/* Main content */}
@@ -518,7 +498,7 @@ export default function QuizPage() {
             </p>
 
             {/* Question */}
-            <h1 className="text-[#0D3D1F] text-[32px] sm:text-[48px] md:text-[72px] lg:text-[88px] leading-[1.1] mb-8 sm:mb-12" style={{ fontFamily: 'Serrif, serif' }}>
+            <h1 className="text-[#0D3D1F] text-[28px] sm:text-[36px] md:text-[48px] lg:text-[60px] leading-[1.05] mb-8 sm:mb-12 uppercase" style={{ fontFamily: 'Knockout-91, Knockout, Impact, sans-serif' }}>
               {currentQuestion.text}
             </h1>
 
