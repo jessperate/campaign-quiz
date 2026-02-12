@@ -349,15 +349,18 @@ export default function ResultsClient() {
     };
   }, [heroCardRect, sidebarCardRect, scrollProgress, cardLanded]);
 
-  // Trigger card capture + OG image capture when stipple image is ready
+  // Trigger card capture + OG image capture when the card is ready to render.
+  // This fires when: (a) stipple image arrives, or (b) generation finishes
+  // without producing a stipple (failed or no photo — card uses original/fallback).
   useEffect(() => {
-    if (stippleImage && !shareableCardUrl && !isCapturingCard) {
-      const timer = setTimeout(() => {
-        captureAndUploadCard();
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [stippleImage, shareableCardUrl, isCapturingCard, captureAndUploadCard]);
+    if (!results || shareableCardUrl || isCapturingCard) return;
+    // Wait for stipple generation to finish before capturing
+    if (isGeneratingImage) return;
+    const timer = setTimeout(() => {
+      captureAndUploadCard();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [results, stippleImage, isGeneratingImage, shareableCardUrl, isCapturingCard, captureAndUploadCard]);
 
   // Capture OG image after card capture completes
   useEffect(() => {
@@ -432,12 +435,17 @@ export default function ResultsClient() {
           };
           setResults(newResults);
 
-          // Use cached stipple image if available, otherwise generate via Gemini
-          // The headshot URL should now be available from enrichment above
+          // Use cached images if available
           if (resultData.stippleImageUrl) {
             setStippleImage(resultData.stippleImageUrl);
           } else {
             generateCardImage(newResults);
+          }
+          if (resultData.ogImageUrl) {
+            setOgImageUrl(resultData.ogImageUrl);
+          }
+          if (resultData.cardImageUrl) {
+            setShareableCardUrl(resultData.cardImageUrl);
           }
         })
         .catch(() => {
