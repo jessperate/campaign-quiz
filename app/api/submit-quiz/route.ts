@@ -47,13 +47,13 @@ export async function POST(request: NextRequest) {
     for (const ans of answers) {
       if (!ans.question || typeof ans.question !== "number" || ans.question < 1 || ans.question > 6) {
         return NextResponse.json(
-          { success: false, error: "Each answer must have a question number between 1 and 5." },
+          { success: false, error: "Each answer must have a question number between 1 and 6." },
           { status: 400, headers: CORS_HEADERS }
         );
       }
       if (!ans.answer || !VALID_ANSWERS.has(ans.answer)) {
         return NextResponse.json(
-          { success: false, error: `Invalid answer "${ans.answer}". Must be one of: a, b, c, d.` },
+          { success: false, error: `Invalid answer "${ans.answer}". Must be one of: a, b, c, d, e.` },
           { status: 400, headers: CORS_HEADERS }
         );
       }

@@ -27,6 +27,7 @@ export default function QuizPage() {
     wantsDemo: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [headshot, setHeadshot] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
   const stipplePromise = useRef<Promise<string | null> | null>(null);
@@ -187,6 +188,7 @@ export default function QuizPage() {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
     // Also keep sessionStorage as fallback
     const dataToStore = {
@@ -242,7 +244,7 @@ export default function QuizPage() {
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(" ") || "";
 
-    // Build answer array from stored answers (q2-q6 → question 1-5)
+    // Build answer array from stored answers (q2-q7 → question 1-6)
     const quizRole = role || sessionStorage.getItem("quizRole") as Role;
     const answerArray = [];
     for (let i = 2; i <= 7; i++) {
@@ -250,6 +252,14 @@ export default function QuizPage() {
       if (ans) {
         answerArray.push({ question: i - 1, answer: ans });
       }
+    }
+
+    // Guard: ensure all 6 answers are present before submitting
+    if (answerArray.length !== 6) {
+      console.error("Missing answers: expected 6, got", answerArray.length, answers);
+      setSubmitError("Some answers were lost. Please retake the quiz.");
+      setIsSubmitting(false);
+      return;
     }
 
     try {
@@ -275,12 +285,16 @@ export default function QuizPage() {
         router.push(`/results?userId=${data.userId}`);
         return;
       }
-    } catch (err) {
-      console.warn("API submit failed, falling back to sessionStorage:", err);
-    }
 
-    // Fallback to old sessionStorage flow
-    router.push("/results");
+      // API returned an error — show it to the user
+      console.error("Quiz submission error:", data.error);
+      setSubmitError(data.error || "Something went wrong. Please try again.");
+      setIsSubmitting(false);
+    } catch (err) {
+      console.error("Quiz submission failed:", err);
+      setSubmitError("Network error. Please check your connection and try again.");
+      setIsSubmitting(false);
+    }
   };
 
   if (!currentQuestion && !showForm) {
@@ -397,6 +411,12 @@ export default function QuizPage() {
                     />
                     <span className="text-[#0D3D1F]">I'd like to book a demo</span>
                   </label>
+
+                  {submitError && (
+                    <p className="text-red-600 text-sm text-center bg-red-50 rounded-full px-5 py-3">
+                      {submitError}
+                    </p>
+                  )}
 
                   <button
                     type="submit"
