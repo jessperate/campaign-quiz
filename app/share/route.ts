@@ -64,23 +64,15 @@ export async function GET(request: NextRequest) {
   const tagline = ARCHETYPE_TAGLINES[archetypeId] || 'Find your archetype.';
   const copy = getShareCopy(archetypeId, role);
 
-  // Title: matches the Notion share copy format
   const title = firstName
-    ? `${firstName} ${lastName} took the AirOps Content Engineer quiz and got The ${archetypeName} — "${tagline}"`
-    : `I took the AirOps Content Engineer quiz and got The ${archetypeName} — "${tagline}"`;
+    ? `${firstName} ${lastName} is The ${archetypeName} — "${tagline}"`
+    : `I'm The ${archetypeName} — "${tagline}"`;
 
-  // Description: bullet points + CTA from the Notion share copy
   let description: string;
   if (copy) {
-    const parts = [
-      `Most likely to: ${copy.mostLikelyTo}`,
-      `Spend time: ${copy.spendTime}`,
-      `Favorite phrase: "${copy.favoritePhrase}"`,
-      copy.cta,
-    ];
-    description = parts.join(' · ');
+    description = `Most likely to: ${copy.mostLikelyTo}. ${copy.cta}`;
   } else {
-    description = `${tagline} Take the quiz to find your Content Engineer archetype!`;
+    description = `${tagline} Take the quiz to find your archetype!`;
   }
 
   const imageUrl = ogImageUrl
@@ -103,7 +95,7 @@ export async function GET(request: NextRequest) {
   <meta property="og:title" content="${esc(title)}" />
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="${esc(`${shareBaseUrl}/share?userId=${userId}`)}" />
+  <meta property="og:url" content="${esc(`${baseUrl}/share?userId=${userId}`)}" />
   <meta property="og:image" content="${esc(imageUrl)}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />

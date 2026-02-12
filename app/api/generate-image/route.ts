@@ -4,6 +4,16 @@ import { NextRequest, NextResponse } from "next/server";
 // Allow up to 60s for Gemini image generation
 export const maxDuration = 60;
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+}
+
 const STIPPLE_PROMPT = `Transform this exact person's photo into a high-resolution stipple engraving portrait in the authentic Wall Street Journal hedcut style. You MUST preserve the exact likeness, facial features, hair style, and expression of the person in the photo. The image must be composed entirely of fine, distinct dark green (hex #001408) dots on a pure white background. Use directional stippling techniques where rows of dots follow the flow of hair and facial contours to define form. Achieve shading strictly through dot density (halftone), creating strong contrast between deep shadows and bright highlights. No solid lines, outlines, or gray washes—only distinct ink dots. The final output should look like a masterful hand-drawn engraving of THIS specific person. Color: #001408.`;
 
 export async function POST(request: NextRequest) {
@@ -14,7 +24,7 @@ export async function POST(request: NextRequest) {
     if (!apiKey) {
       return NextResponse.json(
         { error: "Google API key not configured. Please add GOOGLE_API_KEY to your environment variables." },
-        { status: 500 }
+        { status: 500, headers: CORS_HEADERS }
       );
     }
 
@@ -89,7 +99,7 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({
                   imageUrl,
                   isStippleOnly: true,
-                });
+                }, { headers: CORS_HEADERS });
               }
             }
           }
@@ -111,7 +121,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         error: "Stipple generation failed after retries",
         details: String(lastError),
-      }, { status: 500 });
+      }, { status: 500, headers: CORS_HEADERS });
     }
 
     // No photo - generate full card (fallback)
@@ -145,28 +155,28 @@ STYLE: 1990s sports trading card, stipple portrait art style.`;
             return NextResponse.json({
               imageUrl,
               isStippleOnly: false,
-            });
+            }, { headers: CORS_HEADERS });
           }
         }
       }
 
       return NextResponse.json({
         error: "No image data found in response",
-      }, { status: 500 });
+      }, { status: 500, headers: CORS_HEADERS });
 
     } catch (error) {
       console.error("Card Generation Error:", error);
       return NextResponse.json({
         error: "Card generation failed",
         details: String(error),
-      }, { status: 500 });
+      }, { status: 500, headers: CORS_HEADERS });
     }
 
   } catch (error) {
     console.error("Image generation error:", error);
     return NextResponse.json(
       { error: "Request failed", details: String(error) },
-      { status: 500 }
+      { status: 500, headers: CORS_HEADERS }
     );
   }
 }

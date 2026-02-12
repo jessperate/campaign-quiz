@@ -1,6 +1,16 @@
 import { put } from '@vercel/blob';
 import { NextRequest, NextResponse } from 'next/server';
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { imageBase64, uniqueId } = await request.json();
@@ -8,7 +18,7 @@ export async function POST(request: NextRequest) {
     if (!imageBase64) {
       return NextResponse.json(
         { error: 'No image data provided' },
-        { status: 400 }
+        { status: 400, headers: CORS_HEADERS }
       );
     }
 
@@ -30,12 +40,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       url: blob.url,
-    });
+    }, { headers: CORS_HEADERS });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
       { error: 'Failed to upload image', details: String(error) },
-      { status: 500 }
+      { status: 500, headers: CORS_HEADERS }
     );
   }
 }

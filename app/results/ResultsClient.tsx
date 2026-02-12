@@ -636,14 +636,15 @@ export default function ResultsClient() {
   ].join('\n');
 
   const buildSharePageUrl = () => {
-    if (typeof window === 'undefined') return 'https://airops.com/win';
-    const shareBase = process.env.NEXT_PUBLIC_SHARE_BASE_URL || window.location.origin;
-    const url = new URL('/share', shareBase);
+    if (typeof window === 'undefined') return 'https://campaign-quiz.vercel.app';
+    // Share URL always points to Vercel (where the /share route handler lives with OG tags)
+    const url = new URL('/share', window.location.origin);
     if (userId) url.searchParams.set('userId', userId);
     return url.toString();
   };
 
   const sharePageUrlStr = buildSharePageUrl();
+  // Quiz URL points to Webflow if configured, otherwise current origin
   const quizUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL
     ? `${process.env.NEXT_PUBLIC_SHARE_BASE_URL}/quiz`
     : (typeof window !== 'undefined' ? `${window.location.origin}/quiz` : 'https://airops.com/win');

@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
     }
     hubspotFields.push({
       name: "brand_campaign__quiz_url__2026q1",
-      value: `${shareBaseUrl}/share?userId=${userId}`,
+      value: `${baseUrl}/share?userId=${userId}`,
     });
     hubspotFields.push({
       name: "brand_campaign__archetype__2026q1",

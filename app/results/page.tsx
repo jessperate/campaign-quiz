@@ -37,19 +37,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     const copy = getShareCopy(archetypeId, role);
 
     const title = firstName
-      ? `${firstName} ${lastName} took the AirOps Content Engineer quiz and got The ${archetypeName} — "${tagline}"`
-      : `I took the AirOps Content Engineer quiz and got The ${archetypeName} — "${tagline}"`;
+      ? `${firstName} ${lastName} is The ${archetypeName} — "${tagline}"`
+      : `I'm The ${archetypeName} — "${tagline}"`;
 
     let description: string;
     if (copy) {
-      description = [
-        `Most likely to: ${copy.mostLikelyTo}`,
-        `Spend time: ${copy.spendTime}`,
-        `Favorite phrase: "${copy.favoritePhrase}"`,
-        copy.cta,
-      ].join(" · ");
+      description = `Most likely to: ${copy.mostLikelyTo}. ${copy.cta}`;
     } else {
-      description = `${tagline} Take the quiz to find your Content Engineer archetype!`;
+      description = `${tagline} Take the quiz to find your archetype!`;
     }
 
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -65,7 +60,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       openGraph: {
         title,
         description,
-        url: `${shareBaseUrl}/results?userId=${userId}`,
+        url: `${baseUrl}/share?userId=${userId}`,
         images: [
           {
             url: ogImageUrl,
