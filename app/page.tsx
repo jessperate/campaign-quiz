@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/ui/Header";
 import ChampionCardFan from "@/components/ChampionCardFan";
+import HomeRecentPlayers from "@/components/HomeRecentPlayers";
 
 export default function Home() {
   return (
@@ -51,6 +52,9 @@ export default function Home() {
 
         {/* Champion Cards Fan */}
         <ChampionCardFan />
+
+        {/* Recent Players & Leaderboard */}
+        <HomeRecentPlayers />
 
         {/* CTA Section */}
         <section className="relative py-20 md:py-32 px-6">
