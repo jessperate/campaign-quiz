@@ -59,31 +59,7 @@ export default function Home() {
         {/* Recent Players & Leaderboard */}
         <HomeRecentPlayers />
 
-        {/* CTA Section */}
-        <section className="relative py-20 md:py-32 px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-[36px] md:text-[56px] lg:text-[64px] text-white mb-6 leading-[1.1]" style={{ fontFamily: 'Serrif, serif' }}>
-              Get in leader,<br />we&apos;re driving growth.
-            </h2>
-            <p className="text-white/70 text-base md:text-lg mb-8 max-w-lg mx-auto">
-              Work directly with our expert team to create your content game plan. We&apos;ll help you build the systems and train your team to succeed.
-            </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your work email"
-                className="w-full sm:flex-1 px-5 py-3 bg-[#00FF64]/20 border border-[#00FF64]/40 rounded-full text-white placeholder-[#00FF64]/60 focus:outline-none focus:border-[#00FF64] text-sm"
-              />
-              <button className="inline-flex items-center px-5 py-3 bg-white text-black rounded-full font-semibold hover:bg-white/90 transition-colors text-sm whitespace-nowrap">
-                Book a Demo
-                <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </section>
 
       </div>
     </div>
