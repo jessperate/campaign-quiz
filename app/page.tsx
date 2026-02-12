@@ -6,38 +6,48 @@ export default function Home() {
   return (
     <div className="min-h-screen relative" style={{ background: 'linear-gradient(180deg, #00CE50 0%, #00250E 31.25%)' }}>
 
-      {/* Hero background illustration */}
-      <img
-        src="/images/hero-illustration.avif"
-        alt=""
-        style={{
-          position: 'absolute',
-          right: '152px',
-          bottom: '-294px',
-          width: '1135px',
-          height: '1135px',
-          aspectRatio: '1 / 1',
-          pointerEvents: 'none',
-        }}
-      />
-
       <div className="relative">
+        {/* Header Navigation */}
+        <header className="relative z-10 px-4 md:px-10 pt-4 md:pt-6">
+          <img
+            src="/images/header-nav.svg"
+            alt="AirOps Navigation"
+            style={{ width: '100%', maxWidth: '1400px', height: 'auto', margin: '0 auto', display: 'block' }}
+          />
+        </header>
+
         {/* Hero Section */}
-        <section className="relative pt-36 md:pt-44 pb-16 px-6">
+        <section className="relative pt-12 md:pt-20 pb-16 px-6 overflow-hidden">
+          {/* Hero background illustration — centered behind text */}
+          <img
+            src="/images/hero-illustration.avif"
+            alt=""
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '1135px',
+              height: '1135px',
+              pointerEvents: 'none',
+              opacity: 0.4,
+            }}
+          />
+
           <div className="relative max-w-4xl mx-auto text-center">
-            <p className="text-white/80 text-[32px] md:text-[48px] mb-2 leading-tight" style={{ fontFamily: 'Serrif, serif' }}>
-              How do you win AI search?
+            <p className="text-white/80 text-[24px] md:text-[36px] lg:text-[42px] mb-2 leading-tight" style={{ fontFamily: 'Serrif, serif' }}>
+              Get your player card
             </p>
-            <h1 className="text-[60px] md:text-[100px] lg:text-[120px] text-[#75FFB9] mb-4 tracking-tight leading-none uppercase text-center mx-auto" style={{ fontFamily: 'Knockout-91, Knockout, sans-serif' }}>
-              GET YOUR PLAYER CARD
+            <h1 className="text-[52px] md:text-[90px] lg:text-[120px] text-white mb-6 tracking-tight leading-[0.9] uppercase text-center mx-auto" style={{ fontFamily: 'Knockout-91, Knockout, sans-serif' }}>
+              HOW DO YOU<br />WIN AI SEARCH?
             </h1>
-            <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto mb-6">
-              AI search has rewritten the rules of marketing. To win, you need a team of different players: strategists, experimenters, and people who anchor your brand in taste. Take the quiz to discover which kind of player you are so you can own your value, sharpen your strengths, and train your weak spots.
+            <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto mb-8" style={{ fontFamily: 'Serrif, serif' }}>
+              AI search has changed the game, but winning is easy with AirOps. Take the quiz to uncover your unique player archetype, see your best plays (and where to keep training), and get personalized resources to level up your game.
             </p>
 
             <Link
               href="/quiz"
-              className="inline-flex items-center px-6 py-3 bg-[#00FF64] text-black rounded-full text-base font-bold hover:bg-[#00ff64]/90 transition-all"
+              className="inline-flex items-center px-8 py-4 bg-[#00FF64] text-black rounded-full text-base font-bold hover:bg-[#00ff64]/90 transition-all"
             >
               Take the quiz
               <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,7 +55,7 @@ export default function Home() {
               </svg>
             </Link>
 
-            <p className="text-[#00FF64]/60 text-[14px] mt-4 uppercase tracking-[0.2em]" style={{ fontFamily: 'SaansMono, monospace' }}>
+            <p className="text-[#00FF64] text-[13px] mt-6 uppercase tracking-[0.25em]" style={{ fontFamily: 'SaansMono, monospace' }}>
               Estimated time: 90 seconds
             </p>
           </div>
