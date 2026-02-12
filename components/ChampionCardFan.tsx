@@ -1,85 +1,41 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-
-// Card layout matching Figma spec (node 1116:454)
-// 7 cards: outer 2 are partially off-screen, 5 fully visible
-// Rotations: -30, -20, -10, 0, +10, +20, +30
-// Vertical offsets increase toward edges
 const cards = [
-  { src: "/images/champion-cards/vivian.png", alt: "Vivian Hoang, Webflow", rotate: -30, top: 280 },
-  { src: "/images/champion-cards/josh.png", alt: "Josh Grant, Webflow", rotate: -20, top: 160 },
-  { src: "/images/champion-cards/nick.png", alt: "Nick Fairbairn, Chime", rotate: -10, top: 40 },
-  { src: "/images/champion-cards/connor.png", alt: "Connor Beaulieu, LegalZoom", rotate: 0, top: 0 },
-  { src: "/images/champion-cards/valeriia.png", alt: "Valeriia Frolova, Docebo", rotate: 10, top: 40 },
-  { src: "/images/champion-cards/nicole.png", alt: "Lucy Hoyle, Carta", rotate: 20, top: 160 },
-  { src: "/images/champion-cards/dave.png", alt: "Dave Steer, Webflow", rotate: 30, top: 280 },
+  { src: "/images/champion-cards/vivian.png", alt: "Vivian Hoang, Webflow" },
+  { src: "/images/champion-cards/josh.png", alt: "Josh Grant, Webflow" },
+  { src: "/images/champion-cards/nick.png", alt: "Nick Fairbairn, Chime" },
+  { src: "/images/champion-cards/connor.png", alt: "Connor Beaulieu, LegalZoom" },
+  { src: "/images/champion-cards/valeriia.png", alt: "Valeriia Frolova, Docebo" },
+  { src: "/images/champion-cards/nicole.png", alt: "Lucy Hoyle, Carta" },
+  { src: "/images/champion-cards/dave.png", alt: "Dave Steer, Webflow" },
 ];
 
 export default function ChampionCardFan() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [scrollShift, setScrollShift] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  const handleScroll = useCallback(() => {
-    if (!sectionRef.current) return;
-    const rect = sectionRef.current.getBoundingClientRect();
-    const windowH = window.innerHeight;
-    const start = windowH;
-    const end = -rect.height;
-    const progress = Math.min(1, Math.max(0, (start - rect.top) / (start - end)));
-    setScrollShift((progress - 0.5) * (isMobile ? -80 : -200));
-  }, [isMobile]);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
-
-  // On mobile: smaller cards, less overlap, less vertical offset
-  const cardW = isMobile ? 180 : 354;
-  const overlap = isMobile ? -50 : -100;
-  const topScale = isMobile ? 0.4 : 1;
-  const sectionH = isMobile ? 380 : 700;
-
   return (
-    <section ref={sectionRef} className="relative overflow-hidden">
+    <section className="relative overflow-hidden py-8 md:py-16">
       <div
-        className="relative mx-auto flex items-start justify-center"
+        className="flex gap-4 md:gap-6 px-6 overflow-x-auto justify-center"
         style={{
-          height: `${sectionH}px`,
-          padding: isMobile ? "1.5rem 0" : "3rem 0",
-          transform: `translateX(${scrollShift}px)`,
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
         }}
       >
+        <style>{`.card-row::-webkit-scrollbar { display: none; }`}</style>
         {cards.map((card, i) => (
           <div
             key={i}
-            className="relative shrink-0 cursor-pointer"
+            className="shrink-0 cursor-pointer"
             style={{
-              width: `${cardW}px`,
-              marginLeft: i === 0 ? 0 : `${overlap}px`,
-              marginTop: `${card.top * topScale}px`,
-              transform: `rotate(${card.rotate}deg)`,
-              transformOrigin: "bottom center",
+              width: "clamp(160px, 18vw, 280px)",
               transition: "transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1)",
-              zIndex: 7 - Math.abs(i - 3),
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = `rotate(${card.rotate}deg) translateY(-30px)`;
+              e.currentTarget.style.transform = "translateY(-12px)";
               e.currentTarget.style.zIndex = "10";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = `rotate(${card.rotate}deg)`;
-              e.currentTarget.style.zIndex = String(7 - Math.abs(i - 3));
+              e.currentTarget.style.transform = "";
+              e.currentTarget.style.zIndex = "";
             }}
           >
             <img
@@ -90,7 +46,7 @@ export default function ChampionCardFan() {
                 width: "100%",
                 height: "auto",
                 display: "block",
-                borderRadius: isMobile ? "10px" : "16px",
+                borderRadius: "12px",
                 border: "1.5px solid #00ce50",
                 pointerEvents: "none",
               }}
