@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import { ShareCard } from "@/components/Results/ShareCard";
+import type { ArchetypeId } from "@/lib/quiz-data";
 
 interface CardData {
   userId: string;
@@ -11,7 +13,11 @@ interface CardData {
   archetypeName: string;
   shortName: string;
   headshotUrl: string;
+  stippleImageUrl: string;
   company: string;
+  mostLikelyTo: string;
+  typicallySpending: string;
+  favoritePhrase: string;
 }
 
 const ARCHETYPE_COLORS: Record<string, { bg: string; accent: string }> = {
@@ -34,6 +40,261 @@ const ARCHETYPE_LABELS: Record<string, string> = {
   clutch: "Flex",
   heart: "Heart",
 };
+
+// The inner card within the 1080x1080 ShareCard canvas
+const CARD_LEFT = 220;
+const CARD_TOP = 77;
+const CARD_W = 641;
+const CARD_H = 926;
+const CANVAS = 1080;
+
+// Display size for cards in the horizontal scroll
+const DISPLAY_W = 200;
+const DISPLAY_H = Math.round(DISPLAY_W * (CARD_H / CARD_W)); // ~289
+
+function HomeHoloCard({
+  card,
+  visible,
+  delay,
+}: {
+  card: CardData;
+  visible: boolean;
+  delay: number;
+}) {
+  const [tilt, setTilt] = useState({ rX: 0, rY: 0, pX: 0, pY: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const scale = DISPLAY_W / CARD_W;
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    setTilt({
+      rY: (x - 0.5) * 24,
+      rX: -(y - 0.5) * 24,
+      pX: Math.max(-1, Math.min(1, (x - 0.5) * 2)),
+      pY: Math.max(-1, Math.min(1, (y - 0.5) * 2)),
+    });
+  }, []);
+
+  const handleMouseEnter = useCallback(() => setIsHovering(true), []);
+  const handleMouseLeave = useCallback(() => {
+    setIsHovering(false);
+    setTilt({ rX: 0, rY: 0, pX: 0, pY: 0 });
+  }, []);
+
+  return (
+    <Link
+      href={`/results?userId=${card.userId}`}
+      className="flex-shrink-0 block"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(30px)",
+        transition: `opacity 0.5s ease-out ${delay}s, transform 0.5s ease-out ${delay}s`,
+      }}
+    >
+      <div
+        style={{ perspective: "800px", transformStyle: "preserve-3d" }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div
+          ref={wrapperRef}
+          className="rounded-lg overflow-hidden"
+          style={{
+            position: "relative",
+            width: `${DISPLAY_W}px`,
+            height: `${DISPLAY_H}px`,
+            transform: `rotateX(${tilt.rX}deg) rotateY(${tilt.rY}deg)`,
+            transition: isHovering
+              ? "transform 0.1s ease-out"
+              : "transform 0.6s ease-out",
+            transformStyle: "preserve-3d",
+            boxShadow: isHovering
+              ? `${-tilt.rY * 1.2}px ${tilt.rX * 1.2}px 30px rgba(0,0,0,0.35)`
+              : "0 4px 20px rgba(0,0,0,0.2)",
+          }}
+        >
+          {/* ShareCard rendered at full 1080x1080, scaled + offset to show inner card */}
+          <div
+            style={{
+              position: "absolute",
+              width: `${CANVAS}px`,
+              height: `${CANVAS}px`,
+              transform: `scale(${scale})`,
+              transformOrigin: "0 0",
+              left: `${-CARD_LEFT * scale}px`,
+              top: `${-CARD_TOP * scale}px`,
+            }}
+          >
+            <ShareCard
+              firstName={card.firstName}
+              lastName={card.lastName}
+              company={card.company}
+              archetypeName={card.archetypeName}
+              shortName={card.shortName}
+              archetypeId={card.archetypeId as ArchetypeId}
+              headshotUrl={card.stippleImageUrl || card.headshotUrl}
+              mostLikelyTo={card.mostLikelyTo}
+              typicallySpending={card.typicallySpending}
+              favoritePhrase={card.favoritePhrase}
+              transparent
+            />
+          </div>
+
+          {/* Holographic pattern layer */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              overflow: "hidden",
+              mixBlendMode: "multiply",
+              opacity: isHovering ? 0.45 : 0,
+              transition: "opacity 0.3s ease-out",
+              maskImage:
+                'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\'%3E%3Crect width=\'4\' height=\'4\' fill=\'white\'/%3E%3Crect x=\'4\' y=\'4\' width=\'4\' height=\'4\' fill=\'white\'/%3E%3C/svg%3E")',
+              maskSize: "5px 5px",
+              WebkitMaskImage:
+                'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\'%3E%3Crect width=\'4\' height=\'4\' fill=\'white\'/%3E%3Crect x=\'4\' y=\'4\' width=\'4\' height=\'4\' fill=\'white\'/%3E%3C/svg%3E")',
+              WebkitMaskSize: "5px 5px",
+              filter: "saturate(2)",
+              zIndex: 5,
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                width: "500%",
+                aspectRatio: "1",
+                bottom: 0,
+                left: 0,
+                transformOrigin: "0 100%",
+                background:
+                  "radial-gradient(circle at 0 100%, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)",
+                scale: `${Math.min(1, 0.15 + tilt.pX * 0.25)}`,
+                translate: `${Math.max(-10, Math.min(10, -10 + tilt.pX * 10))}% ${Math.max(0, tilt.pY * -10)}%`,
+                transition: !isHovering ? "all 0.3s ease-out" : "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                width: "500%",
+                aspectRatio: "1",
+                top: 0,
+                right: 0,
+                transformOrigin: "100% 0",
+                background:
+                  "radial-gradient(circle at 100% 0, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)",
+                scale: `${Math.min(1, 0.15 + tilt.pX * -0.65)}`,
+                translate: `${Math.max(-10, Math.min(10, 10 + tilt.pX * 10))}% ${Math.min(0, tilt.pY * -10)}%`,
+                transition: !isHovering ? "all 0.3s ease-out" : "none",
+              }}
+            />
+          </div>
+
+          {/* Watermark holographic layer */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              overflow: "hidden",
+              mixBlendMode: "hard-light",
+              opacity: isHovering ? 0.35 : 0,
+              transition: "opacity 0.3s ease-out",
+              maskImage:
+                "repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)",
+              maskSize: "10px 10px",
+              WebkitMaskImage:
+                "repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)",
+              WebkitMaskSize: "10px 10px",
+              filter: "saturate(0.9) contrast(1.1) brightness(1.2)",
+              zIndex: 6,
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                width: "500%",
+                aspectRatio: "1",
+                bottom: 0,
+                left: 0,
+                transformOrigin: "0 100%",
+                background:
+                  "radial-gradient(circle at 0 100%, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)",
+                scale: `${Math.min(1, 0.15 + tilt.pX * 0.25)}`,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                width: "500%",
+                aspectRatio: "1",
+                top: 0,
+                right: 0,
+                transformOrigin: "100% 0",
+                background:
+                  "radial-gradient(circle at 100% 0, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)",
+                scale: `${Math.min(1, 0.15 + tilt.pX * -0.65)}`,
+              }}
+            />
+          </div>
+
+          {/* Spotlight */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              overflow: "hidden",
+              mixBlendMode: "overlay",
+              zIndex: 8,
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                width: "500%",
+                aspectRatio: "1",
+                background:
+                  "radial-gradient(hsl(0 0% 100% / 0.4) 0 2%, hsl(0 0% 10% / 0.2) 20%)",
+                filter: "brightness(1.2) contrast(1.2)",
+                translate: `calc(-50% + ${tilt.pX * 20}%) calc(-50% + ${tilt.pY * 20}%)`,
+                opacity: isHovering ? 1 : 0,
+                transition: !isHovering
+                  ? "opacity 0.3s ease-out, translate 0.3s ease-out"
+                  : "none",
+              }}
+            />
+          </div>
+
+          {/* Edge glare */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              opacity: isHovering ? 0.15 : 0,
+              transition: "opacity 0.3s ease-out",
+              background:
+                "linear-gradient(-65deg, transparent 0% 40%, #fff 40% 50%, transparent 50%, transparent 55%, #fff 55% 60%, transparent 60% 100%)",
+              zIndex: 9,
+            }}
+          />
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export default function HomeRecentPlayers() {
   const [cards, setCards] = useState<CardData[]>([]);
@@ -98,82 +359,20 @@ export default function HomeRecentPlayers() {
         </h2>
       </div>
 
-      {/* Scrollable card row */}
+      {/* Scrollable card row with actual ShareCards + holo effects */}
       <div
-        className="flex gap-4 px-6 overflow-x-auto pb-4 home-gallery"
+        className="flex gap-5 px-6 overflow-x-auto pb-4 home-gallery"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <style>{`.home-gallery::-webkit-scrollbar { display: none; }`}</style>
-        {cards.map((card, i) => {
-          const colors = ARCHETYPE_COLORS[card.archetypeId] || ARCHETYPE_COLORS.vision;
-          return (
-            <Link
-              key={card.userId}
-              href={`/results?userId=${card.userId}`}
-              className="group flex-shrink-0"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(30px)",
-                transition: `opacity 0.5s ease-out ${i * 0.06}s, transform 0.5s ease-out ${i * 0.06}s`,
-              }}
-            >
-              <div
-                className="relative rounded-xl overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-                style={{
-                  width: "160px",
-                  height: "200px",
-                  background: colors.bg,
-                }}
-              >
-                {card.headshotUrl ? (
-                  <img
-                    src={card.headshotUrl}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover opacity-60"
-                  />
-                ) : (
-                  <div
-                    className="absolute inset-0 flex items-center justify-center"
-                    style={{ background: colors.bg }}
-                  >
-                    <img
-                      src="/images/smiley-fallback.svg"
-                      alt=""
-                      className="w-16 h-16 opacity-30"
-                    />
-                  </div>
-                )}
-
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: `linear-gradient(to top, ${colors.bg} 0%, ${colors.bg}CC 30%, transparent 70%)`,
-                  }}
-                />
-
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <div
-                    className="text-[10px] uppercase tracking-wider mb-1 font-semibold"
-                    style={{ fontFamily: "SaansMono, monospace", color: colors.accent }}
-                  >
-                    {card.shortName}
-                  </div>
-                  <div
-                    className="text-white text-sm font-medium leading-tight truncate"
-                    style={{ fontFamily: "Saans, sans-serif" }}
-                  >
-                    {card.firstName} {card.lastName}
-                  </div>
-                  {card.company && (
-                    <div className="text-white/40 text-[11px] truncate mt-0.5">
-                      {card.company}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+        {cards.map((card, i) => (
+          <HomeHoloCard
+            key={card.userId}
+            card={card}
+            visible={visible}
+            delay={i * 0.06}
+          />
+        ))}
 
         <Link
           href="/quiz"
@@ -184,15 +383,15 @@ export default function HomeRecentPlayers() {
           }}
         >
           <div
-            className="rounded-xl overflow-hidden flex items-center justify-center transition-transform duration-300 hover:scale-105 border border-[#00FF64]/30"
+            className="rounded-lg overflow-hidden flex items-center justify-center transition-transform duration-300 hover:scale-105 border border-[#00FF64]/30"
             style={{
-              width: "160px",
-              height: "200px",
+              width: `${DISPLAY_W}px`,
+              height: `${DISPLAY_H}px`,
               background: "rgba(0,255,100,0.05)",
             }}
           >
             <div className="text-center px-4">
-              <div className="text-[#00FF64] text-2xl mb-2">+</div>
+              <div className="text-[#00FF64] text-3xl mb-2">+</div>
               <div
                 className="text-[#00FF64] text-xs font-semibold uppercase tracking-wider"
                 style={{ fontFamily: "SaansMono, monospace" }}

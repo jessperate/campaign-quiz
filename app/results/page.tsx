@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Redis from "ioredis";
+import { getShareCopy, ARCHETYPE_TAGLINES } from "@/lib/share-copy";
 import ResultsClient from "./ResultsClient";
 
 const redis = new Redis(process.env.REDIS_URL!);
@@ -28,21 +29,34 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     }
 
     const parsed = typeof data === "string" ? JSON.parse(data) : data;
-    const { firstName, lastName, archetype, bullets } = parsed;
-    const title = `${firstName} ${lastName} is "The ${archetype.name}" — Content Engineer Archetype`;
+    const { firstName, lastName, archetype } = parsed;
+    const role = parsed.role || "ic";
+    const archetypeId = archetype?.id || "vision";
+    const archetypeName = archetype?.name || "Champion";
+    const tagline = ARCHETYPE_TAGLINES[archetypeId] || "Find your archetype.";
+    const copy = getShareCopy(archetypeId, role);
 
-    const descriptionParts: string[] = [];
-    if (archetype.tagline) descriptionParts.push(archetype.tagline);
-    if (bullets?.mostLikelyTo) descriptionParts.push(`Most likely to: ${bullets.mostLikelyTo}`);
-    if (bullets?.favoritePhrase) descriptionParts.push(`Favorite phrase: "${bullets.favoritePhrase}"`);
-    const description = descriptionParts.join(' | ') || archetype.tagline;
+    const title = firstName
+      ? `${firstName} ${lastName} took the AirOps Content Engineer quiz and got The ${archetypeName} — "${tagline}"`
+      : `I took the AirOps Content Engineer quiz and got The ${archetypeName} — "${tagline}"`;
+
+    let description: string;
+    if (copy) {
+      description = [
+        `Most likely to: ${copy.mostLikelyTo}`,
+        `Spend time: ${copy.spendTime}`,
+        `Favorite phrase: "${copy.favoritePhrase}"`,
+        copy.cta,
+      ].join(" · ");
+    } else {
+      description = `${tagline} Take the quiz to find your Content Engineer archetype!`;
+    }
 
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "https://campaign-quiz.vercel.app";
+    const shareBaseUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL || baseUrl;
 
-    // Always use the dynamic OG image endpoint — it generates a proper 1200x630
-    // image inline. The blob captures are 1080x1080 (wrong aspect ratio for LinkedIn).
     const ogImageUrl = `${baseUrl}/api/og-image?userId=${userId}`;
 
     return {
@@ -51,7 +65,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       openGraph: {
         title,
         description,
-        url: `${baseUrl}/quiz`,
+        url: `${shareBaseUrl}/results?userId=${userId}`,
         images: [
           {
             url: ogImageUrl,

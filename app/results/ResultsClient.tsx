@@ -637,14 +637,16 @@ export default function ResultsClient() {
 
   const buildSharePageUrl = () => {
     if (typeof window === 'undefined') return 'https://airops.com/win';
-    const baseUrl = window.location.origin;
-    const url = new URL('/share', baseUrl);
+    const shareBase = process.env.NEXT_PUBLIC_SHARE_BASE_URL || window.location.origin;
+    const url = new URL('/share', shareBase);
     if (userId) url.searchParams.set('userId', userId);
     return url.toString();
   };
 
   const sharePageUrlStr = buildSharePageUrl();
-  const quizUrl = typeof window !== 'undefined' ? `${window.location.origin}/quiz` : 'https://airops.com/win';
+  const quizUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL
+    ? `${process.env.NEXT_PUBLIC_SHARE_BASE_URL}/quiz`
+    : (typeof window !== 'undefined' ? `${window.location.origin}/quiz` : 'https://airops.com/win');
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareBody)}&url=${encodeURIComponent(sharePageUrlStr)}`;
   const linkedinText = shareBody;
   const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrlStr)}`;

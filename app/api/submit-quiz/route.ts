@@ -159,6 +159,7 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "https://campaign-quiz.vercel.app";
+    const shareBaseUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL || baseUrl;
 
     // Fire-and-forget: submit to HubSpot form
     const hubspotFields = [
@@ -176,7 +177,7 @@ export async function POST(request: NextRequest) {
     }
     hubspotFields.push({
       name: "brand_campaign__quiz_url__2026q1",
-      value: `${baseUrl}/share?userId=${userId}`,
+      value: `${shareBaseUrl}/share?userId=${userId}`,
     });
     hubspotFields.push({
       name: "brand_campaign__archetype__2026q1",
