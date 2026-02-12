@@ -6,33 +6,25 @@ export default function Home() {
   return (
     <div className="min-h-screen relative" style={{ background: 'linear-gradient(180deg, #00CE50 0%, #00250E 31.25%)' }}>
 
-      <div className="relative">
-        {/* Header Navigation */}
-        <header className="relative z-10 px-4 md:px-10 pt-4 md:pt-6">
-          <img
-            src="/images/header-nav.svg"
-            alt="AirOps Navigation"
-            style={{ width: '100%', maxWidth: '1400px', height: 'auto', margin: '0 auto', display: 'block' }}
-          />
-        </header>
+      {/* Hero background illustration — pinned to top, centered */}
+      <img
+        src="/images/hero-illustration.avif"
+        alt=""
+        style={{
+          position: 'absolute',
+          top: '-100px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '1135px',
+          height: '1135px',
+          pointerEvents: 'none',
+          opacity: 0.4,
+        }}
+      />
 
+      <div className="relative">
         {/* Hero Section */}
-        <section className="relative pt-12 md:pt-20 pb-16 px-6 overflow-hidden">
-          {/* Hero background illustration — centered behind text */}
-          <img
-            src="/images/hero-illustration.avif"
-            alt=""
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '1135px',
-              height: '1135px',
-              pointerEvents: 'none',
-              opacity: 0.4,
-            }}
-          />
+        <section className="relative pt-24 md:pt-36 pb-16 px-6 overflow-hidden">
 
           <div className="relative max-w-4xl mx-auto text-center">
             <p className="text-white/80 text-[24px] md:text-[36px] lg:text-[42px] mb-2 leading-tight" style={{ fontFamily: 'Serrif, serif' }}>
