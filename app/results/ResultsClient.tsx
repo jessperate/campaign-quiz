@@ -650,9 +650,8 @@ export default function ResultsClient() {
     closingCta,
   ].join('\n');
 
-  // Share base: use airops.com if configured, otherwise current origin
-  const shareBase = process.env.NEXT_PUBLIC_SHARE_BASE_URL
-    || (typeof window !== 'undefined' ? window.location.origin : 'https://campaign-quiz.vercel.app');
+  // Share base: always use airops.com for share/quiz URLs
+  const shareBase = process.env.NEXT_PUBLIC_SHARE_BASE_URL || 'https://www.airops.com';
 
   const buildSharePageUrl = () => {
     // Share URL points to the configured share base (airops.com) with /share path
