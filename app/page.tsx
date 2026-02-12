@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Header } from "@/components/ui/Header";
 import ChampionCardFan from "@/components/ChampionCardFan";
 import HomeRecentPlayers from "@/components/HomeRecentPlayers";
 
@@ -19,8 +18,6 @@ export default function Home() {
       </div>
 
       <div className="relative">
-        <Header />
-
         {/* Hero Section */}
         <section className="relative pt-36 md:pt-44 pb-16 px-6">
           <div className="relative max-w-4xl mx-auto text-center">
