@@ -311,19 +311,29 @@ export default function QuizPage() {
                     className="w-full px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F] placeholder-[#0D3D1F]/50 focus:outline-none focus:ring-2 focus:ring-[#0D3D1F]/30"
                   />
 
-                  {/* Headshot upload */}
-                  <div className="flex items-center gap-4">
-                    <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-left">
+                  {/* Headshot upload / camera */}
+                  <div className="flex items-center gap-3">
+                    <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-center">
                       <input
                         type="file"
                         accept="image/*"
                         onChange={handleHeadshotChange}
                         className="hidden"
                       />
-                      {headshotPreview ? "Photo uploaded ✓" : "Upload headshot (optional)"}
+                      {headshotPreview ? "Photo added \u2713" : "Upload photo"}
+                    </label>
+                    <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="user"
+                        onChange={handleHeadshotChange}
+                        className="hidden"
+                      />
+                      {headshotPreview ? "Retake" : "Take photo"}
                     </label>
                     {headshotPreview && (
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white">
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white flex-shrink-0">
                         <img src={headshotPreview} alt="Preview" className="w-full h-full object-cover" />
                       </div>
                     )}

@@ -128,7 +128,8 @@ export default function ResultsClient() {
         await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 3000));
         return generateCardImage(resultsData, retryCount + 1);
       } else {
-        setImageError(data.error || 'Failed to generate image');
+        // Stipple failed — fall back to original photo (card already uses headshotPreview as fallback)
+        console.warn('Stipple generation exhausted retries, falling back to original photo');
       }
     } catch (err) {
       if (retryCount < MAX_CLIENT_RETRIES) {
@@ -136,7 +137,8 @@ export default function ResultsClient() {
         await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 3000));
         return generateCardImage(resultsData, retryCount + 1);
       }
-      setImageError(err instanceof Error ? err.message : 'Failed to generate image');
+      // Stipple failed — fall back to original photo
+      console.warn('Stipple generation error exhausted retries, falling back to original photo');
     } finally {
       setIsGeneratingImage(false);
     }
