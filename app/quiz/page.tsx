@@ -10,8 +10,6 @@ import {
   type Role,
   type ArchetypeId,
 } from "@/lib/quiz-data";
-import { ShareCard } from "@/components/Results/ShareCard";
-import { archetypes, getBullets } from "@/lib/archetypes";
 
 export default function QuizPage() {
   const router = useRouter();
@@ -34,6 +32,18 @@ export default function QuizPage() {
   const stipplePromise = useRef<Promise<string | null> | null>(null);
   const [cardTilt, setCardTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
   const cardTiltRef = useRef<HTMLDivElement>(null);
+  const [previewCardIndex, setPreviewCardIndex] = useState(0);
+
+  const PREVIEW_CARDS = [
+    '/images/card-preview.svg',
+    '/images/card-vision.svg',
+    '/images/card-glue.svg',
+    '/images/card-trendsetter.svg',
+    '/images/card-craft.svg',
+    '/images/card-gogoer.svg',
+    '/images/card-hatcollector.svg',
+    '/images/card-heart.svg',
+  ];
 
   const handleCardTiltMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardTiltRef.current) return;
@@ -54,6 +64,21 @@ export default function QuizPage() {
       setQuestions([roleQuestion, ...getQuestionsForRole(role)]);
     }
   }, [role]);
+
+  // Cycle preview cards after 3 seconds
+  useEffect(() => {
+    if (!showForm) return;
+    let intervalId: NodeJS.Timeout;
+    const timerId = setTimeout(() => {
+      intervalId = setInterval(() => {
+        setPreviewCardIndex(prev => (prev + 1) % PREVIEW_CARDS.length);
+      }, 2000);
+    }, 3000);
+    return () => {
+      clearTimeout(timerId);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [showForm]);
 
   const totalQuestions = 7;
   const currentQuestion = questions[currentQuestionIndex];
@@ -219,13 +244,6 @@ export default function QuizPage() {
 
   // Form view after quiz completion
   if (showForm) {
-    // Get archetype for the preview card
-    const previewArchetypeId = sessionStorage.getItem("quizArchetype") as ArchetypeId | null;
-    const previewArchetype = previewArchetypeId ? archetypes[previewArchetypeId] : null;
-    const previewBullets = previewArchetype && role
-      ? getBullets(previewArchetype, role)
-      : { mostLikelyTo: "???", typicallySpending: "???", favoritePhrase: "???" };
-
     return (
       <div className="min-h-screen relative">
         {/* Full page background */}
@@ -336,7 +354,7 @@ export default function QuizPage() {
                 </p>
               </div>
 
-              {/* Preview card column — obfuscated with interactive holographic effect */}
+              {/* Preview card column — cycling archetype cards */}
               <div className="hidden lg:block relative flex-shrink-0" style={{ perspective: '1000px' }}>
                 <div
                   ref={cardTiltRef}
@@ -348,7 +366,6 @@ export default function QuizPage() {
                     position: 'relative',
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    cursor: 'pointer',
                     transform: `rotateX(${cardTilt.rotateX}deg) rotateY(${cardTilt.rotateY}deg)`,
                     transition: !cardTilt.isHovering ? 'transform 0.5s ease-out, box-shadow 0.5s ease-out' : 'transform 0.1s ease-out, box-shadow 0.1s ease-out',
                     transformStyle: 'preserve-3d',
@@ -358,169 +375,22 @@ export default function QuizPage() {
                       : `${-cardTilt.rotateY * 1.5}px ${cardTilt.rotateX * 1.5}px 40px rgba(0,0,0,0.4), ${-cardTilt.rotateY * 0.5}px ${cardTilt.rotateX * 0.5}px 15px rgba(0,0,0,0.2)`,
                   }}
                 >
-                  {/* Scaled-down ShareCard with placeholder data */}
-                  <div
-                    style={{
-                      width: '1080px',
-                      height: '1080px',
-                      transform: 'scale(0.5)',
-                      transformOrigin: 'top left',
-                      position: 'absolute',
-                      left: '-110px',
-                      top: '-38px',
-                    }}
-                  >
-                    <ShareCard
-                      firstName="Your"
-                      lastName="Name"
-                      company="Your Company"
-                      archetypeName={previewArchetype?.name || "???"}
-                      shortName={previewArchetype?.shortName || "???"}
-                      archetypeId={previewArchetypeId || undefined}
-                      mostLikelyTo={previewBullets.mostLikelyTo}
-                      typicallySpending={previewBullets.typicallySpending}
-                      favoritePhrase={previewBullets.favoritePhrase}
-                      transparent
-                    />
-                  </div>
-
-                  {/* Frosted blur overlay to obfuscate content */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      backdropFilter: 'blur(6px)',
-                      WebkitBackdropFilter: 'blur(6px)',
-                      backgroundColor: 'rgba(255,255,255,0.15)',
-                      zIndex: 3,
-                    }}
-                  />
-
-                  {/* Holographic pattern layer — mouse-tracked */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      pointerEvents: 'none',
-                      overflow: 'hidden',
-                      mixBlendMode: 'multiply',
-                      opacity: cardTilt.isHovering ? 0.4 : 0,
-                      transition: 'opacity 0.3s ease-out',
-                      maskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\'%3E%3Crect width=\'4\' height=\'4\' fill=\'white\'/%3E%3Crect x=\'4\' y=\'4\' width=\'4\' height=\'4\' fill=\'white\'/%3E%3C/svg%3E")',
-                      maskSize: '6px 6px',
-                      WebkitMaskImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\'%3E%3Crect width=\'4\' height=\'4\' fill=\'white\'/%3E%3Crect x=\'4\' y=\'4\' width=\'4\' height=\'4\' fill=\'white\'/%3E%3C/svg%3E")',
-                      WebkitMaskSize: '6px 6px',
-                      filter: 'saturate(2)',
-                      zIndex: 4,
-                    }}
-                  >
-                    <div
+                  {PREVIEW_CARDS.map((src, i) => (
+                    <img
+                      key={src}
+                      src={src}
+                      alt=""
                       style={{
                         position: 'absolute',
-                        width: '500%',
-                        aspectRatio: '1',
-                        bottom: 0,
-                        left: 0,
-                        transformOrigin: '0 100%',
-                        background: 'radial-gradient(circle at 0 100%, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
-                        scale: `${Math.min(1, 0.15 + cardTilt.pointerX * 0.25)}`,
-                        translate: `clamp(-10%, ${-10 + cardTilt.pointerX * 10}%, 10%) ${Math.max(0, cardTilt.pointerY * -1 * 10)}%`,
-                        transition: !cardTilt.isHovering ? 'all 0.3s ease-out' : 'none',
+                        inset: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        opacity: i === previewCardIndex ? 1 : 0,
+                        transition: 'opacity 0.6s ease-in-out',
                       }}
                     />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        width: '500%',
-                        aspectRatio: '1',
-                        top: 0,
-                        right: 0,
-                        transformOrigin: '100% 0',
-                        background: 'radial-gradient(circle at 100% 0, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
-                        scale: `${Math.min(1, 0.15 + cardTilt.pointerX * -0.65)}`,
-                        translate: `clamp(-10%, ${10 + cardTilt.pointerX * 10}%, 10%) ${Math.min(0, cardTilt.pointerY * -10)}%`,
-                        transition: !cardTilt.isHovering ? 'all 0.3s ease-out' : 'none',
-                      }}
-                    />
-                  </div>
-
-                  {/* Watermark holographic layer */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      pointerEvents: 'none',
-                      overflow: 'hidden',
-                      mixBlendMode: 'hard-light',
-                      opacity: cardTilt.isHovering ? 0.35 : 0,
-                      transition: 'opacity 0.3s ease-out',
-                      maskImage: 'repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)',
-                      maskSize: '12px 12px',
-                      WebkitMaskImage: 'repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)',
-                      WebkitMaskSize: '12px 12px',
-                      filter: 'saturate(0.9) contrast(1.1) brightness(1.2)',
-                      zIndex: 5,
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: 'absolute',
-                        width: '500%',
-                        aspectRatio: '1',
-                        bottom: 0,
-                        left: 0,
-                        transformOrigin: '0 100%',
-                        background: 'radial-gradient(circle at 0 100%, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
-                        scale: `${Math.min(1, 0.15 + cardTilt.pointerX * 0.25)}`,
-                        translate: `clamp(-10%, ${-10 + cardTilt.pointerX * 10}%, 10%) ${Math.max(0, cardTilt.pointerY * -1 * 10)}%`,
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        width: '500%',
-                        aspectRatio: '1',
-                        top: 0,
-                        right: 0,
-                        transformOrigin: '100% 0',
-                        background: 'radial-gradient(circle at 100% 0, transparent 10%, hsl(5,100%,80%), hsl(150,100%,60%), hsl(220,90%,70%), transparent 60%)',
-                        scale: `${Math.min(1, 0.15 + cardTilt.pointerX * -0.65)}`,
-                        translate: `clamp(-10%, ${10 + cardTilt.pointerX * 10}%, 10%) ${Math.min(0, cardTilt.pointerY * -10)}%`,
-                      }}
-                    />
-                  </div>
-
-                  {/* Spotlight following pointer */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      pointerEvents: 'none',
-                      background: cardTilt.isHovering
-                        ? `radial-gradient(circle at ${cardTilt.pointerX * 100}% ${cardTilt.pointerY * 100}%, rgba(255,255,255,0.2), transparent 50%)`
-                        : 'none',
-                      zIndex: 6,
-                      borderRadius: '12px',
-                      transition: !cardTilt.isHovering ? 'opacity 0.3s ease-out' : 'none',
-                      opacity: cardTilt.isHovering ? 1 : 0,
-                    }}
-                  />
-
-                  {/* Edge glare */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      pointerEvents: 'none',
-                      background: cardTilt.isHovering
-                        ? `linear-gradient(${105 + cardTilt.rotateY * 2}deg, transparent 30%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 55%, transparent 70%)`
-                        : 'none',
-                      zIndex: 7,
-                      borderRadius: '12px',
-                      opacity: cardTilt.isHovering ? 1 : 0,
-                      transition: !cardTilt.isHovering ? 'opacity 0.3s ease-out' : 'none',
-                    }}
-                  />
+                  ))}
                 </div>
               </div>
             </div>
