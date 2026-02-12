@@ -314,7 +314,7 @@ export default function QuizPage() {
         {/* Full page background */}
         <div className="fixed inset-0 pointer-events-none">
           <Image
-            src="/images/quiz-bg-v3.png"
+            src="/images/question-bg.svg"
             alt=""
             fill
             className="object-cover"
@@ -493,7 +493,7 @@ export default function QuizPage() {
       {/* Full page background */}
       <div className="fixed inset-0 pointer-events-none">
         <Image
-          src="/images/quiz-bg-v3.png"
+          src="/images/question-bg.svg"
           alt=""
           fill
           className="object-cover"
