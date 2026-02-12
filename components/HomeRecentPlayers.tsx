@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 
 interface CardData {
@@ -47,7 +47,6 @@ export default function HomeRecentPlayers() {
       .then((data) => {
         if (data.cards) {
           setCards(data.cards.slice(0, 20));
-          // Count archetypes
           const c: Record<string, number> = {};
           for (const card of data.cards) {
             c[card.archetypeId] = (c[card.archetypeId] || 0) + 1;
@@ -58,14 +57,20 @@ export default function HomeRecentPlayers() {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (!sectionRef.current) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    obs.observe(sectionRef.current);
-    return () => obs.disconnect();
+  // Use callback ref so the observer attaches when the DOM node appears
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+    if (node) {
+      observerRef.current = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+        { threshold: 0.05 }
+      );
+      observerRef.current.observe(node);
+    }
+    sectionRef.current = node;
   }, []);
 
   if (cards.length === 0) return null;
@@ -76,110 +81,26 @@ export default function HomeRecentPlayers() {
   const leaderId = sorted[0];
 
   return (
-    <section ref={sectionRef} className="relative py-16 md:py-24">
-      <div className="max-w-6xl mx-auto px-6">
-        {/* Leaderboard */}
-        <div className="mb-16">
-          <p
-            className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-3"
-            style={{ fontFamily: "SaansMono, monospace", color: "#00FF64" }}
-          >
-            Leaderboard
-          </p>
-          <h2
-            className="text-white text-2xl sm:text-3xl leading-tight mb-2"
-            style={{ fontFamily: "SerrifVF, Serrif, Georgia, serif" }}
-          >
-            Which archetype is winning?
-          </h2>
-          <p className="text-white/50 text-sm mb-8" style={{ fontFamily: "SaansMono, monospace" }}>
-            {totalPlayers} players and counting
-          </p>
-
-          <div className="space-y-3">
-            {sorted.map((id, i) => {
-              const count = counts[id] || 0;
-              const pct = totalPlayers > 0 ? (count / totalPlayers) * 100 : 0;
-              const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0;
-              const colors = ARCHETYPE_COLORS[id] || ARCHETYPE_COLORS.vision;
-              const isLeader = id === leaderId;
-
-              return (
-                <div
-                  key={id}
-                  className="flex items-center gap-4"
-                  style={{
-                    opacity: visible ? 1 : 0,
-                    transform: visible ? "translateX(0)" : "translateX(-30px)",
-                    transition: `opacity 0.5s ease-out ${i * 0.07}s, transform 0.5s ease-out ${i * 0.07}s`,
-                  }}
-                >
-                  <div className="w-24 text-right shrink-0">
-                    <span
-                      className="text-sm font-semibold"
-                      style={{
-                        fontFamily: "Saans, sans-serif",
-                        color: isLeader ? "#00FF64" : "rgba(255,255,255,0.7)",
-                      }}
-                    >
-                      {ARCHETYPE_LABELS[id]}
-                    </span>
-                  </div>
-                  <div className="flex-1 h-10 rounded-full overflow-hidden bg-white/5 relative">
-                    <div
-                      className="h-full rounded-full flex items-center transition-all duration-1000 ease-out"
-                      style={{
-                        width: visible ? `${Math.max(barWidth, 4)}%` : "0%",
-                        background: isLeader
-                          ? "linear-gradient(90deg, #00FF64, #00CC50)"
-                          : colors.accent,
-                        transitionDelay: `${i * 0.07 + 0.3}s`,
-                      }}
-                    >
-                      {isLeader && (
-                        <span className="ml-3 text-xs font-bold text-black whitespace-nowrap">
-                          IN THE LEAD
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="w-16 text-right shrink-0">
-                    <span
-                      className="text-xs tabular-nums"
-                      style={{
-                        fontFamily: "SaansMono, monospace",
-                        color: isLeader ? "#00FF64" : "rgba(255,255,255,0.5)",
-                      }}
-                    >
-                      {pct.toFixed(0)}%
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Recent Players */}
-        <div>
-          <p
-            className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-3"
-            style={{ fontFamily: "SaansMono, monospace", color: "#00FF64" }}
-          >
-            Recent Players
-          </p>
-          <h2
-            className="text-white text-2xl sm:text-3xl leading-tight mb-8"
-            style={{ fontFamily: "SerrifVF, Serrif, Georgia, serif" }}
-          >
-            See who else is playing
-          </h2>
-        </div>
+    <section ref={setRef} className="relative py-16 md:py-24">
+      {/* Recent Players first */}
+      <div className="max-w-6xl mx-auto px-6 mb-6">
+        <p
+          className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-3"
+          style={{ fontFamily: "SaansMono, monospace", color: "#00FF64" }}
+        >
+          Recent Players
+        </p>
+        <h2
+          className="text-white text-2xl sm:text-3xl leading-tight mb-8"
+          style={{ fontFamily: "SerrifVF, Serrif, Georgia, serif" }}
+        >
+          See who else is playing
+        </h2>
       </div>
 
       {/* Scrollable card row */}
       <div
-        className="flex gap-4 px-6 overflow-x-auto pb-4"
+        className="flex gap-4 px-6 overflow-x-auto pb-4 home-gallery"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <style>{`.home-gallery::-webkit-scrollbar { display: none; }`}</style>
@@ -193,7 +114,7 @@ export default function HomeRecentPlayers() {
               style={{
                 opacity: visible ? 1 : 0,
                 transform: visible ? "translateY(0)" : "translateY(30px)",
-                transition: `opacity 0.5s ease-out ${i * 0.06 + 0.5}s, transform 0.5s ease-out ${i * 0.06 + 0.5}s`,
+                transition: `opacity 0.5s ease-out ${i * 0.06}s, transform 0.5s ease-out ${i * 0.06}s`,
               }}
             >
               <div
@@ -204,7 +125,6 @@ export default function HomeRecentPlayers() {
                   background: colors.bg,
                 }}
               >
-                {/* Headshot */}
                 {card.headshotUrl ? (
                   <img
                     src={card.headshotUrl}
@@ -224,7 +144,6 @@ export default function HomeRecentPlayers() {
                   </div>
                 )}
 
-                {/* Gradient overlay */}
                 <div
                   className="absolute inset-0"
                   style={{
@@ -232,7 +151,6 @@ export default function HomeRecentPlayers() {
                   }}
                 />
 
-                {/* Card info */}
                 <div className="absolute bottom-0 left-0 right-0 p-3">
                   <div
                     className="text-[10px] uppercase tracking-wider mb-1 font-semibold"
@@ -257,13 +175,12 @@ export default function HomeRecentPlayers() {
           );
         })}
 
-        {/* CTA card */}
         <Link
           href="/quiz"
           className="flex-shrink-0"
           style={{
             opacity: visible ? 1 : 0,
-            transition: `opacity 0.5s ease-out ${cards.length * 0.06 + 0.5}s`,
+            transition: `opacity 0.5s ease-out ${cards.length * 0.06}s`,
           }}
         >
           <div
@@ -285,6 +202,88 @@ export default function HomeRecentPlayers() {
             </div>
           </div>
         </Link>
+      </div>
+
+      {/* Leaderboard */}
+      <div className="max-w-6xl mx-auto px-6 mt-16">
+        <p
+          className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-3"
+          style={{ fontFamily: "SaansMono, monospace", color: "#00FF64" }}
+        >
+          Leaderboard
+        </p>
+        <h2
+          className="text-white text-2xl sm:text-3xl leading-tight mb-2"
+          style={{ fontFamily: "SerrifVF, Serrif, Georgia, serif" }}
+        >
+          Which archetype is winning?
+        </h2>
+        <p className="text-white/50 text-sm mb-8" style={{ fontFamily: "SaansMono, monospace" }}>
+          {totalPlayers} players and counting
+        </p>
+
+        <div className="space-y-3">
+          {sorted.map((id, i) => {
+            const count = counts[id] || 0;
+            const pct = totalPlayers > 0 ? (count / totalPlayers) * 100 : 0;
+            const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0;
+            const colors = ARCHETYPE_COLORS[id] || ARCHETYPE_COLORS.vision;
+            const isLeader = id === leaderId;
+
+            return (
+              <div
+                key={id}
+                className="flex items-center gap-4"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "translateX(0)" : "translateX(-30px)",
+                  transition: `opacity 0.5s ease-out ${i * 0.07 + 0.4}s, transform 0.5s ease-out ${i * 0.07 + 0.4}s`,
+                }}
+              >
+                <div className="w-24 text-right shrink-0">
+                  <span
+                    className="text-sm font-semibold"
+                    style={{
+                      fontFamily: "Saans, sans-serif",
+                      color: isLeader ? "#00FF64" : "rgba(255,255,255,0.7)",
+                    }}
+                  >
+                    {ARCHETYPE_LABELS[id]}
+                  </span>
+                </div>
+                <div className="flex-1 h-10 rounded-full overflow-hidden bg-white/5 relative">
+                  <div
+                    className="h-full rounded-full flex items-center transition-all duration-1000 ease-out"
+                    style={{
+                      width: visible ? `${Math.max(barWidth, 4)}%` : "0%",
+                      background: isLeader
+                        ? "linear-gradient(90deg, #00FF64, #00CC50)"
+                        : colors.accent,
+                      transitionDelay: `${i * 0.07 + 0.6}s`,
+                    }}
+                  >
+                    {isLeader && (
+                      <span className="ml-3 text-xs font-bold text-black whitespace-nowrap">
+                        IN THE LEAD
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="w-16 text-right shrink-0">
+                  <span
+                    className="text-xs tabular-nums"
+                    style={{
+                      fontFamily: "SaansMono, monospace",
+                      color: isLeader ? "#00FF64" : "rgba(255,255,255,0.5)",
+                    }}
+                  >
+                    {pct.toFixed(0)}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
