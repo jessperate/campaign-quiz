@@ -69,6 +69,14 @@ export default function ResultsClient() {
   }>>([]);
   const galleryRef = useRef<HTMLDivElement>(null);
   const [galleryVisible, setGalleryVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const generateCardImage = async (resultsData: QuizResults, retryCount = 0) => {
     setIsGeneratingImage(true);
@@ -266,8 +274,14 @@ export default function ResultsClient() {
     setTimeout(() => setIsFlipping(false), 700);
   }, []);
 
-  // Scroll-driven card travel animation
+  // Scroll-driven card travel animation (desktop only)
   useEffect(() => {
+    // On mobile, skip the floating card animation entirely — card stays in hero
+    if (isMobile) {
+      setCardLanded(true);
+      return;
+    }
+
     const updateRects = () => {
       if (heroCardPlaceholderRef.current) {
         setHeroCardRect(heroCardPlaceholderRef.current.getBoundingClientRect());
@@ -310,18 +324,18 @@ export default function ResultsClient() {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', updateRects);
     };
-  }, [results]);
+  }, [results, isMobile]);
 
-  // Compute floating card style
+  // Compute floating card style (desktop only — mobile skips this)
   const getFloatingCardStyle = useCallback((): React.CSSProperties | null => {
-    if (!heroCardRect || !sidebarCardRect || cardLanded) return null;
+    if (isMobile || !heroCardRect || !sidebarCardRect || cardLanded) return null;
 
     const t = scrollProgress;
     // Ease-out cubic for smooth deceleration
     const ease = 1 - Math.pow(1 - t, 3);
 
-    const startW = 374;
-    const startH = 540;
+    const startW = isMobile ? 260 : 374;
+    const startH = isMobile ? 375 : 540;
     const endW = sidebarCardRect.width;
     const endH = sidebarCardRect.width * (540 / 374);
 
@@ -668,12 +682,13 @@ export default function ResultsClient() {
         className="relative w-full"
         style={{
           background: rt.bg,
-          minHeight: '100vh',
+          // On mobile, use min-height with dvh for better mobile browser support
+          minHeight: isMobile ? '100dvh' : '100vh',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: '40px 24px 80px',
+          padding: isMobile ? '32px 16px 40px' : '40px 24px 80px',
         }}
       >
         {/* AirOps logo — fixed to top of page */}
@@ -708,29 +723,33 @@ export default function ResultsClient() {
         />
 
         {/* Left vertical edge line */}
-        <div
-          style={{
-            position: 'absolute',
-            left: '24px',
-            top: 0,
-            bottom: 0,
-            width: '1px',
-            background: rt.body,
-            opacity: 0.3,
-          }}
-        />
+        {!isMobile && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '24px',
+              top: 0,
+              bottom: 0,
+              width: '1px',
+              background: rt.body,
+              opacity: 0.3,
+            }}
+          />
+        )}
         {/* Right vertical edge line */}
-        <div
-          style={{
-            position: 'absolute',
-            right: '24px',
-            top: 0,
-            bottom: 0,
-            width: '1px',
-            background: rt.body,
-            opacity: 0.3,
-          }}
-        />
+        {!isMobile && (
+          <div
+            style={{
+              position: 'absolute',
+              right: '24px',
+              top: 0,
+              bottom: 0,
+              width: '1px',
+              background: rt.body,
+              opacity: 0.3,
+            }}
+          />
+        )}
 
         {/* "YOUR PLAYER CARD" label */}
         <p
@@ -750,7 +769,7 @@ export default function ResultsClient() {
           Your Player Card
         </p>
 
-        {/* Title + Card overlap zone */}
+        {/* Title + Card zone */}
         <div
           style={{
             position: 'relative',
@@ -760,7 +779,7 @@ export default function ResultsClient() {
             alignItems: 'center',
           }}
         >
-          {/* Archetype card-title SVG — behind the card */}
+          {/* Archetype card-title SVG */}
           <div
             style={{
               position: 'relative',
@@ -769,6 +788,8 @@ export default function ResultsClient() {
               opacity: heroAnimStage !== 'hidden' ? 1 : 0,
               transform: heroAnimStage !== 'hidden' ? 'translateY(0)' : 'translateY(24px)',
               transition: 'opacity 0.8s ease-out, transform 0.8s ease-out',
+              // On mobile: don't overlap, just show above the card
+              ...(isMobile ? { marginBottom: '-20px' } : {}),
             }}
           >
             <img
@@ -776,28 +797,44 @@ export default function ResultsClient() {
               alt={`The ${archetype.name}`}
               style={{ width: '100%', height: 'auto' }}
               onError={(e) => {
-                // Fallback to original header if card-title variant doesn't exist
                 e.currentTarget.src = `/headers/the-${archetype.id}-header.svg`;
               }}
             />
           </div>
 
-          {/* Card container — absolutely positioned over the title */}
+          {/* Card container */}
           <div
             style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: heroAnimStage === 'card-in'
-                ? 'translate(-50%, -50%)'
-                : 'translate(-50%, calc(-50% - 80px))',
-              opacity: heroAnimStage === 'card-in' ? 1 : 0,
-              transition: 'opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              zIndex: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '24px',
+              // Desktop: absolutely positioned over the title
+              // Mobile: stacked below the title, centered
+              ...(isMobile
+                ? {
+                    position: 'relative' as const,
+                    zIndex: 2,
+                    display: 'flex',
+                    flexDirection: 'column' as const,
+                    alignItems: 'center',
+                    gap: '20px',
+                    opacity: heroAnimStage === 'card-in' ? 1 : 0,
+                    transform: heroAnimStage === 'card-in' ? 'translateY(0)' : 'translateY(40px)',
+                    transition: 'opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  }
+                : {
+                    position: 'absolute' as const,
+                    top: '50%',
+                    left: '50%',
+                    transform: heroAnimStage === 'card-in'
+                      ? 'translate(-50%, -50%)'
+                      : 'translate(-50%, calc(-50% - 80px))',
+                    opacity: heroAnimStage === 'card-in' ? 1 : 0,
+                    transition: 'opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    zIndex: 2,
+                    display: 'flex',
+                    flexDirection: 'column' as const,
+                    alignItems: 'center',
+                    gap: '24px',
+                  }
+              ),
             }}
           >
             {/* Hidden full-size card for html2canvas capture */}
@@ -850,35 +887,45 @@ export default function ResultsClient() {
             <div
               ref={heroCardPlaceholderRef}
               style={{
-                width: '374px',
-                height: '540px',
+                width: isMobile ? 0 : '374px',
+                height: isMobile ? 0 : '540px',
+                // On mobile, card lives at the bottom of the page instead
+                ...(isMobile ? { overflow: 'hidden' } : {}),
               }}
             >
-              {scrollProgress === 0 && (
+              {(!isMobile && scrollProgress === 0) && (
                 <div
                   ref={tiltRef}
-                  onMouseMove={handleTiltMove}
-                  onMouseLeave={handleTiltLeave}
+                  onMouseMove={isMobile ? undefined : handleTiltMove}
+                  onMouseLeave={isMobile ? undefined : handleTiltLeave}
                   onClick={handleFlip}
                   style={{
-                    perspective: '1000px',
+                    perspective: isMobile ? 'none' : '1000px',
                     cursor: 'pointer',
                   }}
                 >
                   <div
                     style={{
-                      width: '374px',
-                      height: '540px',
+                      width: isMobile ? 'min(75vw, 300px)' : '374px',
+                      height: isMobile ? 'min(108vw, 433px)' : '540px',
                       position: 'relative',
-                      transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY + (isFlipped ? 180 : 0)}deg)`,
-                      transition: isFlipping
-                        ? 'transform 0.7s ease-in-out, box-shadow 0.7s ease-in-out'
-                        : (!tilt.isHovering ? 'transform 0.5s ease-out, box-shadow 0.5s ease-out' : 'transform 0.1s ease-out, box-shadow 0.1s ease-out'),
+                      // Mobile: only flip, no tilt. Desktop: tilt + flip.
+                      transform: isMobile
+                        ? `rotateY(${isFlipped ? 180 : 0}deg)`
+                        : `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY + (isFlipped ? 180 : 0)}deg)`,
+                      transition: isMobile
+                        ? 'transform 0.7s ease-in-out'
+                        : (isFlipping
+                          ? 'transform 0.7s ease-in-out, box-shadow 0.7s ease-in-out'
+                          : (!tilt.isHovering ? 'transform 0.5s ease-out, box-shadow 0.5s ease-out' : 'transform 0.1s ease-out, box-shadow 0.1s ease-out')),
                       transformStyle: 'preserve-3d',
                       willChange: 'transform',
-                      boxShadow: !tilt.isHovering
-                        ? '0 10px 30px rgba(0,0,0,0.3)'
-                        : `${-tilt.rotateY * 1.5}px ${tilt.rotateX * 1.5}px 40px rgba(0,0,0,0.4), ${-tilt.rotateY * 0.5}px ${tilt.rotateX * 0.5}px 15px rgba(0,0,0,0.2)`,
+                      boxShadow: isMobile
+                        ? '0 12px 40px rgba(0,0,0,0.35)'
+                        : (!tilt.isHovering
+                          ? '0 10px 30px rgba(0,0,0,0.3)'
+                          : `${-tilt.rotateY * 1.5}px ${tilt.rotateX * 1.5}px 40px rgba(0,0,0,0.4), ${-tilt.rotateY * 0.5}px ${tilt.rotateX * 0.5}px 15px rgba(0,0,0,0.2)`),
+                      borderRadius: '12px',
                     }}
                   >
                     {/* ── FRONT FACE ── */}
@@ -892,16 +939,19 @@ export default function ResultsClient() {
                         borderRadius: '12px',
                       }}
                     >
-                      {/* Base card art */}
+                      {/* Base card art — scaled 1080px card to fit display size */}
                       <div
                         style={{
                           width: '1080px',
                           height: '1080px',
-                          transform: 'scale(0.5834)',
+                          // Scale: displayW / innerCardW (641px)
+                          // Desktop 374px: 0.5834, Mobile 300px: 0.468, Mobile 280px: 0.437
+                          transform: isMobile ? 'scale(0.468)' : 'scale(0.5834)',
                           transformOrigin: 'top left',
                           position: 'absolute',
-                          left: '-128px',
-                          top: '-45px',
+                          // Offset = -innerCardLeft * (displayW / innerCardW)
+                          left: isMobile ? '-103px' : '-128px',
+                          top: isMobile ? '-36px' : '-45px',
                         }}
                       >
                         <ShareCard
@@ -1222,12 +1272,12 @@ export default function ResultsClient() {
           style={{
             position: 'relative',
             fontFamily: 'Serrif, serif',
-            fontSize: '18px',
+            fontSize: isMobile ? '14px' : '18px',
             color: rt.headline,
             maxWidth: '1200px',
             width: '100%',
-            textAlign: 'right',
-            marginTop: '24px',
+            textAlign: isMobile ? 'center' : 'right',
+            marginTop: isMobile ? '16px' : '24px',
             opacity: heroAnimStage === 'card-in' ? 1 : 0,
             transform: heroAnimStage === 'card-in' ? 'translateY(0)' : 'translateY(12px)',
             transition: 'opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s',
@@ -1236,32 +1286,33 @@ export default function ResultsClient() {
           {roleContent.tagline}
         </p>
 
-        {/* Flip hint + Share button */}
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px',
-            marginTop: '64px',
-            opacity: heroAnimStage === 'card-in' ? 1 : 0,
-            transition: 'opacity 0.6s ease-out 0.3s',
-          }}
-        >
-          <p
+        {/* Flip hint (desktop only — card not in hero on mobile) */}
+        {!isMobile && (
+          <div
             style={{
-              fontFamily: 'SaansMono, monospace',
-              fontSize: '12px',
-              color: 'rgba(230,230,255,0.5)',
-              textTransform: 'uppercase',
-              letterSpacing: '2px',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px',
+              marginTop: '64px',
+              opacity: heroAnimStage === 'card-in' ? 1 : 0,
+              transition: 'opacity 0.6s ease-out 0.3s',
             }}
           >
-            Click card to flip
-          </p>
-
-        </div>
+            <p
+              style={{
+                fontFamily: 'SaansMono, monospace',
+                fontSize: '12px',
+                color: 'rgba(230,230,255,0.5)',
+                textTransform: 'uppercase',
+                letterSpacing: '2px',
+              }}
+            >
+              Click card to flip
+            </p>
+          </div>
+        )}
 
         {/* Loading indicator */}
         {isGeneratingImage && (
@@ -1289,27 +1340,29 @@ export default function ResultsClient() {
           </div>
         )}
 
-        {/* Scroll chevron indicator */}
-        <div
-          style={{
-            position: 'relative',
-            marginTop: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '2px',
-            opacity: heroAnimStage === 'card-in' ? 0.7 : 0,
-            transition: 'opacity 0.6s ease-out 0.5s',
-            animation: 'scrollChevronBounce 2s ease-in-out infinite',
-          }}
-        >
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9L12 15L18 9" stroke={rt.body} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{ marginTop: '-20px' }}>
-            <path d="M6 9L12 15L18 9" stroke={rt.body} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
+        {/* Scroll chevron indicator (desktop only) */}
+        {!isMobile && (
+          <div
+            style={{
+              position: 'relative',
+              marginTop: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '2px',
+              opacity: heroAnimStage === 'card-in' ? 0.7 : 0,
+              transition: 'opacity 0.6s ease-out 0.5s',
+              animation: 'scrollChevronBounce 2s ease-in-out infinite',
+            }}
+          >
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path d="M6 9L12 15L18 9" stroke={rt.body} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{ marginTop: '-20px' }}>
+              <path d="M6 9L12 15L18 9" stroke={rt.body} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        )}
       </div>
 
       {/* Sticky archetype title banner */}
@@ -1319,28 +1372,58 @@ export default function ResultsClient() {
           top: 0,
           zIndex: 50,
           background: rt.bg,
-          padding: '80px 24px 16px',
+          padding: isMobile ? '48px 16px 8px' : '80px 24px 16px',
           overflow: 'visible',
         }}
       >
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <img
-            src={`/headers/card-title-${archetype.id}.svg`}
-            alt={`The ${archetype.name}`}
-            style={{ width: '100%', height: 'auto' }}
-            onError={(e) => {
-              e.currentTarget.src = `/headers/the-${archetype.id}-header.svg`;
-            }}
-          />
+          {isMobile ? (
+            /* On mobile: compact text-based archetype header */
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span
+                style={{
+                  fontFamily: 'SaansMono, monospace',
+                  fontSize: '10px',
+                  color: rt.headline,
+                  textTransform: 'uppercase',
+                  letterSpacing: '3px',
+                  opacity: 0.7,
+                }}
+              >
+                The
+              </span>
+              <span
+                style={{
+                  fontFamily: 'Knockout-91, Impact, sans-serif',
+                  fontSize: '32px',
+                  color: rt.headline,
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  lineHeight: 1,
+                }}
+              >
+                {archetype.shortName}
+              </span>
+            </div>
+          ) : (
+            <img
+              src={`/headers/card-title-${archetype.id}.svg`}
+              alt={`The ${archetype.name}`}
+              style={{ width: '100%', height: 'auto' }}
+              onError={(e) => {
+                e.currentTarget.src = `/headers/the-${archetype.id}-header.svg`;
+              }}
+            />
+          )}
         </div>
       </div>
 
       {/* Content below hero — Two-column layout */}
-      <div className="px-6 sm:px-10 py-16" style={{ position: 'relative' }}>
+      <div className="px-4 sm:px-10 py-8 sm:py-16" style={{ position: 'relative' }}>
         <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row gap-6">
 
-          {/* ── Left Column (66%) ── */}
-          <div className="w-full md:w-2/3">
+          {/* ── Left Column (66%) — on mobile, appears AFTER the sidebar ── */}
+          <div className="w-full md:w-2/3 order-2 md:order-1">
             <div
               className="rounded-3xl p-6 sm:p-8 space-y-8"
               style={{
@@ -1482,12 +1565,13 @@ export default function ResultsClient() {
                   href={roleContent.levelUpUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-full text-base font-medium transition-colors hover:bg-[#F5F5F5]"
+                  className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-full text-base font-medium transition-colors hover:bg-[#F5F5F5] active:scale-[0.98]"
                   style={{
                     fontFamily: 'Saans, sans-serif',
                     background: rt.secondaryBtn,
                     color: '#FFFFFF',
                     border: `1.5px solid ${hexToRgba(rt.body, 0.2)}`,
+                    minHeight: '48px',
                   }}
                 >
                   {results.role === 'ic' ? 'Join the Cohort' : 'Book a Demo'} &rarr;
@@ -1496,9 +1580,9 @@ export default function ResultsClient() {
             </div>
           </div>
 
-          {/* ── Right Column (34%) — sticky card sidebar ── */}
-          <div className="w-full md:w-1/3">
-            <div className="md:sticky md:top-[200px] space-y-5" style={{ maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}>
+          {/* ── Right Column (34%) — sticky card sidebar. On mobile, appears FIRST (share section) ── */}
+          <div className="w-full md:w-1/3 order-1 md:order-2">
+            <div className="md:sticky md:top-[200px] space-y-5" style={{ maxHeight: isMobile ? 'none' : 'calc(100vh - 220px)', overflowY: isMobile ? 'visible' : 'auto' }}>
               {/* Player card landing zone */}
               <div
                 ref={(el) => {
@@ -1521,6 +1605,8 @@ export default function ResultsClient() {
                   overflow: 'hidden',
                   borderRadius: '1.5rem',
                   position: 'relative',
+                  // On mobile, hide the sidebar card — it's already in the hero
+                  ...(isMobile ? { display: 'none' } : {}),
                 }}
               >
                 {cardLanded && (
@@ -1601,46 +1687,46 @@ export default function ResultsClient() {
                   className="text-xl font-semibold mb-4"
                   style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif', color: rt.headline }}
                 >
-                  Share your<br />player card
+                  Share your player card
                 </p>
                 <div className="flex flex-col gap-3">
-                  {/* Twitter / X — green */}
+                  {/* Twitter / X */}
                   <a
                     href={twitterUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity hover:opacity-90"
-                    style={{ background: '#00FF64', color: '#000D05' }}
+                    className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity hover:opacity-90 active:scale-[0.98]"
+                    style={{ background: '#00FF64', color: '#000D05', minHeight: '48px', fontSize: isMobile ? '15px' : '14px' }}
                   >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                     </svg>
-                    Share on Twitter
+                    Share on X
                   </a>
-                  {/* LinkedIn — copy text to clipboard + open share-offsite for OG card */}
+                  {/* LinkedIn */}
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(linkedinText);
                       window.open(linkedinShareUrl, '_blank');
                     }}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity cursor-pointer hover:opacity-90"
-                    style={{ background: '#00FF64', color: '#000D05' }}
+                    className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
+                    style={{ background: '#00FF64', color: '#000D05', minHeight: '48px', fontSize: isMobile ? '15px' : '14px' }}
                   >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                     </svg>
                     Share on LinkedIn
                   </button>
-                  {/* Challenge your team — green */}
+                  {/* Challenge your team */}
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(sharePageUrlStr);
                       alert('Link copied!');
                     }}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-opacity cursor-pointer hover:opacity-90"
-                    style={{ background: '#00FF64', color: '#000D05' }}
+                    className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
+                    style={{ background: '#00FF64', color: '#000D05', minHeight: '48px', fontSize: isMobile ? '15px' : '14px' }}
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     Challenge your team
@@ -1653,13 +1739,122 @@ export default function ResultsClient() {
         </div>
       </div>
 
+      {/* Mobile: static card at bottom of content */}
+      {isMobile && (
+        <div
+          style={{
+            background: rt.bg,
+            padding: '40px 16px 48px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'SaansMono, monospace',
+              fontSize: '10px',
+              color: rt.headline,
+              textTransform: 'uppercase',
+              letterSpacing: '3px',
+              opacity: 0.7,
+            }}
+          >
+            Your Player Card
+          </p>
+          <div
+            onClick={handleFlip}
+            style={{
+              width: 'min(80vw, 320px)',
+              aspectRatio: '374 / 540',
+              position: 'relative',
+              overflow: 'hidden',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              transform: `rotateY(${isFlipped ? 180 : 0}deg)`,
+              transition: 'transform 0.7s ease-in-out',
+              transformStyle: 'preserve-3d',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
+            }}
+          >
+            {/* Front face */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                overflow: 'hidden',
+                borderRadius: '12px',
+              }}
+            >
+              <div
+                style={{
+                  width: '1080px',
+                  height: '1080px',
+                  transform: 'scale(0.499)',
+                  transformOrigin: 'top left',
+                  position: 'absolute',
+                  left: '-110px',
+                  top: '-38px',
+                }}
+              >
+                <ShareCard
+                  firstName={firstName}
+                  lastName={lastName}
+                  company={userCompany}
+                  archetypeName={archetype.name}
+                  shortName={archetype.shortName}
+                  archetypeId={results.archetype}
+                  headshotUrl={stippleImage || results.formData.headshotPreview}
+                  mostLikelyTo={results.bullets.mostLikelyTo}
+                  typicallySpending={results.bullets.typicallySpending}
+                  favoritePhrase={results.bullets.favoritePhrase}
+                  transparent
+                />
+              </div>
+            </div>
+            {/* Back face */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
+                overflow: 'hidden',
+                borderRadius: '12px',
+              }}
+            >
+              <img
+                src="/images/card-back.svg"
+                alt="Card back"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+          </div>
+          <p
+            style={{
+              fontFamily: 'SaansMono, monospace',
+              fontSize: '11px',
+              color: hexToRgba(rt.body, 0.5),
+              textTransform: 'uppercase',
+              letterSpacing: '2px',
+            }}
+          >
+            Tap to flip
+          </p>
+        </div>
+      )}
+
       {/* Recent Player Cards Gallery */}
       {recentCards.length > 0 && (
         <div
           ref={galleryRef}
           style={{
             background: cardInner,
-            padding: '80px 0',
+            padding: isMobile ? '48px 0' : '80px 0',
             overflow: 'hidden',
           }}
         >
@@ -1698,8 +1893,8 @@ export default function ResultsClient() {
               >
                 <div
                   style={{
-                    width: '220px',
-                    height: '318px',
+                    width: isMobile ? '160px' : '220px',
+                    height: isMobile ? '231px' : '318px',
                     perspective: '800px',
                   }}
                 >
@@ -1735,11 +1930,11 @@ export default function ResultsClient() {
                       style={{
                         width: '1080px',
                         height: '1080px',
-                        transform: 'scale(0.343)',
+                        transform: isMobile ? 'scale(0.249)' : 'scale(0.343)',
                         transformOrigin: 'top left',
                         position: 'absolute',
-                        left: '-76px',
-                        top: '-26px',
+                        left: isMobile ? '-55px' : '-76px',
+                        top: isMobile ? '-19px' : '-26px',
                       }}
                     >
                       <ShareCard
@@ -1781,7 +1976,7 @@ export default function ResultsClient() {
       <div
         style={{
           background: rt.cardBg,
-          padding: '160px 24px 120px',
+          padding: isMobile ? '80px 16px 60px' : '160px 24px 120px',
           textAlign: 'center',
         }}
       >
@@ -1806,7 +2001,7 @@ export default function ResultsClient() {
         </p>
         <a
           href="/quiz"
-          className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-full text-base font-medium transition-opacity hover:opacity-90"
+          className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-full text-base font-medium transition-opacity hover:opacity-90 active:scale-[0.98]"
           style={{
             fontFamily: 'Saans, sans-serif',
             background: '#00FF64',
@@ -1818,7 +2013,7 @@ export default function ResultsClient() {
       </div>
 
       {/* Footer */}
-      <footer style={{ background: cardInner, padding: '60px 24px 32px', color: rt.body }}>
+      <footer style={{ background: cardInner, padding: isMobile ? '40px 16px 24px' : '60px 24px 32px', color: rt.body }}>
         <div className="max-w-[1200px] mx-auto">
           {/* Top nav */}
           <div className="flex gap-6 mb-8 text-sm" style={{ fontFamily: 'Saans, sans-serif' }}>

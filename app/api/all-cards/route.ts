@@ -5,6 +5,16 @@ const redis = new Redis(process.env.REDIS_URL!);
 
 export const dynamic = "force-dynamic";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+}
+
 export async function GET() {
   try {
     const cards: Array<{
@@ -68,9 +78,9 @@ export async function GET() {
     // Sort by most recent first
     cards.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    return NextResponse.json({ cards });
+    return NextResponse.json({ cards }, { headers: CORS_HEADERS });
   } catch (error) {
     console.error("Error fetching all cards:", error);
-    return NextResponse.json({ cards: [] });
+    return NextResponse.json({ cards: [] }, { headers: CORS_HEADERS });
   }
 }

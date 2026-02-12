@@ -323,7 +323,7 @@ export default function QuizPage() {
         </div>
 
         <div className="relative min-h-screen flex flex-col">
-          <main className="flex-1 flex items-center justify-center px-6 py-12">
+          <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
             <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
               {/* Form column */}
               <div className="max-w-xl text-center lg:text-left flex-1">
@@ -331,7 +331,7 @@ export default function QuizPage() {
                   Almost there!
                 </p>
 
-                <h1 className="text-[#0D3D1F] text-[32px] md:text-[42px] lg:text-[48px] leading-[1.1] mb-8" style={{ fontFamily: 'Serrif, serif' }}>
+                <h1 className="text-[#0D3D1F] text-[26px] sm:text-[32px] md:text-[42px] lg:text-[48px] leading-[1.1] mb-6 sm:mb-8" style={{ fontFamily: 'Serrif, serif' }}>
                   Tell us about yourself to build your player card.
                 </h1>
 
@@ -503,7 +503,7 @@ export default function QuizPage() {
 
       <div className="relative min-h-screen flex flex-col">
         {/* Main content */}
-        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pt-24">
+        <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 pt-16 sm:pt-24">
           <div className="max-w-3xl mx-auto text-center">
             {/* Subtitle */}
             <p className="text-[#0D3D1F]/70 text-lg md:text-xl mb-4" style={{ fontFamily: 'Serrif, serif' }}>
@@ -511,18 +511,18 @@ export default function QuizPage() {
             </p>
 
             {/* Question */}
-            <h1 className="text-[#0D3D1F] text-[48px] md:text-[72px] lg:text-[88px] leading-[1.1] mb-12" style={{ fontFamily: 'Serrif, serif' }}>
+            <h1 className="text-[#0D3D1F] text-[32px] sm:text-[48px] md:text-[72px] lg:text-[88px] leading-[1.1] mb-8 sm:mb-12" style={{ fontFamily: 'Serrif, serif' }}>
               {currentQuestion.text}
             </h1>
 
             {/* Answer options */}
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-3 sm:gap-4">
               {currentQuestion.options.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => handleSelectAnswer(option.id)}
                   className={`
-                    w-full max-w-2xl px-6 py-4 rounded-full text-left
+                    w-full max-w-2xl px-4 sm:px-6 py-3 sm:py-4 rounded-full text-left
                     transition-all duration-200 ease-out
                     ${selectedAnswer === option.id
                       ? 'bg-[#0D3D1F] text-white'
@@ -530,7 +530,7 @@ export default function QuizPage() {
                     }
                   `}
                 >
-                  <span className="text-base md:text-lg">
+                  <span className="text-sm sm:text-base md:text-lg">
                     {option.text}
                   </span>
                 </button>

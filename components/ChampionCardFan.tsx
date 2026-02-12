@@ -19,6 +19,14 @@ const cards = [
 export default function ChampionCardFan() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [scrollShift, setScrollShift] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const handleScroll = useCallback(() => {
     if (!sectionRef.current) return;
@@ -27,8 +35,8 @@ export default function ChampionCardFan() {
     const start = windowH;
     const end = -rect.height;
     const progress = Math.min(1, Math.max(0, (start - rect.top) / (start - end)));
-    setScrollShift((progress - 0.5) * -200);
-  }, []);
+    setScrollShift((progress - 0.5) * (isMobile ? -80 : -200));
+  }, [isMobile]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -36,13 +44,19 @@ export default function ChampionCardFan() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  // On mobile: smaller cards, less overlap, less vertical offset
+  const cardW = isMobile ? 180 : 354;
+  const overlap = isMobile ? -50 : -100;
+  const topScale = isMobile ? 0.4 : 1;
+  const sectionH = isMobile ? 380 : 700;
+
   return (
     <section ref={sectionRef} className="relative overflow-hidden">
       <div
         className="relative mx-auto flex items-start justify-center"
         style={{
-          height: "700px",
-          padding: "3rem 0",
+          height: `${sectionH}px`,
+          padding: isMobile ? "1.5rem 0" : "3rem 0",
           transform: `translateX(${scrollShift}px)`,
         }}
       >
@@ -51,9 +65,9 @@ export default function ChampionCardFan() {
             key={i}
             className="relative shrink-0 cursor-pointer"
             style={{
-              width: "354px",
-              marginLeft: i === 0 ? 0 : "-100px",
-              marginTop: `${card.top}px`,
+              width: `${cardW}px`,
+              marginLeft: i === 0 ? 0 : `${overlap}px`,
+              marginTop: `${card.top * topScale}px`,
               transform: `rotate(${card.rotate}deg)`,
               transformOrigin: "bottom center",
               transition: "transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1)",
@@ -76,7 +90,7 @@ export default function ChampionCardFan() {
                 width: "100%",
                 height: "auto",
                 display: "block",
-                borderRadius: "16px",
+                borderRadius: isMobile ? "10px" : "16px",
                 border: "1.5px solid #00ce50",
                 pointerEvents: "none",
               }}
