@@ -6,6 +6,21 @@ export default function Home() {
   return (
     <div className="min-h-screen relative" style={{ background: 'linear-gradient(180deg, #00CE50 0%, #00250E 31.25%)' }}>
 
+      {/* Hero background illustration */}
+      <img
+        src="/images/hero-illustration.avif"
+        alt=""
+        style={{
+          position: 'absolute',
+          right: '152px',
+          bottom: '-294px',
+          width: '1135px',
+          height: '1135px',
+          aspectRatio: '1 / 1',
+          pointerEvents: 'none',
+        }}
+      />
+
       <div className="relative">
         {/* Hero Section */}
         <section className="relative pt-36 md:pt-44 pb-16 px-6">
