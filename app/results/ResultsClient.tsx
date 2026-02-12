@@ -650,19 +650,20 @@ export default function ResultsClient() {
     closingCta,
   ].join('\n');
 
+  // Share base: use airops.com if configured, otherwise current origin
+  const shareBase = process.env.NEXT_PUBLIC_SHARE_BASE_URL
+    || (typeof window !== 'undefined' ? window.location.origin : 'https://campaign-quiz.vercel.app');
+
   const buildSharePageUrl = () => {
-    if (typeof window === 'undefined') return 'https://campaign-quiz.vercel.app';
-    // Share URL always points to Vercel (where the /share route handler lives with OG tags)
-    const url = new URL('/share', window.location.origin);
+    // Share URL points to the configured share base (airops.com) with /share path
+    // The /share route serves OG tags then redirects to /results
+    const url = new URL('/share', shareBase);
     if (userId) url.searchParams.set('userId', userId);
     return url.toString();
   };
 
   const sharePageUrlStr = buildSharePageUrl();
-  // Quiz URL points to Webflow if configured, otherwise current origin
-  const quizUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL
-    ? `${process.env.NEXT_PUBLIC_SHARE_BASE_URL}/quiz`
-    : (typeof window !== 'undefined' ? `${window.location.origin}/quiz` : 'https://airops.com/win');
+  const quizUrl = `${shareBase}/quiz`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareBody)}&url=${encodeURIComponent(sharePageUrlStr)}`;
   const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrlStr)}`;
 
