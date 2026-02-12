@@ -1725,11 +1725,11 @@ export default function ResultsClient() {
                       style={{
                         width: '1080px',
                         height: '1080px',
-                        transform: 'scale(0.204)',
+                        transform: 'scale(0.343)',
                         transformOrigin: 'top left',
                         position: 'absolute',
-                        left: '-87px',
-                        top: '-28px',
+                        left: '-76px',
+                        top: '-26px',
                       }}
                     >
                       <ShareCard
