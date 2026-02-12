@@ -1463,10 +1463,7 @@ export default function ResultsClient() {
                   className="text-[#E6E6FF]/60 text-sm mb-8"
                   style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
                 >
-                  Body text which supports this component&apos;s goal. Interested in registering straight to the platform?{' '}
-                  <a href="https://app.airops.com" target="_blank" rel="noopener noreferrer" className="underline text-[#E6E6FF]">
-                    click here
-                  </a>
+                  {roleContent.nextStepsCopy}
                 </p>
                 <a
                   href={roleContent.levelUpUrl}
@@ -1480,7 +1477,7 @@ export default function ResultsClient() {
                     border: `1.5px solid ${hexToRgba(rt.body, 0.2)}`,
                   }}
                 >
-                  Book your Demo &rarr;
+                  {results.role === 'ic' ? 'Join the Cohort' : 'Book a Demo'} &rarr;
                 </a>
               </div>
             </div>
