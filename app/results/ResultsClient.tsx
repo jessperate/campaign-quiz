@@ -53,6 +53,22 @@ export default function ResultsClient() {
   const cardRef = useRef<HTMLDivElement>(null);
   const ogCardRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const [recentCards, setRecentCards] = useState<Array<{
+    userId: string;
+    firstName: string;
+    lastName: string;
+    company: string;
+    archetypeId: string;
+    archetypeName: string;
+    shortName: string;
+    headshotUrl: string;
+    stippleImageUrl: string;
+    mostLikelyTo: string;
+    typicallySpending: string;
+    favoritePhrase: string;
+  }>>([]);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const [galleryVisible, setGalleryVisible] = useState(false);
 
   const generateCardImage = async (resultsData: QuizResults) => {
     setIsGeneratingImage(true);
@@ -339,6 +355,35 @@ export default function ResultsClient() {
       return () => clearTimeout(timer);
     }
   }, [shareableCardUrl, ogImageUrl, captureAndUploadOgImage]);
+
+  // Fetch recent cards for gallery
+  useEffect(() => {
+    fetch('/api/all-cards')
+      .then(res => res.json())
+      .then(data => {
+        if (data.cards) {
+          // Exclude current user and limit to 20
+          const urlParams = new URLSearchParams(window.location.search);
+          const currentUserId = urlParams.get('userId');
+          const others = data.cards
+            .filter((c: { userId: string }) => c.userId !== currentUserId)
+            .slice(0, 20);
+          setRecentCards(others);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // IntersectionObserver for gallery scroll reveal
+  useEffect(() => {
+    if (!galleryRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setGalleryVisible(true); },
+      { threshold: 0.1 }
+    );
+    observer.observe(galleryRef.current);
+    return () => observer.disconnect();
+  }, [recentCards.length]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1586,6 +1631,130 @@ export default function ResultsClient() {
 
         </div>
       </div>
+
+      {/* Recent Player Cards Gallery */}
+      {recentCards.length > 0 && (
+        <div
+          ref={galleryRef}
+          style={{
+            background: cardInner,
+            padding: '80px 0',
+            overflow: 'hidden',
+          }}
+        >
+          <div className="max-w-[1200px] mx-auto px-6 mb-8">
+            <p
+              className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-3"
+              style={{ fontFamily: 'SaansMono, monospace', color: rt.headline }}
+            >
+              Recent Players
+            </p>
+            <h3
+              className="text-[#E6E6FF] text-2xl sm:text-3xl leading-tight"
+              style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}
+            >
+              See who else is playing
+            </h3>
+          </div>
+          <div
+            className="flex gap-5 px-6 overflow-x-auto pb-4"
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+          >
+            <style>{`.gallery-scroll::-webkit-scrollbar { display: none; }`}</style>
+            {recentCards.map((card, i) => (
+              <a
+                key={card.userId}
+                href={`/results?userId=${card.userId}`}
+                className="group flex-shrink-0"
+                style={{
+                  opacity: galleryVisible ? 1 : 0,
+                  transform: galleryVisible ? 'translateY(0)' : 'translateY(40px)',
+                  transition: `opacity 0.6s ease-out ${i * 0.08}s, transform 0.6s ease-out ${i * 0.08}s`,
+                }}
+              >
+                <div
+                  style={{
+                    width: '220px',
+                    height: '318px',
+                    perspective: '800px',
+                  }}
+                >
+                  <div
+                    className="relative rounded-xl overflow-hidden"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      transition: 'transform 0.3s ease-out, box-shadow 0.3s ease-out',
+                      transformStyle: 'preserve-3d',
+                    }}
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = (e.clientX - rect.left) / rect.width;
+                      const y = (e.clientY - rect.top) / rect.height;
+                      e.currentTarget.style.transform = `rotateX(${(0.5 - y) * 15}deg) rotateY(${(x - 0.5) * 15}deg)`;
+                      e.currentTarget.style.boxShadow = `${-(x - 0.5) * 20}px ${(0.5 - y) * 20}px 30px rgba(0,0,0,0.4)`;
+                      const holo = e.currentTarget.querySelector('[data-holo]') as HTMLElement;
+                      if (holo) {
+                        holo.style.opacity = '1';
+                        holo.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(255,255,255,0.3), transparent 50%), linear-gradient(${105 + (x - 0.5) * 60}deg, transparent 20%, rgba(0,255,100,0.15) 40%, rgba(100,200,255,0.15) 50%, rgba(255,100,200,0.1) 60%, transparent 80%)`;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = '';
+                      e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+                      const holo = e.currentTarget.querySelector('[data-holo]') as HTMLElement;
+                      if (holo) holo.style.opacity = '0';
+                    }}
+                  >
+                    {/* Mini ShareCard */}
+                    <div
+                      style={{
+                        width: '1080px',
+                        height: '1080px',
+                        transform: 'scale(0.204)',
+                        transformOrigin: 'top left',
+                        position: 'absolute',
+                        left: '-87px',
+                        top: '-28px',
+                      }}
+                    >
+                      <ShareCard
+                        firstName={card.firstName}
+                        lastName={card.lastName}
+                        company={card.company}
+                        archetypeName={card.archetypeName}
+                        shortName={card.shortName}
+                        archetypeId={card.archetypeId as ArchetypeId}
+                        headshotUrl={card.stippleImageUrl || card.headshotUrl}
+                        mostLikelyTo={card.mostLikelyTo}
+                        typicallySpending={card.typicallySpending}
+                        favoritePhrase={card.favoritePhrase}
+                        transparent
+                      />
+                    </div>
+                    {/* Holographic overlay */}
+                    <div
+                      data-holo
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        opacity: 0,
+                        transition: 'opacity 0.3s ease-out',
+                        pointerEvents: 'none',
+                        zIndex: 2,
+                        borderRadius: '12px',
+                      }}
+                    />
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Take the quiz CTA section */}
       <div
