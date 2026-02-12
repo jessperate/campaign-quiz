@@ -30,6 +30,9 @@ export default function QuizPage() {
   const [headshot, setHeadshot] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
   const stipplePromise = useRef<Promise<string | null> | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [cardTilt, setCardTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
   const cardTiltRef = useRef<HTMLDivElement>(null);
   const [previewCardIndex, setPreviewCardIndex] = useState(0);
@@ -117,20 +120,68 @@ export default function QuizPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64 = reader.result as string;
-        setHeadshotPreview(base64);
-
-        // Start stipple generation immediately in the background
-        stipplePromise.current = fetch('/api/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ photoBase64: base64, userName: '', archetype: '', tagline: '' }),
-        })
-          .then(res => res.ok ? res.json() : null)
-          .then(data => data?.imageUrl || null)
-          .catch(() => null);
+        processPhoto(base64);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const processPhoto = (base64: string) => {
+    setHeadshotPreview(base64);
+    // Start stipple generation immediately in the background
+    stipplePromise.current = fetch('/api/generate-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ photoBase64: base64, userName: '', archetype: '', tagline: '' }),
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => data?.imageUrl || null)
+      .catch(() => null);
+  };
+
+  const openCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1280 } },
+      });
+      streamRef.current = stream;
+      setCameraOpen(true);
+      // Attach stream to video element after render
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      }, 50);
+    } catch {
+      alert('Could not access camera. Please check your browser permissions.');
+    }
+  };
+
+  const closeCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    setCameraOpen(false);
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const size = Math.min(video.videoWidth, video.videoHeight);
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d')!;
+    // Center-crop to square, mirror horizontally for selfie
+    ctx.translate(size, 0);
+    ctx.scale(-1, 1);
+    const sx = (video.videoWidth - size) / 2;
+    const sy = (video.videoHeight - size) / 2;
+    ctx.drawImage(video, sx, sy, size, size, 0, 0, size, size);
+    const base64 = canvas.toDataURL('image/jpeg', 0.9);
+    processPhoto(base64);
+    closeCamera();
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -322,16 +373,13 @@ export default function QuizPage() {
                       />
                       {headshotPreview ? "Photo added \u2713" : "Upload photo"}
                     </label>
-                    <label className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-center">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="user"
-                        onChange={handleHeadshotChange}
-                        className="hidden"
-                      />
+                    <button
+                      type="button"
+                      onClick={openCamera}
+                      className="flex-1 px-5 py-4 rounded-full bg-white/80 backdrop-blur-sm text-[#0D3D1F]/50 cursor-pointer hover:bg-white transition-colors text-center"
+                    >
                       {headshotPreview ? "Retake" : "Take photo"}
-                    </label>
+                    </button>
                     {headshotPreview && (
                       <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white flex-shrink-0">
                         <img src={headshotPreview} alt="Preview" className="w-full h-full object-cover" />
@@ -483,6 +531,37 @@ export default function QuizPage() {
           ))}
         </div>
       </div>
+
+      {/* Camera modal */}
+      {cameraOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="relative w-full max-w-md bg-black rounded-2xl overflow-hidden">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full aspect-square object-cover"
+              style={{ transform: 'scaleX(-1)' }}
+            />
+            <div className="absolute bottom-0 inset-x-0 flex items-center justify-center gap-6 p-6 bg-gradient-to-t from-black/80 to-transparent">
+              <button
+                type="button"
+                onClick={closeCamera}
+                className="px-6 py-3 rounded-full bg-white/20 text-white text-sm font-medium backdrop-blur-sm hover:bg-white/30 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={capturePhoto}
+                className="w-16 h-16 rounded-full bg-white border-4 border-white/50 hover:scale-105 transition-transform"
+              />
+              <div className="w-[76px]" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
