@@ -880,7 +880,7 @@ export default function ResultsClient() {
                 mostLikelyTo={results.bullets.mostLikelyTo}
                 typicallySpending={results.bullets.typicallySpending}
                 favoritePhrase={results.bullets.favoritePhrase}
-                bgImageOverride={`/images/og-bg-${results.archetype}.png`}
+                bgImageOverride={`/images/og-bg-${results.archetype}.jpg`}
               />
             </div>
 

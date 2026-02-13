@@ -192,6 +192,6 @@ export function getCardImages(archetypeId: string, baseUrl: string) {
     cardBack: abs("/images/card-back.svg"),
     headerSvg: abs(`/headers/the-${archetypeId}-header.svg`),
     resultsHeaderBg: abs(`/images/results-header-bg-${archetypeId}.png`),
-    ogBg: abs(`/images/og-bg-${archetypeId}.png`),
+    ogBg: abs(`/images/og-bg-${archetypeId}.jpg`),
   };
 }
