@@ -161,13 +161,13 @@ export async function POST(request: NextRequest) {
       : "https://campaign-quiz.vercel.app";
     const shareBaseUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL || baseUrl;
 
-    // Fire-and-forget: submit to HubSpot form
+    // Submit to HubSpot form (required fields cannot be empty strings)
     const hubspotFields = [
       { name: "email", value: email },
-      { name: "firstname", value: firstName || "" },
-      { name: "lastname", value: lastName || "" },
-      { name: "company", value: company || "" },
-      { name: "title", value: title || "" },
+      { name: "firstname", value: firstName || "Unknown" },
+      { name: "lastname", value: lastName || "Unknown" },
+      { name: "company", value: company || "Unknown" },
+      { name: "title", value: title || "Unknown" },
     ];
     if (linkedinUrl) {
       hubspotFields.push({ name: "linkedin_profile_link", value: linkedinUrl });
