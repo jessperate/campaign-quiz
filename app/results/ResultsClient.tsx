@@ -665,7 +665,7 @@ export default function ResultsClient() {
   const sharePageUrlStr = buildSharePageUrl();
   const quizUrl = `${shareBase}/quiz`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareBody)}&url=${encodeURIComponent(sharePageUrlStr)}`;
-  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrlStr)}`;
+  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://www.airops.com/win')}`;
 
   return (
     <div className="min-h-screen relative rp" style={{ background: rt.bg }}>
@@ -1726,7 +1726,7 @@ export default function ResultsClient() {
                   {/* Challenge your team */}
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(sharePageUrlStr);
+                      navigator.clipboard.writeText('https://www.airops.com/win');
                       alert('Link copied!');
                     }}
                     className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
