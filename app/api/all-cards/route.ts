@@ -50,7 +50,7 @@ export async function GET() {
             if (err || !val) continue;
             try {
               const data = JSON.parse(val as string);
-              if (data.archetype?.id) {
+              if (data.archetype?.id && data.stippleImageUrl && data.firstName && data.company) {
                 cards.push({
                   userId: data.userId,
                   firstName: data.firstName || "",
