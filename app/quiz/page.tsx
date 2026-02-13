@@ -10,9 +10,32 @@ import {
   type Role,
   type ArchetypeId,
 } from "@/lib/quiz-data";
+import { ShareCard } from "@/components/Results/ShareCard";
+
+interface RecentCard {
+  firstName: string;
+  lastName: string;
+  company: string;
+  archetypeId: string;
+  archetypeName: string;
+  shortName: string;
+  headshotUrl: string;
+  stippleImageUrl: string;
+  mostLikelyTo: string;
+  typicallySpending: string;
+  favoritePhrase: string;
+}
 
 export default function QuizPage() {
   const router = useRouter();
+
+  // Tell parent window (Webflow) to hide its nav bar
+  useEffect(() => {
+    if (window.top !== window.self) {
+      window.parent.postMessage({ type: 'quiz-page', hideNav: true }, '*');
+    }
+  }, []);
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [role, setRole] = useState<Role | null>(null);
@@ -37,17 +60,7 @@ export default function QuizPage() {
   const [cardTilt, setCardTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
   const cardTiltRef = useRef<HTMLDivElement>(null);
   const [previewCardIndex, setPreviewCardIndex] = useState(0);
-
-  const PREVIEW_CARDS = [
-    '/images/card-preview.svg',
-    '/images/card-vision.svg',
-    '/images/card-glue.svg',
-    '/images/card-trendsetter.svg',
-    '/images/card-craft.svg',
-    '/images/card-gogoer.svg',
-    '/images/card-hatcollector.svg',
-    '/images/card-heart.svg',
-  ];
+  const [recentCards, setRecentCards] = useState<RecentCard[]>([]);
 
   const handleCardTiltMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardTiltRef.current) return;
@@ -69,20 +82,27 @@ export default function QuizPage() {
     }
   }, [role]);
 
-  // Cycle preview cards after 3 seconds
+  // Fetch recent cards when form shows
   useEffect(() => {
     if (!showForm) return;
-    let intervalId: NodeJS.Timeout;
-    const timerId = setTimeout(() => {
-      intervalId = setInterval(() => {
-        setPreviewCardIndex(prev => (prev + 1) % PREVIEW_CARDS.length);
-      }, 2000);
-    }, 3000);
-    return () => {
-      clearTimeout(timerId);
-      if (intervalId) clearInterval(intervalId);
-    };
+    fetch('/api/all-cards')
+      .then(res => res.json())
+      .then(data => {
+        if (data.cards && data.cards.length > 0) {
+          setRecentCards(data.cards.slice(0, 10));
+        }
+      })
+      .catch(() => {});
   }, [showForm]);
+
+  // Cycle through recent cards
+  useEffect(() => {
+    if (!showForm || recentCards.length === 0) return;
+    const intervalId = setInterval(() => {
+      setPreviewCardIndex(prev => (prev + 1) % recentCards.length);
+    }, 2500);
+    return () => clearInterval(intervalId);
+  }, [showForm, recentCards.length]);
 
   const totalQuestions = 7;
   const currentQuestion = questions[currentQuestionIndex];
@@ -450,22 +470,60 @@ export default function QuizPage() {
                       : `${-cardTilt.rotateY * 1.5}px ${cardTilt.rotateX * 1.5}px 40px rgba(0,0,0,0.4), ${-cardTilt.rotateY * 0.5}px ${cardTilt.rotateX * 0.5}px 15px rgba(0,0,0,0.2)`,
                   }}
                 >
-                  {PREVIEW_CARDS.map((src, i) => (
-                    <img
-                      key={src}
-                      src={src}
-                      alt=""
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        opacity: i === previewCardIndex ? 1 : 0,
-                        transition: 'opacity 0.6s ease-in-out',
-                      }}
-                    />
-                  ))}
+                  {recentCards.length > 0 ? recentCards.map((card, i) => {
+                    const CARD_LEFT = 220;
+                    const CARD_TOP = 77;
+                    const CARD_W = 641;
+                    const CANVAS = 1080;
+                    const scale = 320 / CARD_W;
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          opacity: i === previewCardIndex ? 1 : 0,
+                          transition: 'opacity 0.6s ease-in-out',
+                        }}
+                      >
+                        <div style={{
+                          position: 'absolute',
+                          width: `${CANVAS}px`,
+                          height: `${CANVAS}px`,
+                          transform: `scale(${scale})`,
+                          transformOrigin: '0 0',
+                          left: `${-CARD_LEFT * scale}px`,
+                          top: `${-CARD_TOP * scale}px`,
+                        }}>
+                          <ShareCard
+                            firstName={card.firstName}
+                            lastName={card.lastName}
+                            company={card.company}
+                            archetypeName={card.archetypeName}
+                            shortName={card.shortName}
+                            archetypeId={card.archetypeId as ArchetypeId}
+                            headshotUrl={card.stippleImageUrl || card.headshotUrl}
+                            mostLikelyTo={card.mostLikelyTo}
+                            typicallySpending={card.typicallySpending}
+                            favoritePhrase={card.favoritePhrase}
+                            transparent
+                          />
+                        </div>
+                      </div>
+                    );
+                  }) : (
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'rgba(0,0,0,0.05)',
+                      borderRadius: '12px',
+                    }}>
+                      <p style={{ color: '#0D3D1F', opacity: 0.4, fontFamily: 'SaansMono, monospace', fontSize: '12px' }}>Loading cards...</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

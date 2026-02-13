@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
     }
     hubspotFields.push({
       name: "brand_campaign__quiz_url__2026q1",
-      value: `${baseUrl}/share?userId=${userId}`,
+      value: `https://www.airops.com/results?userId=${userId}`,
     });
     hubspotFields.push({
       name: "brand_campaign__archetype__2026q1",
@@ -185,14 +185,22 @@ export async function POST(request: NextRequest) {
     });
     const hubspotPayload = { fields: hubspotFields };
 
-    fetch(
-      "https://api.hsforms.com/submissions/v3/integration/submit/21510907/27d5f6c4-b911-425f-a401-0bec3e534006",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(hubspotPayload),
+    try {
+      const hsRes = await fetch(
+        "https://api.hsforms.com/submissions/v3/integration/submit/21510907/27d5f6c4-b911-425f-a401-0bec3e534006",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(hubspotPayload),
+        }
+      );
+      if (!hsRes.ok) {
+        const hsBody = await hsRes.text();
+        console.error("HubSpot submission error:", hsRes.status, hsBody);
       }
-    ).catch((err) => console.error("HubSpot submission failed:", err));
+    } catch (err) {
+      console.error("HubSpot submission failed:", err);
+    }
 
     return NextResponse.json(
       {

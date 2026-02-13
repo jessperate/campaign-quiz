@@ -144,14 +144,22 @@ export async function POST(request: NextRequest) {
       ],
     };
 
-    fetch(
-      "https://api.hsforms.com/submissions/v3/integration/submit/21510907/27d5f6c4-b911-425f-a401-0bec3e534006",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(hubspotPayload),
+    try {
+      const hsRes = await fetch(
+        "https://api.hsforms.com/submissions/v3/integration/submit/21510907/27d5f6c4-b911-425f-a401-0bec3e534006",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(hubspotPayload),
+        }
+      );
+      if (!hsRes.ok) {
+        const hsBody = await hsRes.text();
+        console.error("HubSpot update error:", hsRes.status, hsBody);
       }
-    ).catch((err) => console.error("HubSpot update failed:", err));
+    } catch (err) {
+      console.error("HubSpot update failed:", err);
+    }
 
     return NextResponse.json(
       { success: true, ...updatedData },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Redis from "ioredis";
 import { getCardTheme, getCardImages } from "@/lib/card-themes";
+import { getTwitterCopy } from "@/lib/share-copy";
 
 const redis = new Redis(process.env.REDIS_URL!);
 
@@ -46,10 +47,17 @@ export async function GET(request: NextRequest) {
     const theme = getCardTheme(archetypeId);
     const images = getCardImages(archetypeId, baseUrl);
 
+    const role = parsed.role || "ic";
+    const twitterShareText = getTwitterCopy(archetypeId, role);
+    const shareUrl = `${baseUrl}/share?userId=${userId}`;
+
     return NextResponse.json(
       {
         success: true,
         ...parsed,
+        // Pre-built share data for Webflow
+        twitterShareText,
+        shareUrl,
         // Card theme colors (for building the card natively in Webflow)
         theme: {
           cardBorder: theme.cardBorder,

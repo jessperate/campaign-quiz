@@ -650,13 +650,14 @@ export default function ResultsClient() {
     closingCta,
   ].join('\n');
 
-  // Share base: always use airops.com for share/quiz URLs
+  // Share base for user-facing links (quiz CTA, etc.)
   const shareBase = process.env.NEXT_PUBLIC_SHARE_BASE_URL || 'https://www.airops.com';
+  // OG base: the Vercel app serves /share with OG meta tags, then redirects to airops.com/results
+  const ogBase = 'https://campaign-quiz.vercel.app';
 
   const buildSharePageUrl = () => {
-    // Share URL points to the configured share base (airops.com) with /share path
-    // The /share route serves OG tags then redirects to /results
-    const url = new URL('/share', shareBase);
+    // Share URL points to Vercel /share route which serves OG tags then redirects to airops.com/results
+    const url = new URL('/share', ogBase);
     if (userId) url.searchParams.set('userId', userId);
     return url.toString();
   };

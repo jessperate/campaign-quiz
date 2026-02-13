@@ -359,48 +359,34 @@ export default function HomeRecentPlayers() {
         </h2>
       </div>
 
-      {/* Scrollable card row with actual ShareCards + holo effects */}
-      <div
-        className="flex gap-5 px-6 overflow-x-auto pb-4 home-gallery"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        <style>{`.home-gallery::-webkit-scrollbar { display: none; }`}</style>
-        {cards.map((card, i) => (
-          <HomeHoloCard
-            key={card.userId}
-            card={card}
-            visible={visible}
-            delay={i * 0.06}
-          />
-        ))}
-
-        <Link
-          href="/quiz"
-          className="flex-shrink-0"
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: `opacity 0.5s ease-out ${cards.length * 0.06}s`,
-          }}
-        >
-          <div
-            className="rounded-lg overflow-hidden flex items-center justify-center transition-transform duration-300 hover:scale-105 border border-[#00FF64]/30"
-            style={{
-              width: `${DISPLAY_W}px`,
-              height: `${DISPLAY_H}px`,
-              background: "rgba(0,255,100,0.05)",
-            }}
-          >
-            <div className="text-center px-4">
-              <div className="text-[#00FF64] text-3xl mb-2">+</div>
-              <div
-                className="text-[#00FF64] text-xs font-semibold uppercase tracking-wider"
-                style={{ fontFamily: "SaansMono, monospace" }}
-              >
-                Get your card
-              </div>
-            </div>
-          </div>
-        </Link>
+      {/* Auto-scrolling marquee of cards */}
+      <div className="overflow-hidden" style={{ opacity: visible ? 1 : 0, transition: "opacity 0.5s ease-out" }}>
+        <style>{`
+          @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .marquee-track {
+            display: flex;
+            gap: 20px;
+            width: max-content;
+            animation: marquee-scroll 40s linear infinite;
+          }
+          .marquee-track:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
+        <div className="marquee-track">
+          {/* Render cards twice for seamless loop */}
+          {[...cards, ...cards].map((card, i) => (
+            <HomeHoloCard
+              key={`${card.userId}-${i}`}
+              card={card}
+              visible={visible}
+              delay={0}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Leaderboard */}

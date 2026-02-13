@@ -1,5 +1,4 @@
 import Link from "next/link";
-import ChampionCardFan from "@/components/ChampionCardFan";
 import HomeRecentPlayers from "@/components/HomeRecentPlayers";
 
 export default function Home() {
@@ -31,7 +30,7 @@ export default function Home() {
               Get your player card
             </p>
             <h1 className="text-[52px] md:text-[90px] lg:text-[120px] text-white mb-6 tracking-tight leading-[0.9] uppercase text-center mx-auto" style={{ fontFamily: 'Knockout-91, Knockout, sans-serif' }}>
-              HOW DO YOU<br />WIN AI SEARCH?
+              WHAT'S YOUR<br />MARKETYPE?
             </h1>
             <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto mb-8" style={{ fontFamily: 'Serrif, serif' }}>
               AI search has changed the game, but winning is easy with AirOps. Take the quiz to uncover your unique player archetype, see your best plays (and where to keep training), and get personalized resources to level up your game.
@@ -52,9 +51,6 @@ export default function Home() {
             </p>
           </div>
         </section>
-
-        {/* Champion Cards Fan */}
-        <ChampionCardFan />
 
         {/* Recent Players & Leaderboard */}
         <HomeRecentPlayers />

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Redis from "ioredis";
+import { getTwitterCopy } from "@/lib/share-copy";
 
 const redis = new Redis(process.env.REDIS_URL!);
 
@@ -71,8 +72,10 @@ export async function GET(request: NextRequest) {
       closingCta,
     ].join("\n");
 
-    // X / Twitter — URL passed separately via intent param
-    const twitterText = shareBody;
+    // X / Twitter — use pre-written copy if available, fallback to shareBody
+    const role = parsed.role || "ic";
+    const twitterCopy = getTwitterCopy(archetypeId, role) || shareBody;
+    const twitterText = `${twitterCopy}\n\nTake the @airopshq marketer archetype quiz here \u{1F447}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}&url=${encodeURIComponent(sharePageUrl)}`;
 
     // LinkedIn — use share-offsite to guarantee OG card preview.

@@ -81,9 +81,7 @@ export async function GET(request: NextRequest) {
       ? `${baseUrl}/api/og-image?userId=${userId}`
       : `${baseUrl}/api/og-image`;
 
-  const resultsUrl = userId
-    ? `${shareBaseUrl}/results?userId=${userId}`
-    : `${shareBaseUrl}/quiz`;
+  const resultsUrl = `${shareBaseUrl}/win`;
 
   const html = `<!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
@@ -95,7 +93,7 @@ export async function GET(request: NextRequest) {
   <meta property="og:title" content="${esc(title)}" />
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="${esc(`${baseUrl}/share?userId=${userId}`)}" />
+  <meta property="og:url" content="${esc(`${shareBaseUrl}/win`)}" />
   <meta property="og:image" content="${esc(imageUrl)}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -104,7 +102,6 @@ export async function GET(request: NextRequest) {
   <meta name="twitter:title" content="${esc(title)}" />
   <meta name="twitter:description" content="${esc(description)}" />
   <meta name="twitter:image" content="${esc(imageUrl)}" />
-  <meta http-equiv="refresh" content="0;url=${esc(resultsUrl)}" />
 </head>
 <body style="margin:0;background:#0a0a0a;color:white;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh">
   <p>Redirecting to your results...</p>
