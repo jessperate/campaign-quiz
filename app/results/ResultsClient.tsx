@@ -423,7 +423,7 @@ export default function ResultsClient() {
     // If userId is in the URL and user arrived from an external share link
     // (not from taking the quiz), redirect to airops.com results page.
     // Crawlers don't execute JS so they still see OG tags from generateMetadata.
-    if (userId && !sessionStorage.getItem('quizArchetype')) {
+    if (userId && !sessionStorage.getItem('quizArchetype') && !urlParams.get('debug')) {
       window.location.replace(`https://www.airops.com/results?userId=${userId}`);
       return;
     }
