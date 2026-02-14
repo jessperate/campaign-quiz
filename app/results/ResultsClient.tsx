@@ -52,7 +52,6 @@ export default function ResultsClient() {
   const [cardLanded, setCardLanded] = useState(false);
   const [heroAnimStage, setHeroAnimStage] = useState<'hidden' | 'title-in' | 'card-in'>('hidden');
   const cardRef = useRef<HTMLDivElement>(null);
-  const ogCardRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const [recentCards, setRecentCards] = useState<Array<{
     userId: string;
@@ -860,30 +859,6 @@ export default function ResultsClient() {
                 favoritePhrase={results.bullets.favoritePhrase}
               />
             </div>
-            {/* Hidden OG card — card on archetype-specific OG background */}
-            <div
-              style={{
-                position: 'absolute',
-                left: '-9999px',
-                top: '1100px',
-              }}
-            >
-              <ShareCard
-                ref={ogCardRef}
-                firstName={firstName}
-                lastName={lastName}
-                company={userCompany}
-                archetypeName={archetype.name}
-                shortName={archetype.shortName}
-                archetypeId={results.archetype}
-                headshotUrl={stippleImage || results.formData.headshotPreview}
-                mostLikelyTo={results.bullets.mostLikelyTo}
-                typicallySpending={results.bullets.typicallySpending}
-                favoritePhrase={results.bullets.favoritePhrase}
-                bgImageOverride={`/images/og-bg-${results.archetype}.jpg`}
-              />
-            </div>
-
             {/* Hero card placeholder — reserves space, visible only when card hasn't started traveling */}
             <div
               ref={heroCardPlaceholderRef}
@@ -1726,27 +1701,29 @@ export default function ResultsClient() {
                   {/* Download your card */}
                   <button
                     onClick={async () => {
-                      if (!ogCardRef.current) return;
                       try {
-                        const canvas = await html2canvas(ogCardRef.current, {
-                          scale: 3,
-                          useCORS: true,
-                          allowTaint: true,
-                          backgroundColor: '#000000',
-                          width: 1080,
-                          height: 1080,
-                        });
-                        canvas.toBlob((blob) => {
-                          if (!blob) return;
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = 'airops-marketype-card.png';
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                          URL.revokeObjectURL(url);
-                        }, 'image/png');
+                        // Use the already-uploaded OG image (1200x630) or fetch from API
+                        let imageBlob: Blob | null = null;
+                        if (ogImageUrl) {
+                          const res = await fetch(ogImageUrl);
+                          imageBlob = await res.blob();
+                        } else {
+                          const urlParams = new URLSearchParams(window.location.search);
+                          const uid = urlParams.get('userId');
+                          if (uid) {
+                            const res = await fetch(`/api/og-image?userId=${encodeURIComponent(uid)}`);
+                            imageBlob = await res.blob();
+                          }
+                        }
+                        if (!imageBlob) return;
+                        const url = URL.createObjectURL(imageBlob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'airops-marketype-card.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
                       } catch {
                         const imageUrl = ogImageUrl || shareableCardUrl;
                         if (imageUrl) window.open(imageUrl, '_blank');
