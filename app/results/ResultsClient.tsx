@@ -1767,7 +1767,7 @@ export default function ResultsClient() {
                     {linkedinCopied ? 'Card downloaded & post copied!' : 'Download your player card'}
                   </button>
                   <p className="text-[#B3B3D6] text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
-                    Hit the button above to copy your post — paste it into LinkedIn and make it your own!
+                    Click button above to download your card, and copy your share post. Paste into LinkedIn, upload your unique card image, and make it your own!
                   </p>
                 </div>
               </div>
