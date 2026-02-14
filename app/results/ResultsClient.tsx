@@ -641,7 +641,7 @@ export default function ResultsClient() {
   const closingCta = SHARE_CTAS[results.archetype] || SHARE_CTAS.trendsetter;
 
   const shareBody = [
-    `I took the AirOps Content Engineer quiz and got The ${archetype.name} -- ${roleContent.tagline}`,
+    `I took the @AirOps Marketype quiz and I got The ${archetype.name} -- ${roleContent.tagline}`,
     ``,
     `- Most likely to: ${results.bullets.mostLikelyTo}`,
     `- Spend time: ${results.bullets.typicallySpending}`,
