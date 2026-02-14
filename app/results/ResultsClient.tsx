@@ -1723,6 +1723,34 @@ export default function ResultsClient() {
                     </svg>
                     {linkedinCopied ? 'Post text copied — paste in LinkedIn!' : 'Share on LinkedIn'}
                   </button>
+                  {/* Download your card */}
+                  <button
+                    onClick={async () => {
+                      const imageUrl = ogImageUrl || shareableCardUrl;
+                      if (!imageUrl) return;
+                      try {
+                        const res = await fetch(imageUrl);
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `airops-marketype-card.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      } catch {
+                        window.open(imageUrl, '_blank');
+                      }
+                    }}
+                    className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
+                    style={{ background: '#00FF64', color: '#000D05', minHeight: '48px', fontSize: isMobile ? '15px' : '14px' }}
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download your card
+                  </button>
                   {/* Challenge your team */}
                   <button
                     onClick={() => {
