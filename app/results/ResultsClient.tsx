@@ -1726,21 +1726,30 @@ export default function ResultsClient() {
                   {/* Download your card */}
                   <button
                     onClick={async () => {
-                      const imageUrl = ogImageUrl || shareableCardUrl;
-                      if (!imageUrl) return;
+                      if (!cardRef.current) return;
                       try {
-                        const res = await fetch(imageUrl);
-                        const blob = await res.blob();
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `airops-marketype-card.png`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
+                        const canvas = await html2canvas(cardRef.current, {
+                          scale: 3,
+                          useCORS: true,
+                          allowTaint: true,
+                          backgroundColor: '#000000',
+                          width: 1080,
+                          height: 1080,
+                        });
+                        canvas.toBlob((blob) => {
+                          if (!blob) return;
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = 'airops-marketype-card.png';
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(url);
+                        }, 'image/png');
                       } catch {
-                        window.open(imageUrl, '_blank');
+                        const imageUrl = ogImageUrl || shareableCardUrl;
+                        if (imageUrl) window.open(imageUrl, '_blank');
                       }
                     }}
                     className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
