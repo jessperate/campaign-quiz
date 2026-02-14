@@ -1726,9 +1726,9 @@ export default function ResultsClient() {
                   {/* Download your card */}
                   <button
                     onClick={async () => {
-                      if (!cardRef.current) return;
+                      if (!ogCardRef.current) return;
                       try {
-                        const canvas = await html2canvas(cardRef.current, {
+                        const canvas = await html2canvas(ogCardRef.current, {
                           scale: 3,
                           useCORS: true,
                           allowTaint: true,
