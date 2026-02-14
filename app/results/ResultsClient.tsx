@@ -666,7 +666,8 @@ export default function ResultsClient() {
 
   const sharePageUrlStr = buildSharePageUrl();
   const quizUrl = `${shareBase}/quiz`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareBody)}&url=${encodeURIComponent(sharePageUrlStr)}`;
+  const twitterBody = `I took the @AirOps Marketype quiz and I got The ${archetype.name}. Find out what kind of player you are:`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterBody)}&url=${encodeURIComponent('https://www.airops.com/win')}`;
   const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://www.airops.com/win')}`;
 
   return (
