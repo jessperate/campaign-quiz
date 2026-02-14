@@ -52,6 +52,7 @@ export default function ResultsClient() {
   const [cardLanded, setCardLanded] = useState(false);
   const [heroAnimStage, setHeroAnimStage] = useState<'hidden' | 'title-in' | 'card-in'>('hidden');
   const cardRef = useRef<HTMLDivElement>(null);
+  const downloadRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const [recentCards, setRecentCards] = useState<Array<{
     userId: string;
@@ -858,6 +859,59 @@ export default function ResultsClient() {
                 typicallySpending={results.bullets.typicallySpending}
                 favoritePhrase={results.bullets.favoritePhrase}
               />
+            </div>
+            {/* Hidden download card — 1200x630 landscape with archetype background, no bottom bar */}
+            <div
+              ref={downloadRef}
+              style={{
+                position: 'absolute',
+                left: '-9999px',
+                top: '1100px',
+                width: '1200px',
+                height: '630px',
+                overflow: 'hidden',
+                backgroundColor: '#000000',
+              }}
+            >
+              <img
+                src={`/images/og-bg-${results.archetype}.jpg`}
+                alt=""
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '1200px',
+                  height: '630px',
+                  objectFit: 'cover',
+                  opacity: 0.6,
+                }}
+                crossOrigin="anonymous"
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '285px',
+                  top: '0px',
+                  width: '1080px',
+                  height: '1080px',
+                  transform: 'scale(0.583)',
+                  transformOrigin: 'top left',
+                }}
+              >
+                <ShareCard
+                  firstName={firstName}
+                  lastName={lastName}
+                  company={userCompany}
+                  archetypeName={archetype.name}
+                  shortName={archetype.shortName}
+                  archetypeId={results.archetype}
+                  headshotUrl={stippleImage || results.formData.headshotPreview}
+                  mostLikelyTo={results.bullets.mostLikelyTo}
+                  typicallySpending={results.bullets.typicallySpending}
+                  favoritePhrase={results.bullets.favoritePhrase}
+                  transparent={true}
+                />
+              </div>
             </div>
             {/* Hero card placeholder — reserves space, visible only when card hasn't started traveling */}
             <div
@@ -1701,29 +1755,27 @@ export default function ResultsClient() {
                   {/* Download your card */}
                   <button
                     onClick={async () => {
+                      if (!downloadRef.current) return;
                       try {
-                        // Use the already-uploaded OG image (1200x630) or fetch from API
-                        let imageBlob: Blob | null = null;
-                        if (ogImageUrl) {
-                          const res = await fetch(ogImageUrl);
-                          imageBlob = await res.blob();
-                        } else {
-                          const urlParams = new URLSearchParams(window.location.search);
-                          const uid = urlParams.get('userId');
-                          if (uid) {
-                            const res = await fetch(`/api/og-image?userId=${encodeURIComponent(uid)}`);
-                            imageBlob = await res.blob();
-                          }
-                        }
-                        if (!imageBlob) return;
-                        const url = URL.createObjectURL(imageBlob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'airops-marketype-card.png';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
+                        const canvas = await html2canvas(downloadRef.current, {
+                          scale: 3,
+                          useCORS: true,
+                          allowTaint: true,
+                          backgroundColor: '#000000',
+                          width: 1200,
+                          height: 630,
+                        });
+                        canvas.toBlob((blob) => {
+                          if (!blob) return;
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = 'airops-marketype-card.png';
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(url);
+                        }, 'image/png');
                       } catch {
                         const imageUrl = ogImageUrl || shareableCardUrl;
                         if (imageUrl) window.open(imageUrl, '_blank');
