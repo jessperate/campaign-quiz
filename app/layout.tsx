@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "How do you win AI search?",
     description: "A performance check for CMOs and content leaders navigating AI-driven growth.",
-    images: ["/og-image.png"],
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
