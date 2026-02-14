@@ -13,7 +13,7 @@ function getBaseUrl() {
 }
 
 function getShareBaseUrl() {
-  return process.env.NEXT_PUBLIC_SHARE_BASE_URL || getBaseUrl();
+  return process.env.NEXT_PUBLIC_SHARE_BASE_URL || 'https://www.airops.com';
 }
 
 function esc(s: string): string {

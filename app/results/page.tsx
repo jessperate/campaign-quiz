@@ -50,7 +50,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "https://campaign-quiz.vercel.app";
-    const shareBaseUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL || baseUrl;
+    const shareBaseUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL || 'https://www.airops.com';
 
     const ogImageUrl = `${baseUrl}/api/og-image?userId=${userId}`;
 
@@ -60,7 +60,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       openGraph: {
         title,
         description,
-        url: `${baseUrl}/share?userId=${userId}`,
+        url: `${shareBaseUrl}/results?userId=${userId}`,
         images: [
           {
             url: ogImageUrl,

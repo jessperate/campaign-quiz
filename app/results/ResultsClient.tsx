@@ -420,6 +420,14 @@ export default function ResultsClient() {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
 
+    // If userId is in the URL and user arrived from an external share link
+    // (not from taking the quiz), redirect to airops.com results page.
+    // Crawlers don't execute JS so they still see OG tags from generateMetadata.
+    if (userId && !sessionStorage.getItem('quizArchetype')) {
+      window.location.replace(`https://www.airops.com/results?userId=${userId}`);
+      return;
+    }
+
     // If userId is in the URL, fetch results from the API
     if (userId) {
       fetch(`/api/get-results?userId=${encodeURIComponent(userId)}`)
