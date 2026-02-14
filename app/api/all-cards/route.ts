@@ -91,7 +91,7 @@ export async function GET() {
     } while (cursor !== "0");
 
     // Sort by most recent first
-    cards.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    cards.sort((a, b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime());
 
     return NextResponse.json({ cards }, { headers: CORS_HEADERS });
   } catch (error) {
