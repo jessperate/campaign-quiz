@@ -1781,17 +1781,25 @@ export default function ResultsClient() {
                 </a>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText('https://www.airops.com/win');
-                    alert('Link copied!');
+                    const vercelResultsUrl = userId
+                      ? `https://campaign-quiz.vercel.app/results?userId=${userId}`
+                      : 'https://campaign-quiz.vercel.app/results';
+                    navigator.clipboard.writeText(vercelResultsUrl);
+                    setTimeout(() => {
+                      window.open('slack://open', '_blank');
+                    }, 300);
                   }}
                   className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
                   style={{ background: '#00FF64', color: '#000D05', minHeight: '48px', fontSize: isMobile ? '15px' : '14px' }}
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.27 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.163 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.163 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.163 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.27a2.527 2.527 0 0 1-2.52-2.523 2.527 2.527 0 0 1 2.52-2.52h6.315A2.528 2.528 0 0 1 24 15.163a2.528 2.528 0 0 1-2.522 2.523h-6.315z" />
                   </svg>
-                  Challenge your team
+                  Share your results in Slack
                 </button>
+                <p className="text-[#B3B3D6] text-sm" style={{ fontFamily: 'SerrifVF, Serrif, Georgia, serif' }}>
+                  Clicking this button will copy your results info and open Slack. All you need to do is paste in your desired DM or channel!
+                </p>
               </div>
             </div>
           </div>
