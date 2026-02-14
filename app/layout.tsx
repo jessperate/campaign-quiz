@@ -18,17 +18,17 @@ const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
-  title: "Content Engineer Performance Lab | AirOps",
-  description: "A performance check for CMOs and content leaders navigating AI-driven growth. Take the quiz to discover your Content Engineer archetype.",
+  title: "AirOps | Discover your Marketype",
+  description: "Winning teams have all types of players. Which one are you?",
   openGraph: {
-    title: "How do you win AI search?",
-    description: "A performance check for CMOs and content leaders navigating AI-driven growth.",
+    title: "AirOps | Discover your Marketype",
+    description: "Winning teams have all types of players. Which one are you?",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "How do you win AI search?",
-    description: "A performance check for CMOs and content leaders navigating AI-driven growth.",
+    title: "AirOps | Discover your Marketype",
+    description: "Winning teams have all types of players. Which one are you?",
     images: ["/og-image.png"],
   },
 };

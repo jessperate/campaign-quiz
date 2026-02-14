@@ -330,7 +330,7 @@ export default function QuizPage() {
 
   // Determine subtitle based on question
   const getSubtitle = () => {
-    if (currentQuestionIndex === 0) return "First, let's set the field.";
+    if (currentQuestionIndex === 0) return "What's your Marketype?";
     return `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
   };
 
