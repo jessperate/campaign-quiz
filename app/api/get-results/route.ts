@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Redis from "ioredis";
-import { getCardTheme, getCardImages } from "@/lib/card-themes";
+import { getCardTheme, getCardImages, getResultsPageTheme } from "@/lib/card-themes";
 import { getTwitterCopy } from "@/lib/share-copy";
 
 const redis = new Redis(process.env.REDIS_URL!);
@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
     // Enrich with card theme colors and image URLs
     const archetypeId = parsed.archetype?.id || "";
     const theme = getCardTheme(archetypeId);
+    const resultsPageTheme = getResultsPageTheme(archetypeId);
     const images = getCardImages(archetypeId, baseUrl);
 
     const role = parsed.role || "ic";
@@ -76,6 +77,8 @@ export async function GET(request: NextRequest) {
           patternFill: theme.patternFill,
           patternStroke: theme.patternStroke,
         },
+        // Results page colors (background, text, buttons)
+        resultsPageTheme,
         // All image/SVG asset URLs (absolute)
         images,
         // Captured flat card images (populated after user visits results page)

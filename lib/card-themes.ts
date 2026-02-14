@@ -175,6 +175,30 @@ const cardThemes: Record<string, Partial<CardTheme>> = {
   },
 };
 
+export interface ResultsPageTheme {
+  bg: string;
+  cardBg: string;
+  headline: string;
+  body: string;
+  secondaryBtn: string;
+}
+
+const resultsPageThemes: Record<string, ResultsPageTheme> = {
+  trendsetter: { bg: '#1B1B8F', cardBg: '#0F0F57', headline: '#F5F6FF', body: '#E5E5FF', secondaryBtn: '#000D05' },
+  vision:      { bg: '#196C80', cardBg: '#0A3945', headline: '#F2FCFF', body: '#C9EBF2', secondaryBtn: '#020B0D' },
+  glue:        { bg: '#586605', cardBg: '#242603', headline: '#FDFFF3', body: '#EEFF8C', secondaryBtn: '#0C0D01' },
+  goGoGoer:    { bg: '#802828', cardBg: '#331010', headline: '#FFF0F0', body: '#FFE2E2', secondaryBtn: '#0D0404' },
+  tastemaker:  { bg: '#5A3480', cardBg: '#2A084D', headline: '#F8F7FF', body: '#DDD3F2', secondaryBtn: '#07010D' },
+  clutch:      { bg: '#008C44', cardBg: '#002910', headline: '#F8FFFB', body: '#DFEAE3', secondaryBtn: '#000D05' },
+  heart:       { bg: '#C54B9B', cardBg: '#3A092C', headline: '#FFF7FF', body: '#FEE7FD', secondaryBtn: '#0D020A' },
+};
+
+const defaultResultsTheme: ResultsPageTheme = resultsPageThemes.trendsetter;
+
+export function getResultsPageTheme(archetypeId: string): ResultsPageTheme {
+  return resultsPageThemes[archetypeId] || defaultResultsTheme;
+}
+
 export function getCardTheme(archetypeId: string): CardTheme {
   const overrides = cardThemes[archetypeId];
   if (!overrides) return defaultTheme;
