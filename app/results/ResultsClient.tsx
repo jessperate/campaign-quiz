@@ -666,7 +666,10 @@ export default function ResultsClient() {
     ? `https://campaign-quiz.vercel.app/share?userId=${userId}`
     : 'https://www.airops.com/win';
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterBody)}&url=${encodeURIComponent(twitterShareLink)}`;
-  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://www.airops.com/win')}`;
+  const linkedinShareLink = userId
+    ? `https://campaign-quiz.vercel.app/share?userId=${userId}`
+    : 'https://www.airops.com/win';
+  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(linkedinShareLink)}`;
 
   return (
     <div className="min-h-screen relative rp" style={{ background: rt.bg }}>
