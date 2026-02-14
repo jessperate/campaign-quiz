@@ -638,7 +638,7 @@ export default function ResultsClient() {
   // Share URLs — use userId so the share page can fetch OG image from Redis
   const userId = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('userId') : null;
   const shareBody = [
-    `I took the @AirOps Marketype quiz and I got The ${archetype.name} -- ${roleContent.tagline}`,
+    `I took the @AirOpsHQ Marketype quiz and I got The ${archetype.name} -- ${roleContent.tagline}`,
     ``,
     `- Most likely to: ${results.bullets.mostLikelyTo}`,
     `- Spend time: ${results.bullets.typicallySpending}`,
@@ -661,8 +661,11 @@ export default function ResultsClient() {
 
   const sharePageUrlStr = buildSharePageUrl();
   const quizUrl = `${shareBase}/quiz`;
-  const twitterBody = `I took the @AirOps Marketype quiz and I got The ${archetype.name}. Find out what kind of player you are:`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterBody)}&url=${encodeURIComponent('https://www.airops.com/win')}`;
+  const twitterBody = `I took the @AirOpsHQ Marketype quiz and I got The ${archetype.name}. Find out what kind of player you are:`;
+  const twitterShareLink = userId
+    ? `https://campaign-quiz.vercel.app/share?userId=${userId}`
+    : 'https://www.airops.com/win';
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterBody)}&url=${encodeURIComponent(twitterShareLink)}`;
   const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://www.airops.com/win')}`;
 
   return (
