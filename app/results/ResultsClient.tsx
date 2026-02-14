@@ -648,6 +648,8 @@ export default function ResultsClient() {
     `- Favorite phrase: ${results.bullets.favoritePhrase}`,
     ``,
     closingCta,
+    ``,
+    `Find out what kind of player you are at airops.com/win`,
   ].join('\n');
 
   // Share base for user-facing links (quiz CTA, etc.)
