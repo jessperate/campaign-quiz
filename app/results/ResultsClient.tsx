@@ -629,25 +629,12 @@ export default function ResultsClient() {
 
   // Share URLs — use userId so the share page can fetch OG image from Redis
   const userId = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('userId') : null;
-  const SHARE_CTAS: Record<string, string> = {
-    vision: "AI search is rewriting the rules. Find out what kind of player you are. \u{1F447}",
-    glue: "AI search needs new playbooks. Find out what kind of player you are. \u{1F447}",
-    trendsetter: "Find out what kind of player you are. \u{1F447}",
-    goGoGoer: "AI search rewards speed. Find out what kind of player you are. \u{1F447}",
-    tastemaker: "In a world of AI slop, taste wins. Find out what kind of player you are. \u{1F447}",
-    clutch: "Find out what kind of player you are. \u{1F447}",
-    heart: "Find out what kind of player you are. \u{1F447}",
-  };
-  const closingCta = SHARE_CTAS[results.archetype] || SHARE_CTAS.trendsetter;
-
   const shareBody = [
     `I took the @AirOps Marketype quiz and I got The ${archetype.name} -- ${roleContent.tagline}`,
     ``,
     `- Most likely to: ${results.bullets.mostLikelyTo}`,
     `- Spend time: ${results.bullets.typicallySpending}`,
     `- Favorite phrase: ${results.bullets.favoritePhrase}`,
-    ``,
-    closingCta,
     ``,
     `Find out what kind of player you are at airops.com/win`,
   ].join('\n');
