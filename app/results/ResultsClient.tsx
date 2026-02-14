@@ -1713,37 +1713,43 @@ export default function ResultsClient() {
                   {/* Download card + copy post text — single button */}
                   <button
                     onClick={async () => {
-                      // Copy share text to clipboard
+                      // 1. Copy share text to clipboard
                       navigator.clipboard.writeText(shareBody);
                       setLinkedinCopied(true);
                       setTimeout(() => setLinkedinCopied(false), 4000);
 
-                      // Download the card image
-                      if (!downloadRef.current) return;
-                      try {
-                        const canvas = await html2canvas(downloadRef.current, {
-                          scale: 3,
-                          useCORS: true,
-                          allowTaint: true,
-                          backgroundColor: '#000000',
-                          width: 1200,
-                          height: 630,
-                        });
-                        canvas.toBlob((blob) => {
-                          if (!blob) return;
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = 'airops-marketype-card.png';
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                          URL.revokeObjectURL(url);
-                        }, 'image/png');
-                      } catch {
-                        const imageUrl = ogImageUrl || shareableCardUrl;
-                        if (imageUrl) window.open(imageUrl, '_blank');
+                      // 2. Download the card image
+                      if (downloadRef.current) {
+                        try {
+                          const canvas = await html2canvas(downloadRef.current, {
+                            scale: 3,
+                            useCORS: true,
+                            allowTaint: true,
+                            backgroundColor: '#000000',
+                            width: 1200,
+                            height: 630,
+                          });
+                          canvas.toBlob((blob) => {
+                            if (!blob) return;
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'airops-marketype-card.png';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                          }, 'image/png');
+                        } catch {
+                          const imageUrl = ogImageUrl || shareableCardUrl;
+                          if (imageUrl) window.open(imageUrl, '_blank');
+                        }
                       }
+
+                      // 3. Open LinkedIn compose after short delay
+                      setTimeout(() => {
+                        window.open(linkedinShareUrl, '_blank');
+                      }, 500);
                     }}
                     className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
                     style={{ background: '#00FF64', color: '#000D05', minHeight: '48px', fontSize: isMobile ? '15px' : '14px' }}
