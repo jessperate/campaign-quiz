@@ -1781,10 +1781,10 @@ export default function ResultsClient() {
                 </a>
                 <button
                   onClick={() => {
-                    const vercelResultsUrl = userId
-                      ? `https://campaign-quiz.vercel.app/results?userId=${userId}`
-                      : 'https://campaign-quiz.vercel.app/results';
-                    navigator.clipboard.writeText(vercelResultsUrl);
+                    const shareUrl = userId
+                      ? `https://campaign-quiz.vercel.app/share?userId=${userId}`
+                      : 'https://campaign-quiz.vercel.app/share';
+                    navigator.clipboard.writeText(shareUrl);
                     setTimeout(() => {
                       window.open('slack://open', '_blank');
                     }, 300);

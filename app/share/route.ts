@@ -81,7 +81,9 @@ export async function GET(request: NextRequest) {
       ? `${baseUrl}/api/og-image?userId=${userId}`
       : `${baseUrl}/api/og-image`;
 
-  const resultsUrl = `${shareBaseUrl}/win`;
+  const resultsUrl = userId
+    ? `${shareBaseUrl}/results?userId=${userId}`
+    : `${shareBaseUrl}/win`;
 
   const html = `<!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
@@ -93,7 +95,7 @@ export async function GET(request: NextRequest) {
   <meta property="og:title" content="${esc(title)}" />
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="${esc(`${shareBaseUrl}/win`)}" />
+  <meta property="og:url" content="${esc(resultsUrl)}" />
   <meta property="og:image" content="${esc(imageUrl)}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
