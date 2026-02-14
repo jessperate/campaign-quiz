@@ -171,39 +171,39 @@ export function getShareCopy(archetypeId: string, role: string) {
 // Each entry is under 240 chars to leave ~40 for a URL.
 export const TWITTER_COPY: Record<string, Record<string, string>> = {
   vision: {
-    ic: `My player card: The Vision. "You see the big picture." Most likely to have opinions about the roadmap. What's yours?`,
-    manager: `My player card: The Vision. Most likely to turn Slack threads into strategic initiatives. Favorite phrase: "OK, here's how we'll proceed." What's yours?`,
-    executive: `My player card: The Vision. Most likely to drop hot takes on org design at happy hour. Favorite phrase: "I'll socialize this with leadership." What's yours?`,
+    ic: `I took the @AirOpsHQ Marketype quiz. The Vision. "You see the big picture." Most likely to have opinions about the roadmap. What's yours?`,
+    manager: `I took the @AirOpsHQ Marketype quiz. The Vision. Most likely to turn Slack threads into strategic initiatives. Favorite phrase: "OK, here's how we'll proceed." What's yours?`,
+    executive: `I took the @AirOpsHQ Marketype quiz. The Vision. Most likely to drop hot takes on org design at happy hour. Favorite phrase: "I'll socialize this with leadership." What's yours?`,
   },
   glue: {
-    ic: `My player card: The Glue. "You turn chaos into systems." Favorite phrase: "I have a doc for that." What's yours?`,
-    manager: `My player card: The Glue. Most likely to turn retros into actual process improvements. Favorite phrase: "Let's document as we go." What's yours?`,
-    executive: `My player card: The Glue. Most likely to have read Measure What Matters twice. Favorite phrase: "Let's make this a playbook." What's yours?`,
+    ic: `I took the @AirOpsHQ Marketype quiz. The Glue. "You turn chaos into systems." Favorite phrase: "I have a doc for that." What's yours?`,
+    manager: `I took the @AirOpsHQ Marketype quiz. The Glue. Most likely to turn retros into actual process improvements. Favorite phrase: "Let's document as we go." What's yours?`,
+    executive: `I took the @AirOpsHQ Marketype quiz. The Glue. Most likely to have read Measure What Matters twice. Favorite phrase: "Let's make this a playbook." What's yours?`,
   },
   trendsetter: {
-    ic: `My player card: The Maverick. "You experiment while others hesitate." Most likely to be first-name basis with product teams. What's yours?`,
-    manager: `My player card: The Maverick. Most likely to reorganize teams around new opportunities. Favorite phrase: "Trust me on this one." What's yours?`,
-    executive: `My player card: The Maverick. Most likely to know every founder in my zip code. Favorite phrase: "I've been saying this for months." What's yours?`,
+    ic: `I took the @AirOpsHQ Marketype quiz. The Maverick. "You experiment while others hesitate." Most likely to be first-name basis with product teams. What's yours?`,
+    manager: `I took the @AirOpsHQ Marketype quiz. The Maverick. Most likely to reorganize teams around new opportunities. Favorite phrase: "Trust me on this one." What's yours?`,
+    executive: `I took the @AirOpsHQ Marketype quiz. The Maverick. Most likely to know every founder in my zip code. Favorite phrase: "I've been saying this for months." What's yours?`,
   },
   goGoGoer: {
-    ic: `My player card: The Spark. "You're the momentum." Most likely to ship before anyone says "wait, should we..." What's yours?`,
-    manager: `My player card: The Spark. Most likely to hit quarterly goals by month two. Favorite phrase: "Ship now, iterate later." What's yours?`,
-    executive: `My player card: The Spark. Most likely to turn "EOQ" into "EOW." Favorite phrase: "Up and to the right!" What's yours?`,
+    ic: `I took the @AirOpsHQ Marketype quiz. The Spark. "You're the momentum." Most likely to ship before anyone says "wait, should we..." What's yours?`,
+    manager: `I took the @AirOpsHQ Marketype quiz. The Spark. Most likely to hit quarterly goals by month two. Favorite phrase: "Ship now, iterate later." What's yours?`,
+    executive: `I took the @AirOpsHQ Marketype quiz. The Spark. Most likely to turn "EOQ" into "EOW." Favorite phrase: "Up and to the right!" What's yours?`,
   },
   tastemaker: {
-    ic: `My player card: The Craft. "You make it shine." Most likely to ship at 11:59 PM (wasn't ready at 11:58). What's yours?`,
-    manager: `My player card: The Craft. Most likely to believe "it's fine" means "not good enough." Favorite phrase: "How can we push this further?" What's yours?`,
-    executive: `My player card: The Craft. Most likely to change the font in the board deck. Favorite phrase: "Can we make it more [gestures vaguely] us?" What's yours?`,
+    ic: `I took the @AirOpsHQ Marketype quiz. The Craft. "You make it shine." Most likely to ship at 11:59 PM (wasn't ready at 11:58). What's yours?`,
+    manager: `I took the @AirOpsHQ Marketype quiz. The Craft. Most likely to believe "it's fine" means "not good enough." Favorite phrase: "How can we push this further?" What's yours?`,
+    executive: `I took the @AirOpsHQ Marketype quiz. The Craft. Most likely to change the font in the board deck. Favorite phrase: "Can we make it more [gestures vaguely] us?" What's yours?`,
   },
   clutch: {
-    ic: `My player card: The Flex. "You thrive in the gray areas." Favorite phrase: "Yeah, I can take that on." What's yours?`,
-    manager: `My player card: The Flex. Most likely to solve problems nobody saw coming. Favorite phrase: "What does the team need right now?" What's yours?`,
-    executive: `My player card: The Flex. Most likely to have a calendar that makes people concerned. Favorite phrase: "It depends" (on literally everything). What's yours?`,
+    ic: `I took the @AirOpsHQ Marketype quiz. The Flex. "You thrive in the gray areas." Favorite phrase: "Yeah, I can take that on." What's yours?`,
+    manager: `I took the @AirOpsHQ Marketype quiz. The Flex. Most likely to solve problems nobody saw coming. Favorite phrase: "What does the team need right now?" What's yours?`,
+    executive: `I took the @AirOpsHQ Marketype quiz. The Flex. Most likely to have a calendar that makes people concerned. Favorite phrase: "It depends" (on literally everything). What's yours?`,
   },
   heart: {
-    ic: `My player card: The Heart. "You make the work feel like purpose." Most likely to watch tutorials at 2x speed. What's yours?`,
-    manager: `My player card: The Heart. Most likely to have the most loyal team. Favorite phrase: "Let's see what happens." What's yours?`,
-    executive: `My player card: The Heart. Most likely to become everyone's favorite executive. Favorite phrase: "Let's experiment!" What's yours?`,
+    ic: `I took the @AirOpsHQ Marketype quiz. The Heart. "You make the work feel like purpose." Most likely to watch tutorials at 2x speed. What's yours?`,
+    manager: `I took the @AirOpsHQ Marketype quiz. The Heart. Most likely to have the most loyal team. Favorite phrase: "Let's see what happens." What's yours?`,
+    executive: `I took the @AirOpsHQ Marketype quiz. The Heart. Most likely to become everyone's favorite executive. Favorite phrase: "Let's experiment!" What's yours?`,
   },
 };
 
