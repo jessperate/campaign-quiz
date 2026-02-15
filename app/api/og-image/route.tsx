@@ -3,6 +3,16 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
+}
+
 // Cache font ArrayBuffers after first load
 let fontCache: { serrif: ArrayBuffer; saans: ArrayBuffer; saansMono: ArrayBuffer } | null = null;
 
@@ -23,9 +33,10 @@ async function loadFonts(baseUrl: string) {
 export async function GET(request: NextRequest) {
   try {
     const userId = request.nextUrl.searchParams.get("userId");
+    const scale = Math.min(Math.max(parseInt(request.nextUrl.searchParams.get("scale") || "1") || 1, 1), 4);
 
     if (!userId) {
-      return new Response("Missing userId", { status: 400 });
+      return new Response("Missing userId", { status: 400, headers: CORS_HEADERS });
     }
 
     const baseUrl = request.nextUrl.origin;
@@ -36,7 +47,7 @@ export async function GET(request: NextRequest) {
       fonts = await loadFonts(baseUrl);
     } catch (fontErr) {
       console.error("Font loading failed:", String(fontErr));
-      return new Response(`Font loading error: ${String(fontErr)}`, { status: 500 });
+      return new Response(`Font loading error: ${String(fontErr)}`, { status: 500, headers: CORS_HEADERS });
     }
     const { serrif: serrifFont, saans: saansFont, saansMono: saansMonoFont } = fonts;
 
@@ -45,12 +56,12 @@ export async function GET(request: NextRequest) {
     );
 
     if (!res.ok) {
-      return new Response("User not found", { status: 404 });
+      return new Response("User not found", { status: 404, headers: CORS_HEADERS });
     }
 
     const parsed = await res.json();
     if (!parsed.success) {
-      return new Response("User not found", { status: 404 });
+      return new Response("User not found", { status: 404, headers: CORS_HEADERS });
     }
 
     const firstName = parsed.firstName || "";
@@ -108,9 +119,20 @@ export async function GET(request: NextRequest) {
 
     console.log(`OG render: fonts loaded (serrif=${serrifFont.byteLength}, saans=${saansFont.byteLength}, mono=${saansMonoFont.byteLength}), user=${firstName} ${lastName}, archetype=${parsed.archetype?.id}, stipple=${!!parsed.stippleImageUrl}`);
 
+    const outputWidth = 1200 * scale;
+    const outputHeight = 630 * scale;
+
     try {
     return new ImageResponse(
       (
+        <div
+          style={{
+            width: outputWidth,
+            height: outputHeight,
+            display: "flex",
+            overflow: "hidden",
+          }}
+        >
         <div
           style={{
             width: 1200,
@@ -118,6 +140,8 @@ export async function GET(request: NextRequest) {
             display: "flex",
             backgroundColor: cardBg,
             fontFamily: "Saans",
+            transform: scale > 1 ? `scale(${scale})` : undefined,
+            transformOrigin: "top left",
           }}
         >
           {/* OG background image */}
@@ -422,10 +446,12 @@ export async function GET(request: NextRequest) {
           />
 
         </div>
+        </div>
       ),
       {
-        width: 1200,
-        height: 630,
+        width: outputWidth,
+        height: outputHeight,
+        headers: CORS_HEADERS,
         fonts: [
           { name: "Serrif", data: serrifFont, style: "normal" as const, weight: 400 as const },
           { name: "Serrif", data: serrifFont, style: "italic" as const, weight: 400 as const },
@@ -436,10 +462,10 @@ export async function GET(request: NextRequest) {
     );
     } catch (renderErr) {
       console.error("ImageResponse render error:", renderErr);
-      return new Response(`Render error: ${String(renderErr)}`, { status: 500 });
+      return new Response(`Render error: ${String(renderErr)}`, { status: 500, headers: CORS_HEADERS });
     }
   } catch (err) {
     console.error("OG image generation error:", err);
-    return new Response(`OG image error: ${String(err)}`, { status: 500 });
+    return new Response(`OG image error: ${String(err)}`, { status: 500, headers: CORS_HEADERS });
   }
 }
