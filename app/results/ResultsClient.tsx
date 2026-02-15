@@ -41,6 +41,7 @@ export default function ResultsClient() {
   const [slackCopied, setSlackCopied] = useState(false);
   const [linkedinCopied, setLinkedinCopied] = useState(false);
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
+  const [showSlackModal, setShowSlackModal] = useState(false);
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
   const [isFlipped, setIsFlipped] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -1810,9 +1811,7 @@ export default function ResultsClient() {
                       ? `https://campaign-quiz.vercel.app/share?userId=${userId}`
                       : 'https://campaign-quiz.vercel.app/share';
                     navigator.clipboard.writeText(shareUrl);
-                    setTimeout(() => {
-                      window.open('slack://open', '_blank');
-                    }, 300);
+                    setShowSlackModal(true);
                   }}
                   className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
                   style={{ background: '#00FF64', color: '#000D05', minHeight: '48px', fontSize: isMobile ? '15px' : '14px' }}
@@ -2385,6 +2384,86 @@ export default function ResultsClient() {
               }}
             >
               Got it — open LinkedIn
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Slack instructional modal */}
+      {showSlackModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(4px)',
+          }}
+          onClick={() => setShowSlackModal(false)}
+        >
+          <div
+            style={{
+              background: '#1A1A2E',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '16px',
+              padding: '32px',
+              maxWidth: '420px',
+              width: '90%',
+              position: 'relative',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSlackModal(false)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'none',
+                border: 'none',
+                color: '#888',
+                fontSize: '24px',
+                cursor: 'pointer',
+                lineHeight: 1,
+              }}
+            >
+              &times;
+            </button>
+            <h3
+              style={{
+                fontFamily: 'SerrifVF, Serrif, Georgia, serif',
+                fontSize: '22px',
+                color: '#fff',
+                marginBottom: '20px',
+              }}
+            >
+              Almost there! Share in Slack:
+            </h3>
+            <p style={{ color: '#E6E6FF', fontSize: '15px', lineHeight: 1.6 }}>
+              When Slack opens, select which DM or channel to share in. Then all you have to do is <strong>&#8984; + V</strong> (paste) into the message field and hit send.
+            </p>
+            <button
+              onClick={() => {
+                setShowSlackModal(false);
+                window.open('slack://open', '_blank');
+              }}
+              style={{
+                marginTop: '24px',
+                width: '100%',
+                padding: '12px',
+                borderRadius: '9999px',
+                background: '#00FF64',
+                color: '#000D05',
+                fontWeight: 600,
+                fontSize: '15px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Got it — open Slack
             </button>
           </div>
         </div>
