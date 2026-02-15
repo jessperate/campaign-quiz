@@ -682,7 +682,7 @@ export default function ResultsClient() {
   const linkedinShareLink = userId
     ? `https://campaign-quiz.vercel.app/share?userId=${userId}`
     : 'https://www.airops.com/win';
-  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(linkedinShareLink)}`;
+  const linkedinShareUrl = 'https://www.linkedin.com/feed/?shareActive=true';
 
   return (
     <div className="min-h-screen relative rp" style={{ background: rt.bg }}>
