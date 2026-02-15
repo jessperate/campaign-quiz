@@ -656,7 +656,7 @@ export default function ResultsClient() {
     `- Spend time: ${results.bullets.typicallySpending}`,
     `- Favorite phrase: ${results.bullets.favoritePhrase}`,
     ``,
-    `Find out what kind of player you are:`,
+    `Find out what kind of player you are: airops.com/win`,
   ].join('\n');
 
   // Share base for user-facing links (quiz CTA, etc.)
