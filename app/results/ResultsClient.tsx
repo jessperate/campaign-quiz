@@ -1773,11 +1773,8 @@ export default function ResultsClient() {
                         }
                       }
 
-                      // 3. Show instructional modal + open LinkedIn compose after short delay
+                      // 3. Show instructional modal (LinkedIn opens when user clicks "Got it!")
                       setShowLinkedinModal(true);
-                      setTimeout(() => {
-                        window.open(linkedinShareUrl, '_blank');
-                      }, 500);
                     }}
                     className="inline-flex items-center justify-center gap-2 px-5 rounded-full font-semibold transition-opacity cursor-pointer hover:opacity-90 active:scale-[0.98]"
                     style={{ background: '#00FF64', color: '#000D05', minHeight: '48px', fontSize: isMobile ? '15px' : '14px' }}
@@ -2370,7 +2367,10 @@ export default function ResultsClient() {
               </li>
             </ol>
             <button
-              onClick={() => setShowLinkedinModal(false)}
+              onClick={() => {
+                setShowLinkedinModal(false);
+                window.open(linkedinShareUrl, '_blank');
+              }}
               style={{
                 marginTop: '24px',
                 width: '100%',
@@ -2384,7 +2384,7 @@ export default function ResultsClient() {
                 cursor: 'pointer',
               }}
             >
-              Got it!
+              Got it — open LinkedIn
             </button>
           </div>
         </div>
