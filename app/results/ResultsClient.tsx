@@ -40,6 +40,7 @@ export default function ResultsClient() {
   const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
   const [slackCopied, setSlackCopied] = useState(false);
   const [linkedinCopied, setLinkedinCopied] = useState(false);
+  const [showLinkedinModal, setShowLinkedinModal] = useState(false);
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
   const [isFlipped, setIsFlipped] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -1772,7 +1773,8 @@ export default function ResultsClient() {
                         }
                       }
 
-                      // 3. Open LinkedIn compose after short delay
+                      // 3. Show instructional modal + open LinkedIn compose after short delay
+                      setShowLinkedinModal(true);
                       setTimeout(() => {
                         window.open(linkedinShareUrl, '_blank');
                       }, 500);
@@ -2236,6 +2238,157 @@ export default function ResultsClient() {
           </div>
         );
       })()}
+
+      {/* LinkedIn instructional modal */}
+      {showLinkedinModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(4px)',
+          }}
+          onClick={() => setShowLinkedinModal(false)}
+        >
+          <div
+            style={{
+              background: '#1A1A2E',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '16px',
+              padding: '32px',
+              maxWidth: '420px',
+              width: '90%',
+              position: 'relative',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowLinkedinModal(false)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'none',
+                border: 'none',
+                color: '#888',
+                fontSize: '24px',
+                cursor: 'pointer',
+                lineHeight: 1,
+              }}
+            >
+              &times;
+            </button>
+            <h3
+              style={{
+                fontFamily: 'SerrifVF, Serrif, Georgia, serif',
+                fontSize: '22px',
+                color: '#fff',
+                marginBottom: '20px',
+              }}
+            >
+              Almost there! Post on LinkedIn:
+            </h3>
+            <ol
+              style={{
+                listStyle: 'none',
+                padding: 0,
+                margin: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+              }}
+            >
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <span
+                  style={{
+                    flexShrink: 0,
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: '#00FF64',
+                    color: '#000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                  }}
+                >
+                  1
+                </span>
+                <span style={{ color: '#E6E6FF', fontSize: '15px', paddingTop: '3px' }}>
+                  <strong>Upload your downloaded card image</strong> to the LinkedIn post
+                </span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <span
+                  style={{
+                    flexShrink: 0,
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: '#00FF64',
+                    color: '#000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                  }}
+                >
+                  2
+                </span>
+                <span style={{ color: '#E6E6FF', fontSize: '15px', paddingTop: '3px' }}>
+                  <strong>Paste your copied text</strong> into the post body (already on your clipboard!)
+                </span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <span
+                  style={{
+                    flexShrink: 0,
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: '#00FF64',
+                    color: '#000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                  }}
+                >
+                  3
+                </span>
+                <span style={{ color: '#E6E6FF', fontSize: '15px', paddingTop: '3px' }}>
+                  <strong>Make it your own</strong> and hit post!
+                </span>
+              </li>
+            </ol>
+            <button
+              onClick={() => setShowLinkedinModal(false)}
+              style={{
+                marginTop: '24px',
+                width: '100%',
+                padding: '12px',
+                borderRadius: '9999px',
+                background: '#00FF64',
+                color: '#000D05',
+                fontWeight: 600,
+                fontSize: '15px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Got it!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
