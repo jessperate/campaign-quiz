@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
   <meta property="og:title" content="${esc(title)}" />
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="${esc(resultsUrl)}" />
+  <meta property="og:url" content="${esc(`${baseUrl}/share${userId ? `?userId=${userId}` : ''}`)}" />
   <meta property="og:image" content="${esc(imageUrl)}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
