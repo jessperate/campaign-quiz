@@ -1739,9 +1739,8 @@ export default function ResultsClient() {
                   {/* Download card + copy post text — single button */}
                   <button
                     onClick={async () => {
-                      // 1. Copy share text + personalized results URL to clipboard
-                      const linkedinCopyText = shareBody + '\n\n' + linkedinShareLink;
-                      navigator.clipboard.writeText(linkedinCopyText);
+                      // 1. Copy share text to clipboard (no URL — share-offsite handles the link card)
+                      navigator.clipboard.writeText(shareBody);
                       setLinkedinCopied(true);
                       setTimeout(() => setLinkedinCopied(false), 4000);
 
