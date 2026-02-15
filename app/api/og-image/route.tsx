@@ -7,7 +7,6 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
-  "Cache-Control": "public, s-maxage=2592000, stale-while-revalidate=86400",
 };
 
 export async function OPTIONS() {
@@ -124,7 +123,7 @@ export async function GET(request: NextRequest) {
     const outputHeight = 630 * scale;
 
     try {
-    return new ImageResponse(
+    const imgResponse = new ImageResponse(
       (
         <div
           style={{
@@ -461,6 +460,9 @@ export async function GET(request: NextRequest) {
         ],
       }
     );
+    // ImageResponse sets its own Cache-Control; override it for CDN caching
+    imgResponse.headers.set("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=86400");
+    return imgResponse;
     } catch (renderErr) {
       console.error("ImageResponse render error:", renderErr);
       return new Response(`Render error: ${String(renderErr)}`, { status: 500, headers: CORS_HEADERS });
