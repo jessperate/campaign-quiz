@@ -364,6 +364,18 @@ export default function ResultsClient() {
     };
   }, [heroCardRect, sidebarCardRect, scrollProgress, cardLanded]);
 
+  // Warm the OG image CDN cache as soon as results load (fire-and-forget).
+  // This ensures the Vercel Edge CDN has the rendered PNG cached before the
+  // user clicks "Share on LinkedIn", so LinkedIn's crawler gets an instant response.
+  useEffect(() => {
+    if (!results) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const uid = urlParams.get('userId');
+    if (uid) {
+      fetch(`/api/og-image?userId=${encodeURIComponent(uid)}`).catch(() => {});
+    }
+  }, [results]);
+
   // Trigger card capture + OG image capture when the card is ready to render.
   // This fires when: (a) stipple image arrives, or (b) generation finishes
   // without producing a stipple (failed or no photo — card uses original/fallback).
