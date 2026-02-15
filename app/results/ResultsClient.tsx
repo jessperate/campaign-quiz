@@ -659,6 +659,8 @@ export default function ResultsClient() {
     `- Favorite phrase: ${results.bullets.favoritePhrase}`,
     ``,
     `Find out what kind of player you are: airops.com/win`,
+    ``,
+    `Tagging in: (invite at least 3 friends or colleagues here who you'd like to share the quiz with)`,
   ].join('\n');
 
   // Share base for user-facing links (quiz CTA, etc.)
