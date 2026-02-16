@@ -107,7 +107,7 @@ export default function TestSharePage() {
 
   const handleLinkedinClick = async () => {
     if (isMobile) {
-      // Mobile: save image to photo library, copy text, show modal
+      // Mobile: save image via share sheet, copy text, show modal
       navigator.clipboard.writeText(shareBody);
       if (downloadRef.current) {
         try {
@@ -119,19 +119,17 @@ export default function TestSharePage() {
             width: 1200,
             height: 630,
           });
-          canvas.toBlob((blob) => {
-            if (!blob) return;
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "airops-marketype-card.png";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          }, "image/png");
+          const blob = await new Promise<Blob | null>((resolve) =>
+            canvas.toBlob(resolve, "image/png")
+          );
+          if (blob) {
+            const file = new File([blob], "airops-marketype-card.png", { type: "image/png" });
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({ files: [file] });
+            }
+          }
         } catch {
-          // fallback — ignore
+          // User cancelled share sheet or error — continue to modal
         }
       }
       setShowLinkedinModal(true);
@@ -391,7 +389,7 @@ export default function TestSharePage() {
             </h3>
             {isMobile ? (
               <p style={{ color: "#E6E6FF", fontSize: "15px", lineHeight: 1.6 }}>
-                Your image is being saved to your photo library. Open LinkedIn to upload it there. Then paste the copy on your clipboard for your unique results!
+                Save your card image from the share sheet that just appeared (tap &quot;Save Image&quot;). Then open LinkedIn to upload it from your photo library. Your share copy is already on your clipboard — just paste it!
               </p>
             ) : (
               <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -428,7 +426,7 @@ export default function TestSharePage() {
             <button
               onClick={() => {
                 setShowLinkedinModal(false);
-                window.open(isMobile ? "linkedin://feed/post/new" : linkedinShareUrl, "_blank");
+                window.open(linkedinShareUrl, "_blank");
               }}
               style={{
                 marginTop: "24px",
