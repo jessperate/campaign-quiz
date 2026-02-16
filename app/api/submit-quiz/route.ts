@@ -161,6 +161,58 @@ export async function POST(request: NextRequest) {
       : "https://campaign-quiz.vercel.app";
     const shareBaseUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL || baseUrl;
 
+    // Fire-and-forget Slack notification
+    if (process.env.SLACK_WEBHOOK_URL) {
+      const name = [firstName, lastName].filter(Boolean).join(" ");
+      const shareUrl = `${baseUrl}/share?userId=${userId}`;
+      const ogImageUrl = `${baseUrl}/api/og-image?userId=${userId}`;
+
+      fetch(process.env.SLACK_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `*${name}*${company ? ` from ${company}` : ""} just got their Marketype: *${archetype.name}*`,
+              },
+            },
+            {
+              type: "image",
+              image_url: ogImageUrl,
+              alt_text: `${name}'s Marketype card`,
+            },
+            {
+              type: "actions",
+              block_id: `moderation_${userId}`,
+              elements: [
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: "View Card" },
+                  url: shareUrl,
+                },
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: "Remove" },
+                  style: "danger",
+                  action_id: "remove_user",
+                  value: userId,
+                },
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: "Keep" },
+                  action_id: "keep_user",
+                  value: userId,
+                },
+              ],
+            },
+          ],
+        }),
+      }).catch((err) => console.error("Slack webhook error:", err));
+    }
+
     // Submit to HubSpot form (required fields cannot be empty strings)
     const hubspotFields = [
       { name: "email", value: email },
