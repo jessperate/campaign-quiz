@@ -34,7 +34,7 @@ async function loadFonts(baseUrl: string) {
 export async function GET(request: NextRequest) {
   try {
     const userId = request.nextUrl.searchParams.get("userId");
-    const scale = Math.min(Math.max(parseInt(request.nextUrl.searchParams.get("scale") || "1") || 1, 1), 4);
+    const scale = Math.min(Math.max(parseInt(request.nextUrl.searchParams.get("scale") || "2") || 2, 1), 4);
 
     if (!userId) {
       return new Response("Missing userId", { status: 400, headers: CORS_HEADERS });
