@@ -653,7 +653,7 @@ export default function ResultsClient() {
   // Share URLs — use userId so the share page can fetch OG image from Redis
   const userId = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('userId') : null;
   const shareBody = [
-    `I took the @AirOpsHQ Marketype quiz and I got The ${archetype.name} -- ${roleContent.tagline}`,
+    `I took the AirOps Marketype quiz and I got The ${archetype.name} -- ${roleContent.tagline}`,
     ``,
     `- Most likely to: ${results.bullets.mostLikelyTo}`,
     `- Spend time: ${results.bullets.typicallySpending}`,
