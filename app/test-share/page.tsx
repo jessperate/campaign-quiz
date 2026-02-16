@@ -111,7 +111,7 @@ export default function TestSharePage() {
       // Mobile: use server-rendered OG image (Satori with embedded fonts)
       // html2canvas doesn't reliably render custom fonts on mobile Safari
       navigator.clipboard.writeText(shareBody);
-      if (userId) setMobileCardDataUrl(`/api/og-image?userId=${userId}`);
+      if (userId) setMobileCardDataUrl(`https://campaign-quiz.vercel.app/api/og-image?userId=${userId}`);
       setShowLinkedinModal(true);
       return;
     }
