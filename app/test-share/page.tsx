@@ -108,24 +108,10 @@ export default function TestSharePage() {
 
   const handleLinkedinClick = async () => {
     if (isMobile) {
-      // Mobile: render card as image, copy text, show modal with long-press-to-save
+      // Mobile: use server-rendered OG image (Satori with embedded fonts)
+      // html2canvas doesn't reliably render custom fonts on mobile Safari
       navigator.clipboard.writeText(shareBody);
-      if (downloadRef.current) {
-        try {
-          const canvas = await html2canvas(downloadRef.current, {
-            scale: 3,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: "#000000",
-            width: 1200,
-            height: 630,
-          });
-          setMobileCardDataUrl(canvas.toDataURL("image/png"));
-        } catch {
-          // fallback — use OG image URL
-          if (userId) setMobileCardDataUrl(`/api/og-image?userId=${userId}`);
-        }
-      }
+      if (userId) setMobileCardDataUrl(`/api/og-image?userId=${userId}&scale=2`);
       setShowLinkedinModal(true);
       return;
     }
