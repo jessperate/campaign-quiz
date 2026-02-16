@@ -60,11 +60,25 @@ export async function POST(request: NextRequest) {
             },
             {
               type: "actions",
+              block_id: `moderation_${userId}`,
               elements: [
                 {
                   type: "button",
                   text: { type: "plain_text", text: "View Card" },
                   url: shareUrl,
+                },
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: "Remove" },
+                  style: "danger",
+                  action_id: "remove_user",
+                  value: userId,
+                },
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: "Keep" },
+                  action_id: "keep_user",
+                  value: userId,
                 },
               ],
             },
