@@ -1745,12 +1745,24 @@ export default function ResultsClient() {
                   <button
                     onClick={async () => {
                       if (isMobile) {
-                        // Mobile: use server-rendered OG image (Satori with embedded fonts)
-                        // html2canvas doesn't reliably render custom fonts on mobile Safari
+                        // Mobile: fetch OG image as data URL for reliable display + long-press save
                         navigator.clipboard.writeText(shareBody);
-                        const imgUrl = ogImageUrl || (userId ? `https://campaign-quiz.vercel.app/api/og-image?userId=${userId}` : null);
-                        if (imgUrl) setMobileCardDataUrl(imgUrl);
                         setShowLinkedinModal(true);
+                        const imgUrl = ogImageUrl || (userId ? `https://campaign-quiz.vercel.app/api/og-image?userId=${userId}` : null);
+                        if (imgUrl) {
+                          try {
+                            const resp = await fetch(imgUrl);
+                            const blob = await resp.blob();
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              if (typeof reader.result === 'string') setMobileCardDataUrl(reader.result);
+                            };
+                            reader.readAsDataURL(blob);
+                          } catch {
+                            // If fetch fails, fall back to direct URL
+                            setMobileCardDataUrl(imgUrl);
+                          }
+                        }
                         return;
                       }
 
@@ -2318,7 +2330,7 @@ export default function ResultsClient() {
                 <p style={{ color: '#E6E6FF', fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
                   Long-press the image below to save it to your photo roll. Then open LinkedIn to upload it and paste the copy from your clipboard!
                 </p>
-                {mobileCardDataUrl && (
+                {mobileCardDataUrl ? (
                   <img
                     src={mobileCardDataUrl}
                     alt="Your Marketype card"
@@ -2328,6 +2340,20 @@ export default function ResultsClient() {
                       border: '1px solid rgba(255,255,255,0.15)',
                     }}
                   />
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    aspectRatio: '1200/630',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#888',
+                    fontSize: '14px',
+                  }}>
+                    Loading your card...
+                  </div>
                 )}
               </div>
             ) : (
