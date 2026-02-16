@@ -895,7 +895,7 @@ export default function ResultsClient() {
               }}
             >
               <img
-                src={`/images/og-bg-${results.archetype}.jpg`}
+                src={`/images/og-bg-${results.archetype}.png`}
                 alt=""
                 style={{
                   position: 'absolute',

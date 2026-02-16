@@ -176,7 +176,7 @@ export default function TestSharePage() {
         }}
       >
         <img
-          src={`/images/og-bg-${data.archetype}.jpg`}
+          src={`/images/og-bg-${data.archetype}.png`}
           alt=""
           style={{
             position: "absolute",
