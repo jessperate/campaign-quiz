@@ -42,6 +42,7 @@ export default function ResultsClient() {
   const [linkedinCopied, setLinkedinCopied] = useState(false);
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
   const [showSlackModal, setShowSlackModal] = useState(false);
+  const [mobileCardDataUrl, setMobileCardDataUrl] = useState<string | null>(null);
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, pointerX: 0, pointerY: 0, isHovering: false });
   const [isFlipped, setIsFlipped] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -1744,7 +1745,7 @@ export default function ResultsClient() {
                   <button
                     onClick={async () => {
                       if (isMobile) {
-                        // Mobile: save image via share sheet, copy text, show modal
+                        // Mobile: render card as image, copy text, show modal with long-press-to-save
                         navigator.clipboard.writeText(shareBody);
                         if (downloadRef.current) {
                           try {
@@ -1756,17 +1757,11 @@ export default function ResultsClient() {
                               width: 1200,
                               height: 630,
                             });
-                            const blob = await new Promise<Blob | null>((resolve) =>
-                              canvas.toBlob(resolve, 'image/png')
-                            );
-                            if (blob) {
-                              const file = new File([blob], 'airops-marketype-card.png', { type: 'image/png' });
-                              if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                                await navigator.share({ files: [file] });
-                              }
-                            }
+                            setMobileCardDataUrl(canvas.toDataURL('image/png'));
                           } catch {
-                            // User cancelled share sheet or error — continue to modal
+                            // fallback — use OG image URL
+                            const fallback = ogImageUrl || (userId ? `/api/og-image?userId=${userId}` : null);
+                            if (fallback) setMobileCardDataUrl(fallback);
                           }
                         }
                         setShowLinkedinModal(true);
@@ -2330,9 +2325,22 @@ export default function ResultsClient() {
               {isMobile ? 'Almost there!' : 'Almost there! Post on LinkedIn:'}
             </h3>
             {isMobile ? (
-              <p style={{ color: '#E6E6FF', fontSize: '15px', lineHeight: 1.6 }}>
-                Save your card image from the share sheet that just appeared (tap &quot;Save Image&quot;). Then open LinkedIn to upload it from your photo library. Your share copy is already on your clipboard — just paste it!
-              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <p style={{ color: '#E6E6FF', fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
+                  Long-press the image below to save it to your photo roll. Then open LinkedIn to upload it and paste the copy from your clipboard!
+                </p>
+                {mobileCardDataUrl && (
+                  <img
+                    src={mobileCardDataUrl}
+                    alt="Your Marketype card"
+                    style={{
+                      width: '100%',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                    }}
+                  />
+                )}
+              </div>
             ) : (
               <ol
                 style={{
