@@ -460,15 +460,21 @@ export async function GET(request: NextRequest) {
         ],
       }
     );
-    // ImageResponse sets its own Cache-Control; override it for CDN caching
-    imgResponse.headers.set("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=86400");
+    // Only cache if the response has actual content
+    const cloned = imgResponse.clone();
+    const body = await cloned.arrayBuffer();
+    if (body.byteLength > 0) {
+      imgResponse.headers.set("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=86400");
+    } else {
+      imgResponse.headers.set("Cache-Control", "no-store");
+    }
     return imgResponse;
     } catch (renderErr) {
       console.error("ImageResponse render error:", renderErr);
-      return new Response(`Render error: ${String(renderErr)}`, { status: 500, headers: CORS_HEADERS });
+      return new Response(`Render error: ${String(renderErr)}`, { status: 500, headers: { ...CORS_HEADERS, "Cache-Control": "no-store" } });
     }
   } catch (err) {
     console.error("OG image generation error:", err);
-    return new Response(`OG image error: ${String(err)}`, { status: 500, headers: CORS_HEADERS });
+    return new Response(`OG image error: ${String(err)}`, { status: 500, headers: { ...CORS_HEADERS, "Cache-Control": "no-store" } });
   }
 }
