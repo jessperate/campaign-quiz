@@ -37,13 +37,19 @@ export default function TrackerPage() {
   const [loading, setLoading] = useState(true);
   const [companyFilter, setCompanyFilter] = useState("");
 
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     fetch("/api/all-cards")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         if (data.cards) setCards(data.cards);
+        else setError("No cards in response");
       })
-      .catch(() => {})
+      .catch((err) => setError(String(err)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -118,7 +124,7 @@ export default function TrackerPage() {
             fontFamily: "SerrifVF, Serrif, Georgia, serif",
           }}
         >
-          Which archetype is winning?
+          Which Marketype is in the lead?
         </h1>
 
         {/* Company filter */}
@@ -288,6 +294,10 @@ export default function TrackerPage() {
         {loading ? (
           <p style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", padding: 48 }}>
             Loading...
+          </p>
+        ) : error ? (
+          <p style={{ color: "#ff6b6b", textAlign: "center", padding: 48 }}>
+            Error: {error}
           </p>
         ) : totalPlayers === 0 ? (
           <p style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", padding: 48 }}>
