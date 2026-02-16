@@ -30,6 +30,49 @@ export async function POST(request: NextRequest) {
       await redis.set(`quiz:${userId}`, JSON.stringify(parsed));
     }
 
+    // Fire-and-forget Slack notification when stipple image is saved (card is ready)
+    if (fieldName === "stippleImageUrl" && process.env.SLACK_WEBHOOK_URL) {
+      const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : "https://campaign-quiz.vercel.app";
+      const name = [parsed.firstName, parsed.lastName].filter(Boolean).join(" ");
+      const archetype = parsed.archetype?.name || "";
+      const company = parsed.company || "";
+      const shareUrl = `${baseUrl}/share?userId=${userId}`;
+      const ogImageUrl = `${baseUrl}/api/og-image?userId=${userId}`;
+
+      fetch(process.env.SLACK_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `*${name}*${company ? ` from ${company}` : ""} just got their Marketype: *${archetype}*`,
+              },
+            },
+            {
+              type: "image",
+              image_url: ogImageUrl,
+              alt_text: `${name}'s Marketype card`,
+            },
+            {
+              type: "actions",
+              elements: [
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: "View Card" },
+                  url: shareUrl,
+                },
+              ],
+            },
+          ],
+        }),
+      }).catch((err) => console.error("Slack webhook error:", err));
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error saving card URL:", error);
