@@ -22,6 +22,13 @@ const ARCHETYPE_COLORS: Record<string, { bg: string; accent: string }> = {
   heart: { bg: "#3D0A3D", accent: "#F5D6F5" },
 };
 
+const ROLE_OPTIONS = [
+  { value: "", label: "All" },
+  { value: "ic", label: "IC" },
+  { value: "manager", label: "Manager" },
+  { value: "exec", label: "Exec" },
+];
+
 interface CardData {
   userId: string;
   firstName: string;
@@ -29,6 +36,7 @@ interface CardData {
   company: string;
   archetypeId: string;
   archetypeName: string;
+  role: string;
   createdAt: string;
 }
 
@@ -36,6 +44,7 @@ export default function TrackerPage() {
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [companyFilter, setCompanyFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
 
   const [error, setError] = useState<string | null>(null);
 
@@ -62,12 +71,18 @@ export default function TrackerPage() {
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [cards]);
 
-  // Filter cards by company (case-insensitive partial match)
+  // Filter cards by company and role
   const filteredCards = useMemo(() => {
-    if (!companyFilter.trim()) return cards;
-    const q = companyFilter.trim().toLowerCase();
-    return cards.filter((c) => c.company.toLowerCase().includes(q));
-  }, [cards, companyFilter]);
+    let result = cards;
+    if (companyFilter.trim()) {
+      const q = companyFilter.trim().toLowerCase();
+      result = result.filter((c) => c.company.toLowerCase().includes(q));
+    }
+    if (roleFilter) {
+      result = result.filter((c) => c.role === roleFilter);
+    }
+    return result;
+  }, [cards, companyFilter, roleFilter]);
 
   // Compute counts from filtered cards
   const counts = useMemo(() => {
@@ -226,6 +241,48 @@ export default function TrackerPage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Role filter */}
+        <div style={{ marginBottom: 32 }}>
+          <label
+            style={{
+              display: "block",
+              fontSize: 11,
+              textTransform: "uppercase",
+              letterSpacing: "0.12em",
+              fontWeight: 600,
+              color: "rgba(255,255,255,0.5)",
+              marginBottom: 8,
+              fontFamily: "SaansMono, monospace",
+            }}
+          >
+            Filter by role
+          </label>
+          <div style={{ display: "flex", gap: 8 }}>
+            {ROLE_OPTIONS.map((opt) => {
+              const isActive = roleFilter === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setRoleFilter(opt.value)}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 20,
+                    border: isActive ? "1px solid #00FF64" : "1px solid rgba(255,255,255,0.15)",
+                    background: isActive ? "rgba(0,255,100,0.12)" : "rgba(255,255,255,0.05)",
+                    color: isActive ? "#00FF64" : "rgba(255,255,255,0.7)",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "SaansMono, monospace",
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Stats summary */}
@@ -410,6 +467,7 @@ export default function TrackerPage() {
                   <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
                     <th style={{ textAlign: "left", padding: "10px 16px", color: "rgba(255,255,255,0.4)", fontWeight: 500, fontFamily: "SaansMono, monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em" }}>Name</th>
                     <th style={{ textAlign: "left", padding: "10px 16px", color: "rgba(255,255,255,0.4)", fontWeight: 500, fontFamily: "SaansMono, monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em" }}>Company</th>
+                    <th style={{ textAlign: "left", padding: "10px 16px", color: "rgba(255,255,255,0.4)", fontWeight: 500, fontFamily: "SaansMono, monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em" }}>Role</th>
                     <th style={{ textAlign: "left", padding: "10px 16px", color: "rgba(255,255,255,0.4)", fontWeight: 500, fontFamily: "SaansMono, monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em" }}>Archetype</th>
                   </tr>
                 </thead>
@@ -424,6 +482,9 @@ export default function TrackerPage() {
                       </td>
                       <td style={{ padding: "10px 16px", color: "rgba(255,255,255,0.6)", fontFamily: "Saans, sans-serif" }}>
                         {card.company}
+                      </td>
+                      <td style={{ padding: "10px 16px", color: "rgba(255,255,255,0.6)", fontFamily: "SaansMono, monospace", fontSize: 11, textTransform: "uppercase" }}>
+                        {card.role === "exec" ? "Exec" : card.role === "manager" ? "Manager" : "IC"}
                       </td>
                       <td style={{ padding: "10px 16px" }}>
                         <span
