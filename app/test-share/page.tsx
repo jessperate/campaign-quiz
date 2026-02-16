@@ -106,11 +106,11 @@ export default function TestSharePage() {
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   const handleLinkedinClick = async () => {
-    if (isMobile && navigator.share) {
-      // Mobile: use Web Share API to pass image + text directly
-      try {
-        let file: File | null = null;
-        if (downloadRef.current) {
+    if (isMobile) {
+      // Mobile: save image to photo library, copy text, show modal
+      navigator.clipboard.writeText(shareBody);
+      if (downloadRef.current) {
+        try {
           const canvas = await html2canvas(downloadRef.current, {
             scale: 3,
             useCORS: true,
@@ -119,21 +119,22 @@ export default function TestSharePage() {
             width: 1200,
             height: 630,
           });
-          const blob = await new Promise<Blob | null>((resolve) =>
-            canvas.toBlob(resolve, "image/png")
-          );
-          if (blob) {
-            file = new File([blob], "airops-marketype-card.png", { type: "image/png" });
-          }
+          canvas.toBlob((blob) => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "airops-marketype-card.png";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, "image/png");
+        } catch {
+          // fallback — ignore
         }
-        const shareData: ShareData = { text: shareBody };
-        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-          shareData.files = [file];
-        }
-        await navigator.share(shareData);
-      } catch {
-        // User cancelled or share failed — no-op
       }
+      setShowLinkedinModal(true);
       return;
     }
 
@@ -386,42 +387,48 @@ export default function TestSharePage() {
               &times;
             </button>
             <h3 style={{ fontSize: "22px", color: "#fff", marginBottom: "20px" }}>
-              Almost there! Post on LinkedIn:
+              {isMobile ? "Almost there!" : "Almost there! Post on LinkedIn:"}
             </h3>
-            <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "16px" }}>
-              {[
-                { n: "1", text: <><strong>Upload your downloaded card image</strong> to the LinkedIn post</> },
-                { n: "2", text: <><strong>Paste your copied text</strong> into the post body (already on your clipboard!)</> },
-                { n: "3", text: <><strong>Make it your own</strong> and hit post!</> },
-              ].map((step) => (
-                <li key={step.n} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                  <span
-                    style={{
-                      flexShrink: 0,
-                      width: "28px",
-                      height: "28px",
-                      borderRadius: "50%",
-                      background: "#00FF64",
-                      color: "#000",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                    }}
-                  >
-                    {step.n}
-                  </span>
-                  <span style={{ color: "#E6E6FF", fontSize: "15px", paddingTop: "3px" }}>
-                    {step.text}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            {isMobile ? (
+              <p style={{ color: "#E6E6FF", fontSize: "15px", lineHeight: 1.6 }}>
+                Your image is being saved to your photo library. Open LinkedIn to upload it there. Then paste the copy on your clipboard for your unique results!
+              </p>
+            ) : (
+              <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "16px" }}>
+                {[
+                  { n: "1", text: <><strong>Upload your downloaded card image</strong> to the LinkedIn post</> },
+                  { n: "2", text: <><strong>Paste your copied text</strong> into the post body (already on your clipboard!)</> },
+                  { n: "3", text: <><strong>Make it your own</strong> and hit post!</> },
+                ].map((step) => (
+                  <li key={step.n} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                    <span
+                      style={{
+                        flexShrink: 0,
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        background: "#00FF64",
+                        color: "#000",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 700,
+                        fontSize: "14px",
+                      }}
+                    >
+                      {step.n}
+                    </span>
+                    <span style={{ color: "#E6E6FF", fontSize: "15px", paddingTop: "3px" }}>
+                      {step.text}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
             <button
               onClick={() => {
                 setShowLinkedinModal(false);
-                window.open(linkedinShareUrl, "_blank");
+                window.open(isMobile ? "linkedin://feed/post/new" : linkedinShareUrl, "_blank");
               }}
               style={{
                 marginTop: "24px",
@@ -436,7 +443,7 @@ export default function TestSharePage() {
                 cursor: "pointer",
               }}
             >
-              Got it — open LinkedIn
+              {isMobile ? "Open LinkedIn app" : "Got it — open LinkedIn"}
             </button>
           </div>
         </div>
