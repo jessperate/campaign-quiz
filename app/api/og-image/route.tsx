@@ -14,19 +14,20 @@ export async function OPTIONS() {
 }
 
 // Cache font ArrayBuffers after first load
-let fontCache: { serrif: ArrayBuffer; saans: ArrayBuffer; saansMono: ArrayBuffer } | null = null;
+let fontCache: { serrif: ArrayBuffer; serrifItalic: ArrayBuffer; saans: ArrayBuffer; saansMono: ArrayBuffer } | null = null;
 
 async function loadFonts(baseUrl: string) {
   if (fontCache) return fontCache;
   const cdnBase = process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : baseUrl;
-  const [serrif, saans, saansMono] = await Promise.all([
-    fetch(`${cdnBase}/fonts/SerrifVF.ttf`).then((r) => r.arrayBuffer()),
+  const [serrif, serrifItalic, saans, saansMono] = await Promise.all([
+    fetch(`${cdnBase}/fonts/Serrif-400.ttf`).then((r) => r.arrayBuffer()),
+    fetch(`${cdnBase}/fonts/Serrif-400-Italic.ttf`).then((r) => r.arrayBuffer()),
     fetch(`${cdnBase}/fonts/Saans-Regular.woff`).then((r) => r.arrayBuffer()),
     fetch(`${cdnBase}/fonts/SaansMono-Medium.otf`).then((r) => r.arrayBuffer()),
   ]);
-  fontCache = { serrif, saans, saansMono };
+  fontCache = { serrif, serrifItalic, saans, saansMono };
   return fontCache;
 }
 
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
       console.error("Font loading failed:", String(fontErr));
       return new Response(`Font loading error: ${String(fontErr)}`, { status: 500, headers: CORS_HEADERS });
     }
-    const { serrif: serrifFont, saans: saansFont, saansMono: saansMonoFont } = fonts;
+    const { serrif: serrifFont, serrifItalic: serrifItalicFont, saans: saansFont, saansMono: saansMonoFont } = fonts;
 
     const res = await fetch(
       `${baseUrl}/api/get-results?userId=${encodeURIComponent(userId)}`
@@ -117,7 +118,7 @@ export async function GET(request: NextRequest) {
             ? 72
             : 87;
 
-    console.log(`OG render: fonts loaded (serrif=${serrifFont.byteLength}, saans=${saansFont.byteLength}, mono=${saansMonoFont.byteLength}), user=${firstName} ${lastName}, archetype=${parsed.archetype?.id}, stipple=${!!parsed.stippleImageUrl}`);
+    console.log(`OG render: fonts loaded (serrif=${serrifFont.byteLength}, serrifItalic=${serrifItalicFont.byteLength}, saans=${saansFont.byteLength}, mono=${saansMonoFont.byteLength}), user=${firstName} ${lastName}, archetype=${parsed.archetype?.id}, stipple=${!!parsed.stippleImageUrl}`);
 
     const outputWidth = 1200 * scale;
     const outputHeight = 630 * scale;
@@ -453,7 +454,7 @@ export async function GET(request: NextRequest) {
         headers: CORS_HEADERS,
         fonts: [
           { name: "Serrif", data: serrifFont, style: "normal" as const, weight: 400 as const },
-          { name: "Serrif", data: serrifFont, style: "italic" as const, weight: 400 as const },
+          { name: "Serrif", data: serrifItalicFont, style: "italic" as const, weight: 400 as const },
           { name: "Saans", data: saansFont, style: "normal" as const, weight: 400 as const },
           { name: "SaansMono", data: saansMonoFont, style: "normal" as const, weight: 500 as const },
         ],
