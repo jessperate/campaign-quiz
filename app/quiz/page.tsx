@@ -302,6 +302,12 @@ export default function QuizPage() {
       const data = await res.json();
 
       if (data.success && data.userId) {
+        // Fire Google Analytics generate_lead event
+        if (typeof window !== 'undefined' && typeof (window as /* eslint-disable-next-line @typescript-eslint/no-explicit-any */ any).gtag === 'function') {
+          (window as /* eslint-disable-next-line @typescript-eslint/no-explicit-any */ any).gtag('event', 'generate_lead', {
+            quiz_archetype: data.archetype?.name || '',
+          });
+        }
         const shareBase = process.env.NEXT_PUBLIC_SHARE_BASE_URL || 'https://www.airops.com';
         const resultsUrl = `${shareBase}/results?userId=${data.userId}`;
         // If inside an iframe, break out so the results page gets a unique URL
