@@ -11,10 +11,10 @@ interface ShareCopyEntry {
 export const ARCHETYPE_TAGLINES: Record<string, string> = {
   vision: "You see the big picture.",
   glue: "You turn chaos into systems.",
-  trendsetter: "You experiment while others hesitate.",
-  goGoGoer: "You're the momentum.",
-  tastemaker: "You make it shine.",
-  clutch: "You thrive in the gray areas.",
+  maverick: "You experiment while others hesitate.",
+  spark: "You're the momentum.",
+  craft: "You make it shine.",
+  flex: "You thrive in the gray areas.",
   heart: "You make the work feel like purpose.",
 };
 
@@ -59,7 +59,7 @@ export const SHARE_COPY: Record<string, Record<string, ShareCopyEntry>> = {
       cta: "AI search needs new playbooks. Find out what kind of player you are.",
     },
   },
-  trendsetter: {
+  maverick: {
     ic: {
       mostLikelyTo: "Be first-name basis with product teams",
       spendTime: "Reading industry reports nobody else has time for",
@@ -79,7 +79,7 @@ export const SHARE_COPY: Record<string, Record<string, ShareCopyEntry>> = {
       cta: "Find out what kind of player you are.",
     },
   },
-  goGoGoer: {
+  spark: {
     ic: {
       mostLikelyTo: "Ship before anyone says \"wait, should we...\"",
       spendTime: "Executing (iterate later)",
@@ -99,7 +99,7 @@ export const SHARE_COPY: Record<string, Record<string, ShareCopyEntry>> = {
       cta: "AI search rewards speed. Find out what kind of player you are.",
     },
   },
-  tastemaker: {
+  craft: {
     ic: {
       mostLikelyTo: "Ship at 11:59 PM (wasn't ready at 11:58)",
       spendTime: "Peer-reviewing my own work",
@@ -119,7 +119,7 @@ export const SHARE_COPY: Record<string, Record<string, ShareCopyEntry>> = {
       cta: "In a world of AI slop, taste wins. Find out what kind of player you are.",
     },
   },
-  clutch: {
+  flex: {
     ic: {
       mostLikelyTo: "Be the person who \"knows a trick\"",
       spendTime: "Collecting hats",
@@ -180,22 +180,22 @@ export const TWITTER_COPY: Record<string, Record<string, string>> = {
     manager: `I took the @AirOpsHQ Marketype quiz. The Glue. Most likely to turn retros into actual process improvements. Favorite phrase: "Let's document as we go." What's yours?`,
     executive: `I took the @AirOpsHQ Marketype quiz. The Glue. Most likely to have read Measure What Matters twice. Favorite phrase: "Let's make this a playbook." What's yours?`,
   },
-  trendsetter: {
+  maverick: {
     ic: `I took the @AirOpsHQ Marketype quiz. The Maverick. "You experiment while others hesitate." Most likely to be first-name basis with product teams. What's yours?`,
     manager: `I took the @AirOpsHQ Marketype quiz. The Maverick. Most likely to reorganize teams around new opportunities. Favorite phrase: "Trust me on this one." What's yours?`,
     executive: `I took the @AirOpsHQ Marketype quiz. The Maverick. Most likely to know every founder in my zip code. Favorite phrase: "I've been saying this for months." What's yours?`,
   },
-  goGoGoer: {
+  spark: {
     ic: `I took the @AirOpsHQ Marketype quiz. The Spark. "You're the momentum." Most likely to ship before anyone says "wait, should we..." What's yours?`,
     manager: `I took the @AirOpsHQ Marketype quiz. The Spark. Most likely to hit quarterly goals by month two. Favorite phrase: "Ship now, iterate later." What's yours?`,
     executive: `I took the @AirOpsHQ Marketype quiz. The Spark. Most likely to turn "EOQ" into "EOW." Favorite phrase: "Up and to the right!" What's yours?`,
   },
-  tastemaker: {
+  craft: {
     ic: `I took the @AirOpsHQ Marketype quiz. The Craft. "You make it shine." Most likely to ship at 11:59 PM (wasn't ready at 11:58). What's yours?`,
     manager: `I took the @AirOpsHQ Marketype quiz. The Craft. Most likely to believe "it's fine" means "not good enough." Favorite phrase: "How can we push this further?" What's yours?`,
     executive: `I took the @AirOpsHQ Marketype quiz. The Craft. Most likely to change the font in the board deck. Favorite phrase: "Can we make it more [gestures vaguely] us?" What's yours?`,
   },
-  clutch: {
+  flex: {
     ic: `I took the @AirOpsHQ Marketype quiz. The Flex. "You thrive in the gray areas." Favorite phrase: "Yeah, I can take that on." What's yours?`,
     manager: `I took the @AirOpsHQ Marketype quiz. The Flex. Most likely to solve problems nobody saw coming. Favorite phrase: "What does the team need right now?" What's yours?`,
     executive: `I took the @AirOpsHQ Marketype quiz. The Flex. Most likely to have a calendar that makes people concerned. Favorite phrase: "It depends" (on literally everything). What's yours?`,

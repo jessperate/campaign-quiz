@@ -59,13 +59,13 @@ const cardThemes: Record<string, Partial<CardTheme>> = {
     patternFill: "#FFFFFC",
     patternStroke: "none",
   },
-  goGoGoer: {
+  spark: {
     cardBorder: "#3D0A1A",
     cardBg: "#3D0A1A",
     artBg: "#FFD6E0",
     artBorder: "#D4587A",
-    artImage: "/images/goGoGoer-card-art.png",
-    titleImage: "/images/goGoGoer-card-title.svg",
+    artImage: "/images/spark-card-art.png",
+    titleImage: "/images/spark-card-title.svg",
     statsBg: "#FFF5F7",
     statsBorder: "#D4587A",
     labelColor: "#D4587A",
@@ -78,13 +78,13 @@ const cardThemes: Record<string, Partial<CardTheme>> = {
     patternFill: "#FFD6E0",
     patternStroke: "white",
   },
-  clutch: {
+  flex: {
     cardBorder: "#1A2E22",
     cardBg: "#1A2E22",
     artBg: "#DDE8E0",
     artBorder: "#7BA38A",
-    artImage: "/images/clutch-card-art.png",
-    titleImage: "/images/clutch-card-title.svg",
+    artImage: "/images/flex-card-art.png",
+    titleImage: "/images/flex-card-title.svg",
     statsBg: "#F5FAF7",
     statsBorder: "#7BA38A",
     labelColor: "#7BA38A",
@@ -116,13 +116,13 @@ const cardThemes: Record<string, Partial<CardTheme>> = {
     patternFill: "#FDF5FD",
     patternStroke: "none",
   },
-  tastemaker: {
+  craft: {
     cardBorder: "#1E1A3D",
     cardBg: "#1E1A3D",
     artBg: "#DDD3F2",
     artBorder: "#8B7ABF",
-    artImage: "/images/tastemaker-card-art.png",
-    titleImage: "/images/tastemaker-card-title.svg",
+    artImage: "/images/craft-card-art.png",
+    titleImage: "/images/craft-card-title.svg",
     statsBg: "#F5F3FD",
     statsBorder: "#8B7ABF",
     labelColor: "#8B7ABF",
@@ -135,13 +135,13 @@ const cardThemes: Record<string, Partial<CardTheme>> = {
     patternFill: "#F5F3FD",
     patternStroke: "none",
   },
-  trendsetter: {
+  maverick: {
     cardBorder: "#1A1A3D",
     cardBg: "#1A1A3D",
     artBg: "#D6D6FF",
     artBorder: "#8B8BCC",
-    artImage: "/images/trendsetter-card-art.png",
-    titleImage: "/images/trendsetter-card-title.svg",
+    artImage: "/images/maverick-card-art.png",
+    titleImage: "/images/maverick-card-title.svg",
     statsBg: "#F3F3FF",
     statsBorder: "#8B8BCC",
     labelColor: "#8B8BCC",
@@ -184,16 +184,16 @@ export interface ResultsPageTheme {
 }
 
 const resultsPageThemes: Record<string, ResultsPageTheme> = {
-  trendsetter: { bg: '#1B1B8F', cardBg: '#0F0F57', headline: '#F5F6FF', body: '#E5E5FF', secondaryBtn: '#000D05' },
+  maverick:    { bg: '#1B1B8F', cardBg: '#0F0F57', headline: '#F5F6FF', body: '#E5E5FF', secondaryBtn: '#000D05' },
   vision:      { bg: '#196C80', cardBg: '#0A3945', headline: '#F2FCFF', body: '#C9EBF2', secondaryBtn: '#020B0D' },
   glue:        { bg: '#586605', cardBg: '#242603', headline: '#FDFFF3', body: '#EEFF8C', secondaryBtn: '#0C0D01' },
-  goGoGoer:    { bg: '#802828', cardBg: '#331010', headline: '#FFF0F0', body: '#FFE2E2', secondaryBtn: '#0D0404' },
-  tastemaker:  { bg: '#5A3480', cardBg: '#2A084D', headline: '#F8F7FF', body: '#DDD3F2', secondaryBtn: '#07010D' },
-  clutch:      { bg: '#008C44', cardBg: '#002910', headline: '#F8FFFB', body: '#DFEAE3', secondaryBtn: '#000D05' },
+  spark:       { bg: '#802828', cardBg: '#331010', headline: '#FFF0F0', body: '#FFE2E2', secondaryBtn: '#0D0404' },
+  craft:       { bg: '#5A3480', cardBg: '#2A084D', headline: '#F8F7FF', body: '#DDD3F2', secondaryBtn: '#07010D' },
+  flex:        { bg: '#008C44', cardBg: '#002910', headline: '#F8FFFB', body: '#DFEAE3', secondaryBtn: '#000D05' },
   heart:       { bg: '#C54B9B', cardBg: '#3A092C', headline: '#FFF7FF', body: '#FEE7FD', secondaryBtn: '#0D020A' },
 };
 
-const defaultResultsTheme: ResultsPageTheme = resultsPageThemes.trendsetter;
+const defaultResultsTheme: ResultsPageTheme = resultsPageThemes.maverick;
 
 export function getResultsPageTheme(archetypeId: string): ResultsPageTheme {
   return resultsPageThemes[archetypeId] || defaultResultsTheme;

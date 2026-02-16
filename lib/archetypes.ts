@@ -133,8 +133,8 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     }
   },
 
-  trendsetter: {
-    id: "trendsetter",
+  maverick: {
+    id: "maverick",
     name: "Maverick",
     shortName: "MAVERICK",
     roleContent: {
@@ -186,8 +186,8 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     }
   },
 
-  tastemaker: {
-    id: "tastemaker",
+  craft: {
+    id: "craft",
     name: "Craft",
     shortName: "CRAFT",
     roleContent: {
@@ -239,8 +239,8 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     }
   },
 
-  goGoGoer: {
-    id: "goGoGoer",
+  spark: {
+    id: "spark",
     name: "Spark",
     shortName: "SPARK",
     roleContent: {
@@ -292,8 +292,8 @@ export const archetypes: Record<ArchetypeId, Archetype> = {
     }
   },
 
-  clutch: {
-    id: "clutch",
+  flex: {
+    id: "flex",
     name: "Flex",
     shortName: "FLEX",
     roleContent: {

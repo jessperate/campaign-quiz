@@ -4,6 +4,17 @@ import { getTwitterCopy } from "@/lib/share-copy";
 
 const redis = new Redis(process.env.REDIS_URL!);
 
+// Map old archetype IDs to new ones for existing Redis data
+const ARCHETYPE_ID_MAP: Record<string, string> = {
+  trendsetter: "maverick",
+  tastemaker: "craft",
+  goGoGoer: "spark",
+  clutch: "flex",
+};
+function normalizeArchetypeId(id: string): string {
+  return ARCHETYPE_ID_MAP[id] || id;
+}
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -13,10 +24,10 @@ const CORS_HEADERS = {
 const SHARE_CTAS: Record<string, string> = {
   vision: "AI search is rewriting the rules. Find out what kind of player you are. \u{1F447}",
   glue: "AI search needs new playbooks. Find out what kind of player you are. \u{1F447}",
-  trendsetter: "Find out what kind of player you are. \u{1F447}",
-  goGoGoer: "AI search rewards speed. Find out what kind of player you are. \u{1F447}",
-  tastemaker: "In a world of AI slop, taste wins. Find out what kind of player you are. \u{1F447}",
-  clutch: "Find out what kind of player you are. \u{1F447}",
+  maverick: "Find out what kind of player you are. \u{1F447}",
+  spark: "AI search rewards speed. Find out what kind of player you are. \u{1F447}",
+  craft: "In a world of AI slop, taste wins. Find out what kind of player you are. \u{1F447}",
+  flex: "Find out what kind of player you are. \u{1F447}",
   heart: "Find out what kind of player you are. \u{1F447}",
 };
 
@@ -46,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     const parsed = JSON.parse(data);
 
-    const archetypeId = parsed.archetype?.id || "trendsetter";
+    const archetypeId = normalizeArchetypeId(parsed.archetype?.id || "maverick");
     const archetypeName = parsed.archetype?.name || "Champion";
     const tagline = parsed.archetype?.tagline || "";
     const mostLikelyTo = parsed.bullets?.mostLikelyTo || "";
@@ -59,7 +70,7 @@ export async function GET(request: NextRequest) {
 
     const sharePageUrl = `${baseUrl}/share?userId=${userId}`;
     const quizUrl = `${baseUrl}/quiz`;
-    const closingCta = SHARE_CTAS[archetypeId] || SHARE_CTAS.trendsetter;
+    const closingCta = SHARE_CTAS[archetypeId] || SHARE_CTAS.maverick;
 
     // Shared body (bullets + CTA)
     const shareBody = [

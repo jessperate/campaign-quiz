@@ -6,6 +6,17 @@ import { NextRequest } from 'next/server';
 
 const redis = new Redis(process.env.REDIS_URL!);
 
+// Map old archetype IDs to new ones for existing Redis data
+const ARCHETYPE_ID_MAP: Record<string, string> = {
+  trendsetter: "maverick",
+  tastemaker: "craft",
+  goGoGoer: "spark",
+  clutch: "flex",
+};
+function normalizeArchetypeId(id: string): string {
+  return ARCHETYPE_ID_MAP[id] || id;
+}
+
 function getBaseUrl() {
   return process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -41,7 +52,7 @@ export async function GET(request: NextRequest) {
       const data = await redis.get(`quiz:${userId}`);
       if (data) {
         const parsed = JSON.parse(data);
-        archetypeId = (parsed.archetype?.id || 'vision') as ArchetypeId;
+        archetypeId = normalizeArchetypeId(parsed.archetype?.id || 'vision') as ArchetypeId;
         role = parsed.role || 'ic';
         ogImageUrl = parsed.ogImageUrl || parsed.cardUrl || null;
         firstName = parsed.firstName || '';

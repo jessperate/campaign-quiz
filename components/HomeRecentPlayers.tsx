@@ -23,21 +23,21 @@ interface CardData {
 const ARCHETYPE_COLORS: Record<string, { bg: string; accent: string }> = {
   vision: { bg: "#002910", accent: "#DFEAE3" },
   glue: { bg: "#242603", accent: "#EEFF8C" },
-  trendsetter: { bg: "#3D0A1A", accent: "#FFD6E0" },
-  tastemaker: { bg: "#1A2E22", accent: "#DDE8E0" },
-  goGoGoer: { bg: "#3D0A3D", accent: "#F5D6F5" },
-  clutch: { bg: "#1E1A3D", accent: "#DDD3F2" },
+  maverick: { bg: "#3D0A1A", accent: "#FFD6E0" },
+  craft: { bg: "#1A2E22", accent: "#DDE8E0" },
+  spark: { bg: "#3D0A3D", accent: "#F5D6F5" },
+  flex: { bg: "#1E1A3D", accent: "#DDD3F2" },
   heart: { bg: "#0A2A3D", accent: "#CCE8F5" },
 };
 
-const ARCHETYPE_ORDER = ["vision", "glue", "trendsetter", "tastemaker", "goGoGoer", "clutch", "heart"];
+const ARCHETYPE_ORDER = ["vision", "glue", "maverick", "craft", "spark", "flex", "heart"];
 const ARCHETYPE_LABELS: Record<string, string> = {
   vision: "Vision",
   glue: "Glue",
-  trendsetter: "Maverick",
-  tastemaker: "Craft",
-  goGoGoer: "Spark",
-  clutch: "Flex",
+  maverick: "Maverick",
+  craft: "Craft",
+  spark: "Spark",
+  flex: "Flex",
   heart: "Heart",
 };
 

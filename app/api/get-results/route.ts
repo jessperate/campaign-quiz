@@ -5,6 +5,17 @@ import { getTwitterCopy } from "@/lib/share-copy";
 
 const redis = new Redis(process.env.REDIS_URL!);
 
+// Map old archetype IDs to new ones for existing Redis data
+const ARCHETYPE_ID_MAP: Record<string, string> = {
+  trendsetter: "maverick",
+  tastemaker: "craft",
+  goGoGoer: "spark",
+  clutch: "flex",
+};
+function normalizeArchetypeId(id: string): string {
+  return ARCHETYPE_ID_MAP[id] || id;
+}
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -36,6 +47,11 @@ export async function GET(request: NextRequest) {
     }
 
     const parsed = JSON.parse(data);
+
+    // Normalize old archetype IDs (trendsetter→maverick, etc.) for existing records
+    if (parsed.archetype?.id) {
+      parsed.archetype.id = normalizeArchetypeId(parsed.archetype.id);
+    }
 
     // Resolve base URL for absolute image paths
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
