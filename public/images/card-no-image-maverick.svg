@@ -1,0 +1,18 @@
+<svg width="682" height="682" viewBox="0 0 682 682" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g clip-path="url(#clip0_2006_8591)">
+<rect x="41" y="41" width="600" height="600" rx="300" fill="#1B1B8F"/>
+<g id="Repeat group 3_inner" data-figma-trr="r5u1.5-0f">
+<path d="M367.047 147.116L340.721 61.9221L314.395 147.116H229.201L298.124 199.768L340.721 232.309L409.644 284.962L383.318 199.768L452.241 147.116H367.047Z" fill="white"/>
+</g>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(559.479 -88.6128) rotate(72)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(816.643 416.1) rotate(144)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(416.1 816.643) rotate(-144)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(-88.6127 559.479) rotate(-72)"/>
+</g>
+<rect x="20.5" y="20.5" width="641" height="641" rx="320.5" stroke="white" stroke-width="41"/>
+<defs>
+<clipPath id="clip0_2006_8591">
+<rect x="41" y="41" width="600" height="600" rx="300" fill="white"/>
+</clipPath>
+</defs>
+</svg>

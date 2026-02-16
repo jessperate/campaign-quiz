@@ -65,6 +65,7 @@ export async function GET(request: NextRequest) {
       return new Response("User not found", { status: 404, headers: CORS_HEADERS });
     }
 
+    const archetypeId = parsed.archetype?.id || "vision";
     const firstName = parsed.firstName || "";
     const lastName = parsed.lastName || "";
     const company = parsed.company || "";
@@ -264,13 +265,12 @@ export async function GET(request: NextRequest) {
                   />
                 ) : (
                   <img
-                    src={`${baseUrl}/images/smiley-fallback.svg`}
+                    src={`${baseUrl}/images/card-no-image-${archetypeId}.svg`}
                     width={HS}
                     height={HS}
                     style={{
                       width: HS,
                       height: HS,
-                      backgroundColor: headshotBg,
                     }}
                   />
                 )}

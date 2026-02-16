@@ -318,13 +318,12 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
                 />
               ) : (
                 <img
-                  src="/images/smiley-fallback.svg"
+                  src={`/images/card-no-image-${archetypeId || "vision"}.svg`}
                   alt=""
                   style={{
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    backgroundColor: theme.artBg,
                   }}
                 />
               )}
