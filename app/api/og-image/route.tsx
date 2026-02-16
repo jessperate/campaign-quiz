@@ -459,14 +459,7 @@ export async function GET(request: NextRequest) {
         ],
       }
     );
-    // Only cache if the response has actual content
-    const cloned = imgResponse.clone();
-    const body = await cloned.arrayBuffer();
-    if (body.byteLength > 0) {
-      imgResponse.headers.set("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=86400");
-    } else {
-      imgResponse.headers.set("Cache-Control", "no-store");
-    }
+    imgResponse.headers.set("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=86400");
     return imgResponse;
     } catch (renderErr) {
       console.error("ImageResponse render error:", renderErr);
