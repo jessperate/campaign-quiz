@@ -140,8 +140,7 @@ export async function GET(request: NextRequest) {
             display: "flex",
             backgroundColor: cardBg,
             fontFamily: "Saans",
-            transform: scale > 1 ? `scale(${scale})` : undefined,
-            transformOrigin: "top left",
+            ...(scale > 1 ? { transform: `scale(${scale})`, transformOrigin: "top left" } : {}),
           }}
         >
           {/* OG background image */}
