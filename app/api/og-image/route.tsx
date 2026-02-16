@@ -22,7 +22,7 @@ async function loadFonts(baseUrl: string) {
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : baseUrl;
   const [serrif, saans, saansMono] = await Promise.all([
-    fetch(`${cdnBase}/fonts/Serrif-Regular.ttf`).then((r) => r.arrayBuffer()),
+    fetch(`${cdnBase}/fonts/SerrifVF.ttf`).then((r) => r.arrayBuffer()),
     fetch(`${cdnBase}/fonts/Saans-Regular.woff`).then((r) => r.arrayBuffer()),
     fetch(`${cdnBase}/fonts/SaansMono-Medium.otf`).then((r) => r.arrayBuffer()),
   ]);
