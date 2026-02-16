@@ -357,10 +357,10 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               <div
                 style={{
                   fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                  fontSize: "82.4px",
+                  fontSize: lastName.length > 12 ? "58px" : lastName.length > 9 ? "68px" : "82.4px",
                   fontWeight: "400",
                   color: "#0C0D01",
-                  letterSpacing: "-3.3px",
+                  letterSpacing: lastName.length > 12 ? "-2px" : lastName.length > 9 ? "-2.5px" : "-3.3px",
                   lineHeight: "0.85",
                 }}
               >
