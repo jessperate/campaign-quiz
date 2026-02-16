@@ -111,7 +111,7 @@ export default function TestSharePage() {
       // Mobile: fetch OG image as data URL for reliable display + long-press save
       navigator.clipboard.writeText(shareBody);
       setShowLinkedinModal(true);
-      const imgUrl = `https://campaign-quiz.vercel.app/api/og-image?userId=${userId}`;
+      const imgUrl = `https://campaign-quiz.vercel.app/api/og-image?userId=${userId}&scale=3`;
       try {
         const resp = await fetch(imgUrl);
         const blob = await resp.blob();
