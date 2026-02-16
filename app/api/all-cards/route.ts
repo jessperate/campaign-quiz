@@ -4,6 +4,17 @@ import { getCardTheme, getCardImages, getResultsPageTheme } from "@/lib/card-the
 
 const redis = new Redis(process.env.REDIS_URL!);
 
+// Map old archetype IDs to new ones for existing Redis data
+const ARCHETYPE_ID_MAP: Record<string, string> = {
+  trendsetter: "maverick",
+  tastemaker: "craft",
+  goGoGoer: "spark",
+  clutch: "flex",
+};
+function normalizeArchetypeId(id: string): string {
+  return ARCHETYPE_ID_MAP[id] || id;
+}
+
 export const dynamic = "force-dynamic";
 
 const CORS_HEADERS = {
@@ -42,7 +53,7 @@ export async function GET() {
             try {
               const data = JSON.parse(val as string);
               if (data.archetype?.id && data.stippleImageUrl && data.firstName && data.company) {
-                const archetypeId = data.archetype?.id || "";
+                const archetypeId = normalizeArchetypeId(data.archetype?.id || "");
                 const theme = getCardTheme(archetypeId);
                 const images = getCardImages(archetypeId, baseUrl);
                 const resultsPageTheme = getResultsPageTheme(archetypeId);
