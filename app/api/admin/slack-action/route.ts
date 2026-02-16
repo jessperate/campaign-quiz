@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
               {
                 type: "mrkdwn",
                 text: deleted > 0
-                  ? `:white_check_mark: *Removed* by ${userName}`
+                  ? `:no_entry: *This submission has been removed from the site* — by ${userName}`
                   : `:warning: Record already removed — ${userName}`,
               },
             ],
