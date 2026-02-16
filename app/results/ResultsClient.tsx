@@ -1748,7 +1748,7 @@ export default function ResultsClient() {
                         // Mobile: use server-rendered OG image (Satori with embedded fonts)
                         // html2canvas doesn't reliably render custom fonts on mobile Safari
                         navigator.clipboard.writeText(shareBody);
-                        const imgUrl = ogImageUrl || (userId ? `/api/og-image?userId=${userId}&scale=2` : null);
+                        const imgUrl = ogImageUrl || (userId ? `/api/og-image?userId=${userId}` : null);
                         if (imgUrl) setMobileCardDataUrl(imgUrl);
                         setShowLinkedinModal(true);
                         return;
@@ -2276,10 +2276,12 @@ export default function ResultsClient() {
             style={{
               background: '#1A1A2E',
               border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: '16px',
-              padding: '32px',
-              maxWidth: '420px',
-              width: '90%',
+              borderRadius: isMobile ? '12px' : '16px',
+              padding: isMobile ? '20px' : '32px',
+              maxWidth: isMobile ? '100%' : '420px',
+              width: isMobile ? 'calc(100% - 32px)' : '90%',
+              maxHeight: isMobile ? '90vh' : undefined,
+              overflowY: isMobile ? 'auto' as const : undefined,
               position: 'relative',
             }}
             onClick={(e) => e.stopPropagation()}
@@ -2296,6 +2298,7 @@ export default function ResultsClient() {
                 fontSize: '24px',
                 cursor: 'pointer',
                 lineHeight: 1,
+                zIndex: 1,
               }}
             >
               &times;
@@ -2303,9 +2306,9 @@ export default function ResultsClient() {
             <h3
               style={{
                 fontFamily: 'SerrifVF, Serrif, Georgia, serif',
-                fontSize: '22px',
+                fontSize: isMobile ? '18px' : '22px',
                 color: '#fff',
-                marginBottom: '20px',
+                marginBottom: isMobile ? '12px' : '20px',
               }}
             >
               {isMobile ? 'Almost there!' : 'Almost there! Post on LinkedIn:'}

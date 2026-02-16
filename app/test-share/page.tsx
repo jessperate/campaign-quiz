@@ -111,7 +111,7 @@ export default function TestSharePage() {
       // Mobile: use server-rendered OG image (Satori with embedded fonts)
       // html2canvas doesn't reliably render custom fonts on mobile Safari
       navigator.clipboard.writeText(shareBody);
-      if (userId) setMobileCardDataUrl(`/api/og-image?userId=${userId}&scale=2`);
+      if (userId) setMobileCardDataUrl(`/api/og-image?userId=${userId}`);
       setShowLinkedinModal(true);
       return;
     }
@@ -340,10 +340,12 @@ export default function TestSharePage() {
             style={{
               background: "#1A1A2E",
               border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: "16px",
-              padding: "32px",
-              maxWidth: "420px",
-              width: "90%",
+              borderRadius: isMobile ? "12px" : "16px",
+              padding: isMobile ? "20px" : "32px",
+              maxWidth: isMobile ? "100%" : "420px",
+              width: isMobile ? "calc(100% - 32px)" : "90%",
+              maxHeight: isMobile ? "90vh" : undefined,
+              overflowY: isMobile ? "auto" as const : undefined,
               position: "relative",
             }}
             onClick={(e) => e.stopPropagation()}
@@ -360,11 +362,12 @@ export default function TestSharePage() {
                 fontSize: "24px",
                 cursor: "pointer",
                 lineHeight: 1,
+                zIndex: 1,
               }}
             >
               &times;
             </button>
-            <h3 style={{ fontSize: "22px", color: "#fff", marginBottom: "20px" }}>
+            <h3 style={{ fontSize: isMobile ? "18px" : "22px", color: "#fff", marginBottom: isMobile ? "12px" : "20px" }}>
               {isMobile ? "Almost there!" : "Almost there! Post on LinkedIn:"}
             </h3>
             {isMobile ? (
