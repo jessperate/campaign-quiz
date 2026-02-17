@@ -294,8 +294,8 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
             <div
               style={{
                 position: "absolute",
-                left: "-1px",
-                top: "-1px",
+                left: "0",
+                top: "0",
                 width: "233px",
                 height: "233px",
                 borderRadius: "50%",
