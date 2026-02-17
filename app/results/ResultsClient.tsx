@@ -926,7 +926,7 @@ export default function ResultsClient() {
                   archetypeName={archetype.name}
                   shortName={archetype.shortName}
                   archetypeId={results.archetype}
-                  headshotUrl={stippleImage || results.formData.headshotPreview}
+                  headshotUrl={results.stippleImageUrl || stippleImage || results.formData.headshotPreview}
                   mostLikelyTo={results.bullets.mostLikelyTo}
                   typicallySpending={results.bullets.typicallySpending}
                   favoritePhrase={results.bullets.favoritePhrase}
