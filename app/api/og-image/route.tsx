@@ -189,7 +189,6 @@ export async function GET(request: NextRequest) {
                 borderRadius: "75px 0px 0px 0px",
                 display: "flex",
                 position: "relative",
-                overflow: "hidden",
               }}
             >
               {/* Card art image */}
