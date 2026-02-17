@@ -302,9 +302,16 @@ export default function QuizPage() {
       const data = await res.json();
 
       if (data.success && data.userId) {
-        // Fire Google Analytics generate_lead event
+        // Fire Google Analytics events
         if (typeof window !== 'undefined' && typeof (window as /* eslint-disable-next-line @typescript-eslint/no-explicit-any */ any).gtag === 'function') {
-          (window as /* eslint-disable-next-line @typescript-eslint/no-explicit-any */ any).gtag('event', 'generate_lead', {
+          const gtag = (window as /* eslint-disable-next-line @typescript-eslint/no-explicit-any */ any).gtag;
+          // Track form completion
+          gtag('event', 'form_completion', {
+            form_name: 'quiz_results_form',
+            quiz_archetype: data.archetype?.name || '',
+          });
+          // Track lead generation
+          gtag('event', 'generate_lead', {
             quiz_archetype: data.archetype?.name || '',
           });
         }
