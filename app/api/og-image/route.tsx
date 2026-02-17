@@ -175,6 +175,8 @@ export async function GET(request: NextRequest) {
               display: "flex",
               flexDirection: "column",
               padding: PAD,
+              overflow: "hidden",
+              boxSizing: "border-box",
             }}
           >
             {/* ── Art section (top) ── */}
@@ -187,6 +189,7 @@ export async function GET(request: NextRequest) {
                 borderRadius: "75px 0px 0px 0px",
                 display: "flex",
                 position: "relative",
+                overflow: "hidden",
               }}
             >
               {/* Card art image */}
@@ -240,8 +243,8 @@ export async function GET(request: NextRequest) {
               <div
                 style={{
                   position: "absolute",
-                  left: 0,
-                  top: 0,
+                  left: -1,
+                  top: -1,
                   width: HS,
                   height: HS,
                   borderRadius: 74,
