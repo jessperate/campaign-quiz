@@ -182,7 +182,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               backgroundColor: theme.artBg,
               border: `2px solid ${theme.artBorder}`,
               borderTopLeftRadius: "120px",
-              overflow: "hidden",
+              overflow: "visible",
             }}
           >
             {/* Art section content: image or pattern + text */}
@@ -294,8 +294,8 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
             <div
               style={{
                 position: "absolute",
-                left: "0",
-                top: "0",
+                left: "-3px",
+                top: "-3px",
                 width: "233px",
                 height: "233px",
                 borderRadius: "50%",
