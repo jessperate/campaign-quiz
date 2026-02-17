@@ -1773,34 +1773,22 @@ export default function ResultsClient() {
                       setLinkedinCopied(true);
                       setTimeout(() => setLinkedinCopied(false), 4000);
 
-                      if (downloadRef.current) {
+                      // Use OG image for download (works reliably in all contexts including embedded)
+                      if (ogImageUrl) {
                         try {
-                          // Wait for images (especially data URI stipple images) to fully render
-                          // Longer delay for embedded contexts (airops.com/Webflow)
-                          await new Promise(resolve => setTimeout(resolve, 1000));
-
-                          const canvas = await html2canvas(downloadRef.current, {
-                            scale: 3,
-                            useCORS: true,
-                            allowTaint: true,
-                            backgroundColor: '#000000',
-                            width: 1200,
-                            height: 630,
-                          });
-                          canvas.toBlob((blob) => {
-                            if (!blob) return;
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'airops-marketype-card.png';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
-                          }, 'image/png');
+                          const response = await fetch(ogImageUrl);
+                          const blob = await response.blob();
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = 'airops-marketype-card.png';
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(url);
                         } catch {
-                          const imageUrl = ogImageUrl || shareableCardUrl;
-                          if (imageUrl) window.open(imageUrl, '_blank');
+                          // Fallback: open in new tab
+                          window.open(ogImageUrl, '_blank');
                         }
                       }
 
