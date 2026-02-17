@@ -27,6 +27,7 @@ interface QuizResults {
     favoritePhrase: string;
   };
   formData: FormData;
+  stippleImageUrl?: string;
 }
 
 export default function ResultsClient() {
