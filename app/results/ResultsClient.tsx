@@ -471,6 +471,7 @@ export default function ResultsClient() {
               wantsDemo: false,
               headshotUrl: resultData.headshotUrl || "",
             },
+            stippleImageUrl: resultData.stippleImageUrl,
           };
           setResults(newResults);
 
