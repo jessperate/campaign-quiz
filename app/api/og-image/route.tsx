@@ -300,9 +300,8 @@ export async function GET(request: NextRequest) {
                 </div>
                 <div
                   style={{
-                    fontSize: lastName.length > 12 ? 36 : lastName.length > 9 ? 43 : 52,
+                    fontSize: lastName.length > 10 ? 32 : lastName.length > 8 ? 38 : lastName.length > 6 ? 44 : 52,
                     fontWeight: 400,
-                    fontStyle: "italic",
                     color: "#0C0D01",
                     lineHeight: 1,
                     display: "flex",
