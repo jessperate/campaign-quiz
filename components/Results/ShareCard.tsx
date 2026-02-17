@@ -182,7 +182,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               backgroundColor: theme.artBg,
               border: `2px solid ${theme.artBorder}`,
               borderTopLeftRadius: "120px",
-              overflow: "visible",
+              overflow: "hidden",
             }}
           >
             {/* Art section content: image or pattern + text */}
@@ -290,44 +290,46 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               </>
             )}
 
-            {/* Circular headshot badge - overlaps top-left */}
-            <div
-              style={{
-                position: "absolute",
-                left: "-3px",
-                top: "-3px",
-                width: "233px",
-                height: "233px",
-                borderRadius: "50%",
-                border: `2px solid ${theme.headshotBorder}`,
-                overflow: "hidden",
-                backgroundColor: theme.headshotBg,
-                zIndex: 3,
-              }}
-            >
-              {headshotUrl ? (
-                <img
-                  src={headshotUrl}
-                  alt={`${firstName} ${lastName}`}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                  crossOrigin="anonymous"
-                />
-              ) : (
-                <img
-                  src={`/images/card-no-image-${archetypeId || "vision"}.svg`}
-                  alt=""
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-              )}
-            </div>
+            {/* Circular headshot badge - only render when no artImage (pattern backgrounds) */}
+            {!theme.artImage && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: "-1px",
+                  top: "-1px",
+                  width: "233px",
+                  height: "233px",
+                  borderRadius: "50%",
+                  border: `2px solid ${theme.headshotBorder}`,
+                  overflow: "hidden",
+                  backgroundColor: theme.headshotBg,
+                  zIndex: 3,
+                }}
+              >
+                {headshotUrl ? (
+                  <img
+                    src={headshotUrl}
+                    alt={`${firstName} ${lastName}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <img
+                    src={`/images/card-no-image-${archetypeId || "vision"}.svg`}
+                    alt=""
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                )}
+              </div>
+            )}
 
             {/* Name + Company - positioned right of headshot */}
             <div
