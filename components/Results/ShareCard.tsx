@@ -187,19 +187,39 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
           >
             {/* Art section content: image or pattern + text */}
             {theme.artImage ? (
-              <img
-                src={theme.artImage}
-                alt=""
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-                crossOrigin="anonymous"
-              />
+              <>
+                <img
+                  src={theme.artImage}
+                  alt=""
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  crossOrigin="anonymous"
+                />
+                {/* Title SVG overlay at bottom of art section */}
+                {theme.titleImage && (
+                  <img
+                    src={theme.titleImage}
+                    alt=""
+                    style={{
+                      position: "absolute",
+                      bottom: "12px",
+                      left: "12px",
+                      right: "12px",
+                      width: "calc(100% - 24px)",
+                      height: "auto",
+                      zIndex: 2,
+                      pointerEvents: "none",
+                    }}
+                    crossOrigin="anonymous"
+                  />
+                )}
+              </>
             ) : (
               <>
                 {/* Background pattern */}
@@ -311,62 +331,60 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               </div>
             )}
 
-            {/* Name + Company - only show when no artImage (SVG includes this text) */}
-            {!theme.artImage && (
+            {/* Name + Company - positioned right of headshot */}
+            <div
+              style={{
+                position: "absolute",
+                left: "246px",
+                top: "25px",
+                width: "359px",
+                zIndex: 2,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <div
                 style={{
-                  position: "absolute",
-                  left: "246px",
-                  top: "25px",
-                  width: "359px",
-                  zIndex: 2,
-                  display: "flex",
-                  flexDirection: "column",
+                  fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                  fontSize: "82.4px",
+                  fontWeight: "400",
+                  fontStyle: "normal",
+                  color: "#0C0D01",
+                  letterSpacing: "-3.296px",
+                  lineHeight: "80%",
                 }}
               >
-                <div
-                  style={{
-                    fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                    fontSize: "82.4px",
-                    fontWeight: "400",
-                    fontStyle: "normal",
-                    color: "#0C0D01",
-                    letterSpacing: "-3.296px",
-                    lineHeight: "80%",
-                  }}
-                >
-                  {firstName}
-                </div>
-                <div
-                  style={{
-                    fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                    fontSize: lastName.length > 10 ? "50px" : lastName.length > 8 ? "60px" : lastName.length > 6 ? "70px" : "82.4px",
-                    fontWeight: "400",
-                    color: "#0C0D01",
-                    letterSpacing: lastName.length > 10 ? "-1.5px" : lastName.length > 8 ? "-2px" : lastName.length > 6 ? "-2.5px" : "-3.3px",
-                    lineHeight: "0.85",
-                  }}
-                >
-                  {lastName}
-                </div>
-                {company && (
-                  <div
-                    style={{
-                      fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                      fontSize: "20px",
-                      fontWeight: "400",
-                      fontStyle: "italic",
-                      color: "#0C0D01",
-                      letterSpacing: "-0.8px",
-                      lineHeight: "1.3",
-                      marginTop: "24px",
-                    }}
-                  >
-                    Plays for {company}
-                  </div>
-                )}
+                {firstName}
               </div>
-            )}
+              <div
+                style={{
+                  fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                  fontSize: lastName.length > 10 ? "50px" : lastName.length > 8 ? "60px" : lastName.length > 6 ? "70px" : "82.4px",
+                  fontWeight: "400",
+                  color: "#0C0D01",
+                  letterSpacing: lastName.length > 10 ? "-1.5px" : lastName.length > 8 ? "-2px" : lastName.length > 6 ? "-2.5px" : "-3.3px",
+                  lineHeight: "0.85",
+                }}
+              >
+                {lastName}
+              </div>
+              {company && (
+                <div
+                  style={{
+                    fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                    fontSize: "20px",
+                    fontWeight: "400",
+                    fontStyle: "italic",
+                    color: "#0C0D01",
+                    letterSpacing: "-0.8px",
+                    lineHeight: "1.3",
+                    marginTop: "24px",
+                  }}
+                >
+                  Plays for {company}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Bottom stats section */}
