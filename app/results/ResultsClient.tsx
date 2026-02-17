@@ -1773,6 +1773,9 @@ export default function ResultsClient() {
 
                       if (downloadRef.current) {
                         try {
+                          // Wait for images (especially data URI stipple images) to fully render
+                          await new Promise(resolve => setTimeout(resolve, 500));
+
                           const canvas = await html2canvas(downloadRef.current, {
                             scale: 3,
                             useCORS: true,
