@@ -266,6 +266,7 @@ export async function GET(request: NextRequest) {
                     style={{
                       width: HS,
                       height: HS,
+                      objectFit: "cover",
                     }}
                   />
                 ) : (
@@ -276,6 +277,7 @@ export async function GET(request: NextRequest) {
                     style={{
                       width: HS,
                       height: HS,
+                      objectFit: "cover",
                     }}
                   />
                 )}
