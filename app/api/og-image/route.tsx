@@ -240,8 +240,8 @@ export async function GET(request: NextRequest) {
               <div
                 style={{
                   position: "absolute",
-                  left: -11,
-                  top: -11,
+                  left: 0,
+                  top: 0,
                   width: HS,
                   height: HS,
                   borderRadius: 74,
