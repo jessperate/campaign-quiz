@@ -185,27 +185,47 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               overflow: "hidden",
             }}
           >
-            {/* Art section content: SVG artwork with all visuals built-in */}
+            {/* Art section content: image or pattern + text */}
             {theme.artImage ? (
-              <img
-                src={theme.artImage}
-                alt=""
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-                crossOrigin="anonymous"
-              />
+              <>
+                <img
+                  src={theme.artImage}
+                  alt=""
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  crossOrigin="anonymous"
+                />
+                {/* Title SVG overlay at bottom of art section */}
+                {theme.titleImage && (
+                  <img
+                    src={theme.titleImage}
+                    alt=""
+                    style={{
+                      position: "absolute",
+                      bottom: "12px",
+                      left: "12px",
+                      right: "12px",
+                      width: "calc(100% - 24px)",
+                      height: "auto",
+                      zIndex: 2,
+                      pointerEvents: "none",
+                    }}
+                    crossOrigin="anonymous"
+                  />
+                )}
+              </>
             ) : (
               <>
-                {/* Background pattern - only when no artImage */}
+                {/* Background pattern */}
                 {renderPattern()}
 
-                {/* Large archetype name at bottom */}
+                {/* Large archetype name at bottom of art section */}
                 <div
                   style={{
                     position: "absolute",
@@ -270,46 +290,44 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               </>
             )}
 
-            {/* Circular headshot badge - only render when no artImage (pattern backgrounds) */}
-            {!theme.artImage && (
-              <div
-                style={{
-                  position: "absolute",
-                  left: "-1px",
-                  top: "-1px",
-                  width: "233px",
-                  height: "233px",
-                  borderRadius: "50%",
-                  border: `2px solid ${theme.headshotBorder}`,
-                  overflow: "hidden",
-                  backgroundColor: theme.headshotBg,
-                  zIndex: 3,
-                }}
-              >
-                {headshotUrl ? (
-                  <img
-                    src={headshotUrl}
-                    alt={`${firstName} ${lastName}`}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                    crossOrigin="anonymous"
-                  />
-                ) : (
-                  <img
-                    src={`/images/card-no-image-${archetypeId || "vision"}.svg`}
-                    alt=""
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                )}
-              </div>
-            )}
+            {/* Circular headshot badge - overlaps top-left */}
+            <div
+              style={{
+                position: "absolute",
+                left: "-1px",
+                top: "-1px",
+                width: "233px",
+                height: "233px",
+                borderRadius: "50%",
+                border: `2px solid ${theme.headshotBorder}`,
+                overflow: "hidden",
+                backgroundColor: theme.headshotBg,
+                zIndex: 3,
+              }}
+            >
+              {headshotUrl ? (
+                <img
+                  src={headshotUrl}
+                  alt={`${firstName} ${lastName}`}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  crossOrigin="anonymous"
+                />
+              ) : (
+                <img
+                  src={`/images/card-no-image-${archetypeId || "vision"}.svg`}
+                  alt=""
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              )}
+            </div>
 
             {/* Name + Company - positioned right of headshot */}
             <div
