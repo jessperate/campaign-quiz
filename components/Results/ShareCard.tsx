@@ -185,12 +185,8 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
               overflow: "hidden",
             }}
           >
-            {/* Art section content: pattern + optional SVG frame + text */}
-            {/* Background pattern - always render */}
-            {renderPattern()}
-
-            {/* SVG frame overlay if artImage exists */}
-            {theme.artImage && (
+            {/* Art section content: SVG artwork with all visuals built-in */}
+            {theme.artImage ? (
               <img
                 src={theme.artImage}
                 alt=""
@@ -201,97 +197,77 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  zIndex: 1,
-                  pointerEvents: "none",
                 }}
                 crossOrigin="anonymous"
               />
-            )}
+            ) : (
+              <>
+                {/* Background pattern - only when no artImage */}
+                {renderPattern()}
 
-            {/* Title SVG overlay at bottom of art section */}
-            {theme.titleImage && (
-              <img
-                src={theme.titleImage}
-                alt=""
-                style={{
-                  position: "absolute",
-                  bottom: "12px",
-                  left: "12px",
-                  right: "12px",
-                  width: "calc(100% - 24px)",
-                  height: "auto",
-                  zIndex: 2,
-                  pointerEvents: "none",
-                }}
-                crossOrigin="anonymous"
-              />
-            )}
-
-            {/* Large archetype name at bottom - only when no artImage */}
-            {!theme.artImage && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "6px",
-                  left: "0",
-                  right: "12px",
-                  textAlign: "right",
-                }}
-              >
+                {/* Large archetype name at bottom */}
                 <div
                   style={{
-                    fontFamily: "Knockout, Impact, sans-serif",
-                    fontSize: getArchetypeFontSize(),
-                    fontWeight: "400",
-                    color: "#0C0D01",
-                    lineHeight: "0.85",
-                    textTransform: "uppercase",
-                    letterSpacing: "-2px",
+                    position: "absolute",
+                    bottom: "6px",
+                    left: "0",
+                    right: "12px",
+                    textAlign: "right",
                   }}
                 >
-                  {shortName}
+                  <div
+                    style={{
+                      fontFamily: "Knockout, Impact, sans-serif",
+                      fontSize: getArchetypeFontSize(),
+                      fontWeight: "400",
+                      color: "#0C0D01",
+                      lineHeight: "0.85",
+                      textTransform: "uppercase",
+                      letterSpacing: "-2px",
+                    }}
+                  >
+                    {shortName}
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {/* AKA + The section - only when no artImage */}
-            {!theme.artImage && (
-              <div
-                style={{
-                  position: "absolute",
-                  left: "185px",
-                  top: "217px",
-                  zIndex: 2,
-                }}
-              >
+                {/* AKA + The section */}
                 <div
                   style={{
-                    fontFamily: "SaansMono, monospace",
-                    fontSize: "16px",
-                    fontWeight: "500",
-                    color: "#0C0D01",
-                    letterSpacing: "3px",
-                    textTransform: "uppercase",
-                    marginBottom: "2px",
+                    position: "absolute",
+                    left: "185px",
+                    top: "217px",
+                    zIndex: 2,
                   }}
                 >
-                  AKA
+                  <div
+                    style={{
+                      fontFamily: "SaansMono, monospace",
+                      fontSize: "16px",
+                      fontWeight: "500",
+                      color: "#0C0D01",
+                      letterSpacing: "3px",
+                      textTransform: "uppercase",
+                      marginBottom: "2px",
+                    }}
+                  >
+                    AKA
+                  </div>
+                  {/* Decorative script "The" */}
+                  <div
+                    style={{
+                      fontFamily: "SerrifVF, Serrif, Georgia, serif",
+                      fontSize: "60px",
+                      fontStyle: "italic",
+                      color: "#0C0D01",
+                      lineHeight: "1",
+                      marginBottom: "-10px",
+                      WebkitTextStroke: "1px #0C0D01",
+                    }}
+                  >
+                    The
+                  </div>
                 </div>
-                {/* Decorative script "The" */}
-                <div
-                  style={{
-                    fontFamily: "SerrifVF, Serrif, Georgia, serif",
-                    fontSize: "60px",
-                    fontStyle: "italic",
-                    color: "#0C0D01",
-                    lineHeight: "1",
-                    marginBottom: "-10px",
-                    WebkitTextStroke: "1px #0C0D01",
-                  }}
-                >
-                  The
-                </div>
-              </div>
+              </>
             )}
 
             {/* Circular headshot badge - only render when no artImage (pattern backgrounds) */}
