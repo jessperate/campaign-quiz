@@ -108,6 +108,20 @@ export default function TrackerPage() {
   // Recent players for the filtered set
   const recentPlayers = filteredCards.slice(0, 20);
 
+  // Companies with multiple submissions
+  const topCompanies = useMemo(() => {
+    const companyCounts = new Map<string, number>();
+    for (const card of cards) {
+      if (card.company) {
+        companyCounts.set(card.company, (companyCounts.get(card.company) || 0) + 1);
+      }
+    }
+    return [...companyCounts.entries()]
+      .filter(([_, count]) => count > 1)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15);
+  }, [cards]);
+
   return (
     <div
       style={{
@@ -141,6 +155,82 @@ export default function TrackerPage() {
         >
           Which Marketype is in the lead?
         </h1>
+
+        {/* Top Companies */}
+        {!loading && topCompanies.length > 0 && (
+          <div style={{ marginBottom: 32 }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: 11,
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.5)",
+                marginBottom: 12,
+                fontFamily: "SaansMono, monospace",
+              }}
+            >
+              Companies with multiple submissions
+            </label>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+              }}
+            >
+              {topCompanies.map(([company, count]) => {
+                const isActive = companyFilter === company;
+                return (
+                  <button
+                    key={company}
+                    onClick={() => setCompanyFilter(company)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: 8,
+                      border: isActive ? "1px solid #00FF64" : "1px solid rgba(255,255,255,0.15)",
+                      background: isActive ? "rgba(0,255,100,0.12)" : "rgba(255,255,255,0.05)",
+                      color: isActive ? "#00FF64" : "white",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      fontFamily: "Saans, sans-serif",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
+                      }
+                    }}
+                  >
+                    <span>{company}</span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: isActive ? "#00FF64" : "rgba(255,255,255,0.4)",
+                        fontFamily: "SaansMono, monospace",
+                      }}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Company filter */}
         <div style={{ position: "relative", marginBottom: 32 }}>
