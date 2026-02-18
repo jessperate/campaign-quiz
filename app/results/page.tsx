@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Redis from "ioredis";
+import { redis } from "@/lib/redis";
 import { getShareCopy, ARCHETYPE_TAGLINES } from "@/lib/share-copy";
 import ResultsClient from "./ResultsClient";
-
-const redis = new Redis(process.env.REDIS_URL!);
 
 interface Props {
   searchParams: Promise<{ userId?: string }>;

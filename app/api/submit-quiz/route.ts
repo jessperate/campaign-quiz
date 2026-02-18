@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import Redis from "ioredis";
 import { put } from "@vercel/blob";
 import { calculateArchetype, type Role } from "@/lib/quiz-data";
 import { archetypes, getBullets } from "@/lib/archetypes";
 import crypto from "crypto";
-
-const redis = new Redis(process.env.REDIS_URL!);
+import { redis } from "@/lib/redis";
 
 const VALID_ROLES = new Set<Role>(["ic", "manager", "executive"]);
 const VALID_ANSWERS = new Set(["a", "b", "c", "d", "e"]);
@@ -237,22 +235,17 @@ export async function POST(request: NextRequest) {
     });
     const hubspotPayload = { fields: hubspotFields };
 
-    try {
-      const hsRes = await fetch(
-        "https://api.hsforms.com/submissions/v3/integration/submit/21510907/27d5f6c4-b911-425f-a401-0bec3e534006",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(hubspotPayload),
-        }
-      );
-      if (!hsRes.ok) {
-        const hsBody = await hsRes.text();
-        console.error("HubSpot submission error:", hsRes.status, hsBody);
+    // Fire-and-forget HubSpot submission — don't block the user response
+    fetch(
+      "https://api.hsforms.com/submissions/v3/integration/submit/21510907/27d5f6c4-b911-425f-a401-0bec3e534006",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(hubspotPayload),
       }
-    } catch (err) {
-      console.error("HubSpot submission failed:", err);
-    }
+    ).then(async (hsRes) => {
+      if (!hsRes.ok) console.error("HubSpot submission error:", hsRes.status, await hsRes.text());
+    }).catch((err) => console.error("HubSpot submission failed:", err));
 
     return NextResponse.json(
       {

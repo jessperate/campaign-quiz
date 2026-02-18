@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Redis from "ioredis";
-
-const redis = new Redis(process.env.REDIS_URL!);
+import { redis } from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
   try {

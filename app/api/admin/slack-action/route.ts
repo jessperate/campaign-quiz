@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import Redis from "ioredis";
-
-const redis = new Redis(process.env.REDIS_URL!);
+import { redis } from "@/lib/redis";
 
 function verifySlackSignature(request: NextRequest, body: string): boolean {
   const signingSecret = process.env.SLACK_SIGNING_SECRET;

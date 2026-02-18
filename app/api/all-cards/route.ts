@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import Redis from "ioredis";
+import { redis } from "@/lib/redis";
 import { getCardTheme, getCardImages, getResultsPageTheme } from "@/lib/card-themes";
-
-const redis = new Redis(process.env.REDIS_URL!);
 
 // Map old archetype IDs to new ones for existing Redis data
 const ARCHETYPE_ID_MAP: Record<string, string> = {
@@ -17,6 +15,10 @@ function normalizeArchetypeId(id: string): string {
 
 export const dynamic = "force-dynamic";
 
+// In-memory cache with 60s TTL to avoid re-scanning Redis on every request
+let cachedResponse: { cards: Array<Record<string, unknown>>; timestamp: number } | null = null;
+const CACHE_TTL_MS = 60_000;
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -29,6 +31,11 @@ export async function OPTIONS() {
 
 export async function GET() {
   try {
+    // Return cached response if fresh
+    if (cachedResponse && Date.now() - cachedResponse.timestamp < CACHE_TTL_MS) {
+      return NextResponse.json({ cards: cachedResponse.cards }, { headers: CORS_HEADERS });
+    }
+
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "https://campaign-quiz.vercel.app";
@@ -71,6 +78,7 @@ export async function GET() {
                   mostLikelyTo: data.bullets?.mostLikelyTo || "",
                   typicallySpending: data.bullets?.typicallySpending || "",
                   favoritePhrase: data.bullets?.favoritePhrase || "",
+                  role: data.role || "ic",
                   createdAt: data.createdAt || "",
                   theme: {
                     cardBorder: theme.cardBorder,
@@ -103,6 +111,9 @@ export async function GET() {
 
     // Sort by most recent first
     cards.sort((a, b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime());
+
+    // Cache the result
+    cachedResponse = { cards, timestamp: Date.now() };
 
     return NextResponse.json({ cards }, { headers: CORS_HEADERS });
   } catch (error) {

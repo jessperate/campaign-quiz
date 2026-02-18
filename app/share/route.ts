@@ -1,10 +1,8 @@
 import type { ArchetypeId } from '@/lib/quiz-data';
 import { archetypes } from '@/lib/archetypes';
 import { getShareCopy, ARCHETYPE_TAGLINES } from '@/lib/share-copy';
-import Redis from 'ioredis';
+import { redis } from '@/lib/redis';
 import { NextRequest } from 'next/server';
-
-const redis = new Redis(process.env.REDIS_URL!);
 
 // Map old archetype IDs to new ones for existing Redis data
 const ARCHETYPE_ID_MAP: Record<string, string> = {

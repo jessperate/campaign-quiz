@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Redis from "ioredis";
 import { put } from "@vercel/blob";
 import { enrichLinkedInProfile } from "@/lib/phantombuster";
 import crypto from "crypto";
+import { redis } from "@/lib/redis";
 
 // Allow up to 60s for PhantomBuster to complete
 export const maxDuration = 60;
-
-const redis = new Redis(process.env.REDIS_URL!);
 const TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
 const CORS_HEADERS = {
@@ -144,22 +142,17 @@ export async function POST(request: NextRequest) {
       ],
     };
 
-    try {
-      const hsRes = await fetch(
-        "https://api.hsforms.com/submissions/v3/integration/submit/21510907/27d5f6c4-b911-425f-a401-0bec3e534006",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(hubspotPayload),
-        }
-      );
-      if (!hsRes.ok) {
-        const hsBody = await hsRes.text();
-        console.error("HubSpot update error:", hsRes.status, hsBody);
+    // Fire-and-forget HubSpot update — don't block the response
+    fetch(
+      "https://api.hsforms.com/submissions/v3/integration/submit/21510907/27d5f6c4-b911-425f-a401-0bec3e534006",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(hubspotPayload),
       }
-    } catch (err) {
-      console.error("HubSpot update failed:", err);
-    }
+    ).then(async (hsRes) => {
+      if (!hsRes.ok) console.error("HubSpot update error:", hsRes.status, await hsRes.text());
+    }).catch((err) => console.error("HubSpot update failed:", err));
 
     return NextResponse.json(
       { success: true, ...updatedData },

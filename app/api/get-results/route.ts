@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import Redis from "ioredis";
+import { redis } from "@/lib/redis";
 import { getCardTheme, getCardImages, getResultsPageTheme } from "@/lib/card-themes";
 import { getTwitterCopy } from "@/lib/share-copy";
-
-const redis = new Redis(process.env.REDIS_URL!);
 
 // Map old archetype IDs to new ones for existing Redis data
 const ARCHETYPE_ID_MAP: Record<string, string> = {

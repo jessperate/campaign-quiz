@@ -1747,10 +1747,10 @@ export default function ResultsClient() {
                   <button
                     onClick={async () => {
                       if (isMobile) {
-                        // Mobile: fetch OG image as data URL for reliable display + long-press save
+                        // Mobile: fetch low-res OG image for fast preview (scale=1 instead of 3 to avoid timeouts)
                         navigator.clipboard.writeText(shareBody);
                         setShowLinkedinModal(true);
-                        const imgUrl = ogImageUrl || (userId ? `https://campaign-quiz.vercel.app/api/og-image?userId=${userId}&scale=3` : null);
+                        const imgUrl = userId ? `https://campaign-quiz.vercel.app/api/og-image?userId=${userId}&scale=1` : null;
                         if (imgUrl) {
                           try {
                             const resp = await fetch(imgUrl);
