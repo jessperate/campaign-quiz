@@ -143,6 +143,7 @@ export default function ResultsClient() {
       } else {
         // Stipple failed — fall back to original photo (card already uses headshotPreview as fallback)
         console.warn('Stipple generation exhausted retries, falling back to original photo');
+        setImageError('Portrait enhancement unavailable. Using original photo.');
       }
     } catch (err) {
       if (retryCount < MAX_CLIENT_RETRIES) {
@@ -152,6 +153,7 @@ export default function ResultsClient() {
       }
       // Stipple failed — fall back to original photo
       console.warn('Stipple generation error exhausted retries, falling back to original photo');
+      setImageError('Portrait enhancement unavailable. Using original photo.');
     } finally {
       setIsGeneratingImage(false);
     }
@@ -699,6 +701,10 @@ export default function ResultsClient() {
         .rp [class*="text-[#E6E6FF]/60"] { color: ${hexToRgba(rt.body, 0.6)} !important; }
         .rp [class*="text-[#E6E6FF]/50"] { color: ${hexToRgba(rt.body, 0.5)} !important; }
         .rp [class*="text-[#E6E6FF]/40"] { color: ${hexToRgba(rt.body, 0.4)} !important; }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
       `}} />
       {/* Hero section */}
       <div
@@ -825,6 +831,62 @@ export default function ResultsClient() {
               }}
             />
           </div>
+
+          {/* Stipple generation status */}
+          {(isGeneratingImage || imageError) && (
+            <div
+              style={{
+                position: 'relative',
+                zIndex: 1,
+                marginTop: '16px',
+                marginBottom: '8px',
+                padding: '12px 20px',
+                borderRadius: '8px',
+                background: imageError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+                border: imageError ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                fontSize: '14px',
+                color: imageError ? '#fca5a5' : rt.body,
+              }}
+            >
+              {isGeneratingImage && (
+                <>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    borderTop: '2px solid white',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                  }} />
+                  <span>Enhancing your portrait...</span>
+                </>
+              )}
+              {imageError && !isGeneratingImage && (
+                <>
+                  <span>{imageError}</span>
+                  <button
+                    onClick={() => results && generateCardImage(results)}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      color: 'white',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      fontWeight: 500,
+                    }}
+                  >
+                    Retry
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Card container */}
           <div
