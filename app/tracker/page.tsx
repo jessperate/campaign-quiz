@@ -76,13 +76,14 @@ export default function TrackerPage() {
   const filteredCards = useMemo(() => {
     let result = cards;
 
-    // Date filter
+    // Date filter - "today" includes yesterday onwards
     if (dateFilter === "today") {
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
+      const yesterdayStart = new Date();
+      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+      yesterdayStart.setHours(0, 0, 0, 0);
       result = result.filter((c) => {
         const cardDate = new Date(c.createdAt);
-        return cardDate >= todayStart;
+        return cardDate >= yesterdayStart;
       });
     }
 
@@ -172,7 +173,7 @@ export default function TrackerPage() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", gap: 8 }}>
             {[
-              { value: "today", label: "Today" },
+              { value: "today", label: "Recent" },
               { value: "all", label: "All Time" },
             ].map((opt) => {
               const isActive = dateFilter === opt.value;
