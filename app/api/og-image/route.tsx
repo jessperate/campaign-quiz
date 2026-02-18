@@ -175,8 +175,6 @@ export async function GET(request: NextRequest) {
               display: "flex",
               flexDirection: "column",
               padding: PAD,
-              overflow: "hidden",
-              boxSizing: "border-box",
             }}
           >
             {/* ── Art section (top) ── */}
@@ -219,7 +217,6 @@ export async function GET(request: NextRequest) {
                     left: 8,
                     width: INNER_W - 16,
                     height: 60,
-                    zIndex: 2,
                   }}
                 />
               ) : (
@@ -233,7 +230,6 @@ export async function GET(request: NextRequest) {
                     color: "#0C0D01",
                     lineHeight: 1,
                     display: "flex",
-                    zIndex: 2,
                   }}
                 >
                   {shortName}
@@ -255,7 +251,6 @@ export async function GET(request: NextRequest) {
                   alignItems: "center",
                   justifyContent: "center",
                   overflow: "hidden",
-                  zIndex: 3,
                 }}
               >
                 {headshotUrl ? (
@@ -266,7 +261,6 @@ export async function GET(request: NextRequest) {
                     style={{
                       width: HS,
                       height: HS,
-                      objectFit: "cover",
                     }}
                   />
                 ) : (
@@ -277,7 +271,6 @@ export async function GET(request: NextRequest) {
                     style={{
                       width: HS,
                       height: HS,
-                      objectFit: "cover",
                     }}
                   />
                 )}
@@ -292,7 +285,6 @@ export async function GET(request: NextRequest) {
                   display: "flex",
                   flexDirection: "column",
                   fontFamily: "Serrif",
-                  zIndex: 2,
                 }}
               >
                 <div
