@@ -45,6 +45,7 @@ export default function TrackerPage() {
   const [loading, setLoading] = useState(true);
   const [companyFilter, setCompanyFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState<"all" | "today">("today");
 
   const [error, setError] = useState<string | null>(null);
 
@@ -71,9 +72,20 @@ export default function TrackerPage() {
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [cards]);
 
-  // Filter cards by company and role
+  // Filter cards by company, role, and date
   const filteredCards = useMemo(() => {
     let result = cards;
+
+    // Date filter
+    if (dateFilter === "today") {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      result = result.filter((c) => {
+        const cardDate = new Date(c.createdAt);
+        return cardDate >= todayStart;
+      });
+    }
+
     if (companyFilter.trim()) {
       const q = companyFilter.trim().toLowerCase();
       result = result.filter((c) => c.company.toLowerCase().includes(q));
@@ -82,7 +94,7 @@ export default function TrackerPage() {
       result = result.filter((c) => c.role === roleFilter);
     }
     return result;
-  }, [cards, companyFilter, roleFilter]);
+  }, [cards, companyFilter, roleFilter, dateFilter]);
 
   // Compute counts from filtered cards
   const counts = useMemo(() => {
@@ -149,12 +161,54 @@ export default function TrackerPage() {
           style={{
             fontSize: 32,
             fontWeight: 400,
-            marginBottom: 32,
+            marginBottom: 24,
             fontFamily: "SerrifVF, Serrif, Georgia, serif",
           }}
         >
           Which Marketype is in the lead?
         </h1>
+
+        {/* Date filter toggle */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            {[
+              { value: "today", label: "Today" },
+              { value: "all", label: "All Time" },
+            ].map((opt) => {
+              const isActive = dateFilter === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setDateFilter(opt.value as "all" | "today")}
+                  style={{
+                    padding: "10px 20px",
+                    borderRadius: 8,
+                    border: isActive ? "1px solid #00FF64" : "1px solid rgba(255,255,255,0.15)",
+                    background: isActive ? "rgba(0,255,100,0.12)" : "rgba(255,255,255,0.05)",
+                    color: isActive ? "#00FF64" : "rgba(255,255,255,0.7)",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "SaansMono, monospace",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                    }
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Top Companies */}
         {!loading && topCompanies.length > 0 && (
