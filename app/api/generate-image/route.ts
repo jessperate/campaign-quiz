@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
               ],
             },
             config: {
+              responseModalities: ['TEXT', 'IMAGE'],
               imageConfig: {
                 imageSize: '1K',
                 aspectRatio: '1:1',
@@ -108,12 +109,22 @@ export async function POST(request: NextRequest) {
           console.warn(`Attempt ${attempt}: no image data in Gemini response`);
         } catch (error) {
           lastError = error;
-          console.warn(`Attempt ${attempt} failed:`, String(error).substring(0, 200));
+          const errStr = String(error);
+          console.warn(`Attempt ${attempt} failed:`, errStr.substring(0, 200));
+
+          // For non-retriable errors (auth, bad request), fail immediately
+          if (errStr.includes('"code":400') || errStr.includes('"code":401') || errStr.includes('"code":403')) {
+            console.error(`Non-retriable error on attempt ${attempt}, aborting retries`);
+            break;
+          }
         }
 
-        // Exponential backoff: 2s, 4s, 6s, 8s
         if (attempt < MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+          // 503 capacity errors get longer backoff: 10s, 20s, 30s, 40s
+          const is503 = String(lastError).includes('"code":503') || String(lastError).includes('UNAVAILABLE');
+          const delay = is503 ? attempt * 10000 : attempt * 2000;
+          console.log(`Waiting ${delay / 1000}s before attempt ${attempt + 1}...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
 
@@ -141,6 +152,7 @@ STYLE: 1990s sports trading card, stipple portrait art style.`;
           parts: [{ text: cardPrompt }],
         },
         config: {
+          responseModalities: ['TEXT', 'IMAGE'],
           imageConfig: {
             imageSize: '1K',
             aspectRatio: '3:4',
