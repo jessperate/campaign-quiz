@@ -1,6 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import {
+  icQuestionInterpretations,
+  managerQuestionInterpretations,
+  executiveQuestionInterpretations,
+  type QuestionInterpretation,
+} from "@/lib/question-interpretations";
 
 interface ArchetypeEntry {
   id: string;
@@ -11,6 +17,7 @@ interface ArchetypeEntry {
 
 interface InsightsData {
   total: number;
+  answeredSubmissions: number;
   roleCounts: { ic: number; manager: number; executive: number };
   rolePcts: { ic: number; manager: number; executive: number };
   archetypeRanked: ArchetypeEntry[];
@@ -19,6 +26,7 @@ interface InsightsData {
   topCompanies: { name: string; count: number }[];
   wantsDemoCount: number;
   wantsDemoPct: number;
+  answerDistributions: Record<string, Record<string, { answer: string; count: number; pct: number }[]>>;
 }
 
 const ARCHETYPE_COLORS: Record<string, string> = {
@@ -47,13 +55,29 @@ const ROLE_LABELS: Record<string, string> = {
   executive: "Executives",
 };
 
+const ANSWER_LABELS: Record<string, string> = {
+  a: "A",
+  b: "B",
+  c: "C",
+  d: "D",
+  e: "E",
+};
+
 function Bar({ pct, color }: { pct: number; color: string }) {
   return (
-    <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+    <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
       <div
-        className="h-3 rounded-full transition-all duration-500"
-        style={{ width: `${pct}%`, backgroundColor: color }}
+        className="h-2.5 rounded-full transition-all duration-500"
+        style={{ width: `${Math.max(pct, pct > 0 ? 1 : 0)}%`, backgroundColor: color }}
       />
+    </div>
+  );
+}
+
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`bg-white rounded-xl border border-gray-200 shadow-sm p-6 ${className}`}>
+      {children}
     </div>
   );
 }
@@ -67,66 +91,52 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }
   );
 }
 
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`bg-white rounded-xl border border-gray-200 shadow-sm p-6 ${className}`}>
-      {children}
-    </div>
-  );
-}
-
 function generateInsightsSynthesis(data: InsightsData): string[] {
   const top = data.archetypeRanked[0];
   const second = data.archetypeRanked[1];
   const topRole = Object.entries(data.roleCounts).sort((a, b) => b[1] - a[1])[0][0];
-
   const insights: string[] = [];
 
-  // Top archetype insight
   if (top) {
-    const topPct = top.pct;
     if (top.id === "craft" || top.id === "vision") {
       insights.push(
-        `${topPct}% of respondents identify as ${top.label}s — the largest segment. This signals a market that's grappling with quality and strategy in an AI-saturated landscape. These marketers aren't looking for shortcuts; they want tools that help them do their best work at scale.`
+        `${top.pct}% of respondents identify as ${top.label}s — the largest segment. This signals a market grappling with quality and strategy in an AI-saturated landscape. These marketers aren't looking for shortcuts; they want tools that help them do their best work at scale.`
       );
     } else if (top.id === "maverick") {
       insights.push(
-        `${topPct}% of respondents are Mavericks — a strong signal that this audience is AI-forward and willing to experiment. They're likely already using AEO tools and are primed for advanced workflows rather than introductory content.`
+        `${top.pct}% of respondents are Mavericks — a strong signal that this audience is AI-forward and willing to experiment. They're likely already using AEO tools and are primed for advanced workflows rather than introductory content.`
       );
     } else if (top.id === "spark") {
       insights.push(
-        `${topPct}% of respondents are Sparks — execution-focused marketers who measure success by output and speed. Lead with velocity: how much more can they ship, and how fast?`
+        `${top.pct}% of respondents are Sparks — execution-focused marketers who measure success by output and speed. Lead with velocity: how much more can they ship, and how fast?`
       );
     } else {
       insights.push(
-        `${topPct}% of respondents identify as ${top.label}s — the largest single segment. Tailoring messaging to this archetype's core values will resonate with the majority of this audience.`
+        `${top.pct}% of respondents identify as ${top.label}s — the largest single segment. Tailoring messaging to this archetype's core values will resonate with the majority of this audience.`
       );
     }
   }
 
-  // Second archetype
   if (second && top) {
     insights.push(
-      `The second-largest group — ${second.label}s at ${second.pct}% — combined with ${top.label}s represents over ${top.pct + second.pct}% of the audience. Content that bridges these two orientations (${top.id} + ${second.id}) will have the broadest reach.`
+      `The second-largest group — ${second.label}s at ${second.pct}% — combined with ${top.label}s represents over ${top.pct + second.pct}% of the audience. Content bridging these two orientations will have the broadest reach.`
     );
   }
 
-  // Role split insight
   if (topRole === "ic") {
     insights.push(
       `Individual contributors make up ${data.rolePcts.ic}% of respondents. This is a practitioner-heavy audience — content should be tactical, hands-on, and workflow-oriented rather than leadership-focused.`
     );
   } else if (topRole === "manager") {
     insights.push(
-      `Managers are the dominant role at ${data.rolePcts.manager}%. This audience is accountable for team output and cares about scaling quality while managing people. They're the bridge between strategy and execution.`
+      `Managers are the dominant role at ${data.rolePcts.manager}%. This audience is accountable for team output and cares about scaling quality while managing people. They bridge strategy and execution.`
     );
   } else if (topRole === "executive") {
     insights.push(
-      `Executives represent ${data.rolePcts.executive}% of respondents — a notably high leadership concentration. This audience can authorize budget and champion platform adoption. ROI and competitive differentiation are the keys to converting them.`
+      `Executives represent ${data.rolePcts.executive}% of respondents — a notably high leadership concentration. This audience can authorize budget and champion platform adoption. ROI and competitive differentiation are the keys.`
     );
   }
 
-  // Demo interest
   if (data.wantsDemoPct >= 30) {
     insights.push(
       `${data.wantsDemoPct}% of respondents requested a demo — a strong conversion signal. This audience is actively in-market, not just browsing.`
@@ -140,11 +150,87 @@ function generateInsightsSynthesis(data: InsightsData): string[] {
   return insights;
 }
 
+function QuestionSection({
+  questions,
+  roleKey,
+  distributions,
+  answeredSubmissions,
+}: {
+  questions: QuestionInterpretation[];
+  roleKey: string;
+  distributions: Record<string, { answer: string; count: number; pct: number }[]>;
+  answeredSubmissions: number;
+}) {
+  const hasData = answeredSubmissions > 0;
+
+  return (
+    <div className="space-y-6">
+      {questions.map((q) => {
+        const dist = distributions[q.id] || [];
+        const distMap: Record<string, { count: number; pct: number }> = {};
+        for (const d of dist) distMap[d.answer] = { count: d.count, pct: d.pct };
+
+        return (
+          <Card key={q.id}>
+            <div className="mb-4">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                {q.id.toUpperCase()}
+              </span>
+              <h3 className="text-base font-semibold text-gray-900 mt-1">{q.text}</h3>
+            </div>
+            <div className="space-y-4">
+              {Object.entries(q.answers).map(([key, ans]) => {
+                const stat = distMap[key];
+                const pct = stat?.pct ?? 0;
+                const count = stat?.count ?? 0;
+                const archetypeColor = ARCHETYPE_COLORS[ans.archetype] || "#4ADE80";
+
+                return (
+                  <div key={key} className="space-y-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2 flex-1">
+                        <span
+                          className="mt-0.5 text-xs font-bold px-1.5 py-0.5 rounded text-white flex-shrink-0"
+                          style={{ backgroundColor: archetypeColor }}
+                        >
+                          {ANSWER_LABELS[key]}
+                        </span>
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-800">{ans.text}</p>
+                          <p className="text-xs text-gray-500 mt-0.5 italic">{ans.interpretation}</p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0 w-16">
+                        {hasData ? (
+                          <>
+                            <span className="text-sm font-semibold text-gray-900">{pct}%</span>
+                            <span className="text-xs text-gray-400 block">{count.toLocaleString()}</span>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-300">—</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="pl-7">
+                      <Bar pct={pct} color={archetypeColor} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function InsightsPage() {
   const [data, setData] = useState<InsightsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeRole, setActiveRole] = useState<string>("all");
+  const [activeQuestionRole, setActiveQuestionRole] = useState<"ic" | "manager" | "executive">("ic");
 
   useEffect(() => {
     fetch("/api/insights")
@@ -160,7 +246,7 @@ export default function InsightsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center text-gray-500">Loading insights...</div>
+        <div className="text-gray-500 text-sm">Loading insights...</div>
       </div>
     );
   }
@@ -176,9 +262,13 @@ export default function InsightsPage() {
   const maxDaily = Math.max(...data.dailyTrend.map((d) => d.count), 1);
   const insights = generateInsightsSynthesis(data);
   const archetypeList =
-    activeRole === "all"
-      ? data.archetypeRanked
-      : data.archetypeByRole[activeRole] || [];
+    activeRole === "all" ? data.archetypeRanked : data.archetypeByRole[activeRole] || [];
+
+  const questionTrackMap: Record<string, QuestionInterpretation[]> = {
+    ic: icQuestionInterpretations,
+    manager: managerQuestionInterpretations,
+    executive: executiveQuestionInterpretations,
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -189,13 +279,12 @@ export default function InsightsPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Quiz Insights</h1>
             <p className="text-gray-500 mt-1">
-              Aggregate data from <span className="font-semibold text-gray-700">{data.total.toLocaleString()}</span> submissions
+              Aggregate data from{" "}
+              <span className="font-semibold text-gray-700">{data.total.toLocaleString()}</span>{" "}
+              submissions
             </p>
           </div>
-          <a
-            href="/admin/dashboard"
-            className="text-sm text-gray-500 hover:text-gray-700 underline mt-1"
-          >
+          <a href="/admin/dashboard" className="text-sm text-gray-500 hover:text-gray-700 underline mt-1">
             ← Dashboard
           </a>
         </div>
@@ -236,7 +325,7 @@ export default function InsightsPage() {
             {insights.map((insight, i) => (
               <div key={i} className="flex gap-3">
                 <div
-                  className="mt-1 w-2 h-2 rounded-full flex-shrink-0"
+                  className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0"
                   style={{ backgroundColor: ARCHETYPE_COLORS[data.archetypeRanked[i]?.id] || "#4ADE80" }}
                 />
                 <p className="text-gray-700 leading-relaxed text-sm">{insight}</p>
@@ -247,12 +336,12 @@ export default function InsightsPage() {
 
         {/* Archetype Distribution */}
         <Card>
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-start justify-between mb-5">
             <SectionHeader
               title="Archetype Distribution"
               subtitle="Who your audience thinks they are"
             />
-            <div className="flex gap-1 text-xs">
+            <div className="flex gap-1 text-xs flex-wrap justify-end">
               {["all", "ic", "manager", "executive"].map((role) => (
                 <button
                   key={role}
@@ -294,7 +383,10 @@ export default function InsightsPage() {
               <div
                 key={arch.id}
                 className="rounded-lg p-4 border"
-                style={{ borderColor: ARCHETYPE_COLORS[arch.id] + "40", backgroundColor: ARCHETYPE_COLORS[arch.id] + "08" }}
+                style={{
+                  borderColor: ARCHETYPE_COLORS[arch.id] + "40",
+                  backgroundColor: ARCHETYPE_COLORS[arch.id] + "08",
+                }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-semibold text-gray-900 text-sm">{arch.label}</span>
@@ -305,13 +397,54 @@ export default function InsightsPage() {
                     {arch.pct}%
                   </span>
                 </div>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  {ARCHETYPE_INSIGHTS[arch.id]}
-                </p>
+                <p className="text-xs text-gray-600 leading-relaxed">{ARCHETYPE_INSIGHTS[arch.id]}</p>
               </div>
             ))}
           </div>
         </Card>
+
+        {/* Question Breakdown */}
+        <div>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Question Breakdown</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Answer distributions and what each choice reveals
+                {data.answeredSubmissions > 0 ? (
+                  <span className="ml-1 text-green-700 font-medium">
+                    · {data.answeredSubmissions.toLocaleString()} submissions with answer data
+                  </span>
+                ) : (
+                  <span className="ml-1 text-amber-600">
+                    · Answer tracking starts with new submissions
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="flex gap-1 text-xs">
+              {(["ic", "manager", "executive"] as const).map((role) => (
+                <button
+                  key={role}
+                  onClick={() => setActiveQuestionRole(role)}
+                  className={`px-3 py-1 rounded-full border transition-colors ${
+                    activeQuestionRole === role
+                      ? "bg-gray-900 text-white border-gray-900"
+                      : "text-gray-600 border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  {ROLE_LABELS[role].split(" ")[0]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <QuestionSection
+            questions={questionTrackMap[activeQuestionRole]}
+            roleKey={activeQuestionRole}
+            distributions={data.answerDistributions[activeQuestionRole] || {}}
+            answeredSubmissions={data.answeredSubmissions}
+          />
+        </div>
 
         {/* Role Breakdown */}
         <Card>
@@ -337,7 +470,7 @@ export default function InsightsPage() {
           <div className="flex items-end gap-1 h-32">
             {data.dailyTrend.map(({ date, count }) => (
               <div key={date} className="flex-1 flex flex-col items-center gap-1 group relative">
-                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none">
+                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10">
                   {count} on {date}
                 </div>
                 <div
@@ -348,7 +481,10 @@ export default function InsightsPage() {
                     minHeight: "2px",
                   }}
                 />
-                <span className="text-xs text-gray-400 rotate-45 origin-left hidden md:block" style={{ fontSize: "9px" }}>
+                <span
+                  className="text-gray-400 rotate-45 origin-left hidden md:block"
+                  style={{ fontSize: "9px" }}
+                >
                   {date.slice(5)}
                 </span>
               </div>

@@ -13,6 +13,9 @@ const ARCHETYPE_LABELS: Record<string, string> = {
   heart: "The Heart",
 };
 
+// answer data structure: { ic: { q2: { a: 5, b: 3, ... } }, manager: {...}, executive: {...} }
+type AnswerCounts = Record<string, Record<string, Record<string, number>>>;
+
 export async function GET() {
   try {
     let cursor = "0";
@@ -25,6 +28,8 @@ export async function GET() {
     };
     const dailyCounts: Record<string, number> = {};
     const companyCounts: Record<string, number> = {};
+    const answerCounts: AnswerCounts = { ic: {}, manager: {}, executive: {} };
+    let answeredSubmissions = 0;
     let wantsDemoCount = 0;
     let total = 0;
 
@@ -64,7 +69,7 @@ export async function GET() {
 
         // Daily trend
         if (createdAt) {
-          const day = createdAt.slice(0, 10); // "YYYY-MM-DD"
+          const day = createdAt.slice(0, 10);
           dailyCounts[day] = (dailyCounts[day] || 0) + 1;
         }
 
@@ -75,6 +80,16 @@ export async function GET() {
 
         // Demo interest
         if (data.wantsDemo) wantsDemoCount++;
+
+        // Answer distributions (only for submissions that have answers stored)
+        if (data.answers && role in answerCounts) {
+          answeredSubmissions++;
+          for (const [qKey, answer] of Object.entries(data.answers as Record<string, string>)) {
+            if (qKey === "q1") continue; // q1 is just the role
+            if (!answerCounts[role][qKey]) answerCounts[role][qKey] = {};
+            answerCounts[role][qKey][answer] = (answerCounts[role][qKey][answer] || 0) + 1;
+          }
+        }
       }
     } while (cursor !== "0");
 
@@ -113,8 +128,25 @@ export async function GET() {
         }));
     }
 
+    // Answer distributions: convert raw counts to pcts per question per role
+    const answerDistributions: Record<string, Record<string, { answer: string; count: number; pct: number }[]>> = {};
+    for (const role of ["ic", "manager", "executive"]) {
+      answerDistributions[role] = {};
+      for (const [qKey, answers] of Object.entries(answerCounts[role] || {})) {
+        const qTotal = Object.values(answers).reduce((s, c) => s + c, 0);
+        answerDistributions[role][qKey] = Object.entries(answers)
+          .sort((a, b) => b[1] - a[1])
+          .map(([answer, count]) => ({
+            answer,
+            count,
+            pct: Math.round((count / qTotal) * 100),
+          }));
+      }
+    }
+
     return NextResponse.json({
       total,
+      answeredSubmissions,
       roleCounts,
       rolePcts: {
         ic: Math.round((roleCounts.ic / total) * 100),
@@ -127,6 +159,7 @@ export async function GET() {
       topCompanies,
       wantsDemoCount,
       wantsDemoPct: Math.round((wantsDemoCount / total) * 100),
+      answerDistributions,
     });
   } catch (err) {
     console.error("Insights API error:", err);

@@ -149,6 +149,7 @@ export async function POST(request: NextRequest) {
       resources: roleContent.resources,
       levelUpUrl: roleContent.levelUpUrl,
       createdAt: new Date().toISOString(),
+      answers: answerMap,
     };
 
     // Store in Redis with 30-day TTL
