@@ -444,6 +444,13 @@ export default function DashboardPage() {
               <div className="text-sm font-medium">Admin Panel</div>
             </a>
             <a
+              href="/admin/insights"
+              className="p-4 text-center bg-green-50 hover:bg-green-100 rounded-lg border border-green-200 transition-colors"
+            >
+              <div className="text-2xl mb-2">📊</div>
+              <div className="text-sm font-medium">Quiz Insights</div>
+            </a>
+            <a
               href="/preview"
               className="p-4 text-center bg-purple-50 hover:bg-purple-100 rounded-lg border border-purple-200 transition-colors"
             >
