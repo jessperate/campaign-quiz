@@ -18,6 +18,7 @@ interface ArchetypeEntry {
 interface InsightsData {
   total: number;
   answeredSubmissions: number;
+  isEstimated: boolean;
   roleCounts: { ic: number; manager: number; executive: number };
   rolePcts: { ic: number; manager: number; executive: number };
   archetypeRanked: ArchetypeEntry[];
@@ -155,13 +156,15 @@ function QuestionSection({
   roleKey,
   distributions,
   answeredSubmissions,
+  isEstimated,
 }: {
   questions: QuestionInterpretation[];
   roleKey: string;
   distributions: Record<string, { answer: string; count: number; pct: number }[]>;
   answeredSubmissions: number;
+  isEstimated: boolean;
 }) {
-  const hasData = answeredSubmissions > 0;
+  const hasData = answeredSubmissions > 0 || isEstimated;
 
   return (
     <div className="space-y-6">
@@ -414,11 +417,11 @@ export default function InsightsPage() {
                   <span className="ml-1 text-green-700 font-medium">
                     · {data.answeredSubmissions.toLocaleString()} submissions with answer data
                   </span>
-                ) : (
-                  <span className="ml-1 text-amber-600">
-                    · Answer tracking starts with new submissions
+                ) : data.isEstimated ? (
+                  <span className="ml-1 text-amber-700 font-medium">
+                    · Estimated from archetype results — exact tracking starts with new submissions
                   </span>
-                )}
+                ) : null}
               </p>
             </div>
             <div className="flex gap-1 text-xs">
@@ -443,6 +446,7 @@ export default function InsightsPage() {
             roleKey={activeQuestionRole}
             distributions={data.answerDistributions[activeQuestionRole] || {}}
             answeredSubmissions={data.answeredSubmissions}
+            isEstimated={data.isEstimated}
           />
         </div>
 
