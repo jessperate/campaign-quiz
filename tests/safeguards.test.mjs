@@ -3,7 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { decryptQuizRecord, encryptQuizRecord } from "../lib/quiz-archive.ts";
+import {
+  decryptQuizRecord,
+  decryptQuizRecordWithConfiguredSecrets,
+  encryptQuizRecord,
+} from "../lib/quiz-archive.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -53,4 +57,22 @@ test("new submissions create encrypted archive copies", () => {
   const envelope = encryptQuizRecord(record, "test-secret");
   assert.doesNotMatch(JSON.stringify(envelope), /sensitive@example\.com/);
   assert.deepEqual(decryptQuizRecord(envelope, "test-secret"), record);
+});
+
+test("historical archives remain decryptable after archive-key rotation", () => {
+  const previousArchiveSecret = process.env.QUIZ_ARCHIVE_SECRET;
+  const previousSigningSecret = process.env.SLACK_SIGNING_SECRET;
+  process.env.QUIZ_ARCHIVE_SECRET = "new-dedicated-secret";
+  process.env.SLACK_SIGNING_SECRET = "legacy-signing-secret";
+
+  try {
+    const record = { userId: "legacy-id", email: "legacy@example.com" };
+    const envelope = encryptQuizRecord(record, "legacy-signing-secret");
+    assert.deepEqual(decryptQuizRecordWithConfiguredSecrets(envelope), record);
+  } finally {
+    if (previousArchiveSecret === undefined) delete process.env.QUIZ_ARCHIVE_SECRET;
+    else process.env.QUIZ_ARCHIVE_SECRET = previousArchiveSecret;
+    if (previousSigningSecret === undefined) delete process.env.SLACK_SIGNING_SECRET;
+    else process.env.SLACK_SIGNING_SECRET = previousSigningSecret;
+  }
 });

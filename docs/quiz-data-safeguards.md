@@ -13,6 +13,7 @@
 
 - `CRON_SECRET`: authorizes Vercel Cron requests.
 - `QUIZ_ARCHIVE_SECRET`: encryption secret for independent archives. Until set, the application falls back to `SLACK_SIGNING_SECRET`.
+- Keep `SLACK_SIGNING_SECRET` available after introducing `QUIZ_ARCHIVE_SECRET`; restore tooling tries both keys so migration-era archives remain decryptable.
 - `QUIZ_MIN_EXPECTED_RECORDS`: record-count alert floor. Defaults to `900`.
 - `INTEGRITY_AUTO_PERSIST`: defaults to enabled; set to `false` only to disable automatic TTL repair.
 - `INTEGRITY_SLACK_WEBHOOK_URL`: optional dedicated alert webhook; falls back to `SLACK_WEBHOOK_URL`.
