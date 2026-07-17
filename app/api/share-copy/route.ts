@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
+import { getQuizRecord, isPublicQuizRecord } from "@/lib/quiz-store";
 import { getTwitterCopy } from "@/lib/share-copy";
 
 // Map old archetype IDs to new ones for existing Redis data
@@ -44,16 +44,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const data = await redis.get(`quiz:${userId}`);
+    const parsed = await getQuizRecord(userId);
 
-    if (!data) {
+    if (!isPublicQuizRecord(parsed)) {
       return NextResponse.json(
         { success: false, error: "Results not found for the given userId." },
         { status: 404, headers: CORS_HEADERS }
       );
     }
-
-    const parsed = JSON.parse(data);
 
     const archetypeId = normalizeArchetypeId(parsed.archetype?.id || "maverick");
     const archetypeName = parsed.archetype?.name || "Champion";

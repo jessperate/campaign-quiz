@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
+import { getRedis } from "@/lib/redis";
 import { icQuestions, managerQuestions, executiveQuestions, type Question } from "@/lib/quiz-data";
 
 export const dynamic = "force-dynamic";
@@ -58,6 +58,7 @@ function estimateAnswerDistributions(
 
 export async function GET() {
   try {
+    const redis = getRedis();
     let cursor = "0";
     const archetypeCounts: Record<string, number> = {};
     const roleCounts: Record<string, number> = { ic: 0, manager: 0, executive: 0 };

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
+import { restoreQuizRecord, softDeleteQuizRecord } from "@/lib/quiz-store";
+
+function isAuthorized(request: NextRequest) {
+  const secret = request.headers.get("x-admin-secret");
+  return Boolean(secret && process.env.ADMIN_SECRET && secret === process.env.ADMIN_SECRET);
+}
 
 export async function DELETE(request: NextRequest) {
-  const secret = request.headers.get("x-admin-secret");
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
+  if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -12,11 +16,26 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Missing userId" }, { status: 400 });
   }
 
-  const deleted = await redis.del(`quiz:${userId}`);
+  const removed = await softDeleteQuizRecord(userId, "admin-api");
 
   return NextResponse.json({
     success: true,
-    deleted: deleted > 0,
-    message: deleted > 0 ? `Removed quiz:${userId}` : `No record found for ${userId}`,
+    removed,
+    reversible: true,
+    message: removed ? `Hidden quiz:${userId}` : `No record found for ${userId}`,
   });
+}
+
+export async function POST(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = request.nextUrl.searchParams.get("userId");
+  if (!userId) {
+    return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+  }
+
+  const restored = await restoreQuizRecord(userId, "admin-api");
+  return NextResponse.json({ success: true, restored });
 }

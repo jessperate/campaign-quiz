@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
+import { updateQuizRecord } from "@/lib/quiz-store";
+
+const ALLOWED_CARD_FIELDS = new Set([
+  "cardUrl",
+  "cardImageUrl",
+  "stippleImageUrl",
+  "ogImageUrl",
+]);
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,18 +16,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing userId or cardUrl" }, { status: 400 });
     }
 
-    // Read existing data, add cardUrl, and keep the result indefinitely.
-    const existing = await redis.get(`quiz:${userId}`);
-    if (!existing) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const parsed = typeof existing === "string" ? JSON.parse(existing) : existing;
     // Use custom field name if provided, otherwise default to cardUrl
     const fieldName = field || "cardUrl";
-    parsed[fieldName] = cardUrl;
+    if (!ALLOWED_CARD_FIELDS.has(fieldName)) {
+      return NextResponse.json({ error: "Unsupported card field" }, { status: 400 });
+    }
 
-    await redis.set(`quiz:${userId}`, JSON.stringify(parsed));
+    // The Lua-backed merge is atomic and SET removes any accidental TTL.
+    const updated = await updateQuizRecord(userId, { [fieldName]: cardUrl });
+    if (!updated) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

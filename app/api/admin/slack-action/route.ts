@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { redis } from "@/lib/redis";
+import { restoreQuizRecord, softDeleteQuizRecord } from "@/lib/quiz-store";
 
 function verifySlackSignature(request: NextRequest, body: string): boolean {
   const signingSecret = process.env.SLACK_SIGNING_SECRET;
@@ -16,6 +16,7 @@ function verifySlackSignature(request: NextRequest, body: string): boolean {
   const hmac = crypto.createHmac("sha256", signingSecret).update(baseString).digest("hex");
   const computedSig = `v0=${hmac}`;
 
+  if (computedSig.length !== slackSig.length) return false;
   return crypto.timingSafeEqual(Buffer.from(computedSig), Buffer.from(slackSig));
 }
 
@@ -40,8 +41,8 @@ export async function POST(request: NextRequest) {
   const userName = payload.user?.name || "Someone";
 
   if (actionId === "remove_user") {
-    // Delete from Redis
-    const deleted = await redis.del(`quiz:${userId}`);
+    // Reversible moderation: retain the record and hide it from every public feed.
+    const removed = await softDeleteQuizRecord(userId, `slack:${userName}`);
 
     // Update the Slack message to show it was removed
     if (responseUrl) {
@@ -55,9 +56,9 @@ export async function POST(request: NextRequest) {
             elements: [
               {
                 type: "mrkdwn",
-                text: deleted > 0
+                text: removed
                   ? `:no_entry: *This submission has been removed from the site* — by ${userName}`
-                  : `:warning: Record already removed — ${userName}`,
+                  : `:warning: Record not found — ${userName}`,
               },
             ],
           },
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
       }).catch((err) => console.error("Slack response_url error:", err));
     }
   } else if (actionId === "keep_user") {
+    await restoreQuizRecord(userId, `slack:${userName}`);
     // Update the Slack message to show it was approved
     if (responseUrl) {
       const originalBlocks = payload.message?.blocks || [];

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { redis } from "@/lib/redis";
+import { getQuizRecord, isPublicQuizRecord } from "@/lib/quiz-store";
 import { getShareCopy, ARCHETYPE_TAGLINES } from "@/lib/share-copy";
 import ResultsClient from "./ResultsClient";
 
@@ -19,14 +19,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 
   try {
-    const data = await redis.get(`quiz:${userId}`);
-    if (!data) {
+    const parsed = await getQuizRecord(userId);
+    if (!isPublicQuizRecord(parsed)) {
       return {
         title: "Your Results | Content Engineer Quiz",
       };
     }
 
-    const parsed = typeof data === "string" ? JSON.parse(data) : data;
     const { firstName, lastName, archetype } = parsed;
     const role = parsed.role || "ic";
     const archetypeId = archetype?.id || "vision";

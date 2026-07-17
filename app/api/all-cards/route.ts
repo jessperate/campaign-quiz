@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
+import { getRedis } from "@/lib/redis";
 import { getCardTheme, getCardImages, getResultsPageTheme } from "@/lib/card-themes";
 
 // Map old archetype IDs to new ones for existing Redis data
@@ -31,6 +31,7 @@ export async function OPTIONS() {
 
 export async function GET() {
   try {
+    const redis = getRedis();
     // Return cached response if fresh
     if (cachedResponse && Date.now() - cachedResponse.timestamp < CACHE_TTL_MS) {
       return NextResponse.json({ cards: cachedResponse.cards }, { headers: CORS_HEADERS });

@@ -3,7 +3,9 @@ import { put } from "@vercel/blob";
 import { calculateArchetype, type Role } from "@/lib/quiz-data";
 import { archetypes, getBullets } from "@/lib/archetypes";
 import crypto from "crypto";
-import { redis } from "@/lib/redis";
+import { archiveQuizRecord } from "@/lib/quiz-archive";
+import { sendQuizAlert } from "@/lib/quiz-alerts";
+import { createQuizRecord, updateQuizRecord } from "@/lib/quiz-store";
 
 const VALID_ROLES = new Set<Role>(["ic", "manager", "executive"]);
 const VALID_ANSWERS = new Set(["a", "b", "c", "d", "e"]);
@@ -148,10 +150,41 @@ export async function POST(request: NextRequest) {
       levelUpUrl: roleContent.levelUpUrl,
       createdAt: new Date().toISOString(),
       answers: answerMap,
+      archive: { status: "pending" },
     };
 
     // Quiz results back permanent public card URLs, so keep them indefinitely.
-    await redis.set(`quiz:${userId}`, JSON.stringify(storedData));
+    await createQuizRecord(storedData);
+
+    // Keep an encrypted, immutable copy outside Redis. The ciphertext is safe to
+    // store in the existing public Blob store; only the server-side secret can
+    // decrypt the record.
+    try {
+      const archive = await archiveQuizRecord(storedData);
+      await updateQuizRecord(userId, {
+        archive: {
+          ...archive,
+          archivedAt: new Date().toISOString(),
+        },
+      });
+      if (archive.status !== "complete") {
+        await sendQuizAlert("Quiz archive is not active", {
+          userId,
+          reason: archive.reason,
+        }).catch((alertError) => console.error("Archive alert failed:", alertError));
+      }
+    } catch (archiveError) {
+      await updateQuizRecord(userId, {
+        archive: {
+          status: "failed",
+          failedAt: new Date().toISOString(),
+        },
+      });
+      await sendQuizAlert("Quiz archive write failed", {
+        userId,
+        error: archiveError instanceof Error ? archiveError.message : String(archiveError),
+      }).catch((alertError) => console.error("Archive alert failed:", alertError));
+    }
 
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`

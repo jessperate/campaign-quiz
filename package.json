@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "redis:persist-quiz": "node scripts/persist-quiz-records.mjs",
-    "redis:recover-hubspot": "node scripts/recover-hubspot-submissions.mjs"
+    "redis:recover-hubspot": "node scripts/recover-hubspot-submissions.mjs",
+    "redis:archive-quiz": "node scripts/archive-quiz-records.mjs",
+    "test:safeguards": "node --test tests/safeguards.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^1.39.0",
@@ -17,9 +19,9 @@
     "ioredis": "^5.9.2",
     "logrocket": "^12.0.0",
     "logrocket-react": "^7.0.0",
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "next": "^16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "unicornstudio-react": "^2.0.1-1"
   },
   "devDependencies": {

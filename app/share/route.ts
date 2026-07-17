@@ -1,7 +1,7 @@
 import type { ArchetypeId } from '@/lib/quiz-data';
 import { archetypes } from '@/lib/archetypes';
 import { getShareCopy, ARCHETYPE_TAGLINES } from '@/lib/share-copy';
-import { redis } from '@/lib/redis';
+import { getQuizRecord, isPublicQuizRecord } from '@/lib/quiz-store';
 import { NextRequest } from 'next/server';
 
 // Map old archetype IDs to new ones for existing Redis data
@@ -47,9 +47,8 @@ export async function GET(request: NextRequest) {
 
   if (userId) {
     try {
-      const data = await redis.get(`quiz:${userId}`);
-      if (data) {
-        const parsed = JSON.parse(data);
+      const parsed = await getQuizRecord(userId);
+      if (isPublicQuizRecord(parsed)) {
         archetypeId = normalizeArchetypeId(parsed.archetype?.id || 'vision') as ArchetypeId;
         role = parsed.role || 'ic';
         ogImageUrl = parsed.ogImageUrl || parsed.cardUrl || null;

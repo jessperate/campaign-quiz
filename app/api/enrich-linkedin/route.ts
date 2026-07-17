@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { enrichLinkedInProfile } from "@/lib/phantombuster";
 import crypto from "crypto";
-import { redis } from "@/lib/redis";
+import { getQuizRecord, updateQuizRecord } from "@/lib/quiz-store";
 
 // Allow up to 60s for PhantomBuster to complete
 export const maxDuration = 60;
@@ -29,15 +29,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch existing data from Redis
-    const existing = await redis.get(`quiz:${userId}`);
-    if (!existing) {
+    const data = await getQuizRecord(userId);
+    if (!data) {
       return NextResponse.json(
         { success: false, error: "User not found." },
         { status: 404, headers: CORS_HEADERS }
       );
     }
-
-    const data = JSON.parse(existing);
 
     // If already enriched, verify the headshot blob is still accessible
     if (data.firstName && data.headshotUrl && data.enriched) {
@@ -71,7 +69,7 @@ export async function POST(request: NextRequest) {
               { access: "public", contentType }
             );
             data.headshotUrl = blob.url;
-            await redis.set(`quiz:${userId}`, JSON.stringify(data));
+            await updateQuizRecord(userId, { headshotUrl: blob.url });
             console.log('Re-uploaded headshot to blob:', blob.url);
             return NextResponse.json(
               { success: true, alreadyEnriched: true, ...data },
@@ -119,8 +117,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update Redis with enriched data (store LinkedIn CDN URL as fallback)
-    const updatedData = {
-      ...data,
+    const enrichmentPatch = {
       firstName: profile.firstName || data.firstName || "",
       lastName: profile.lastName || data.lastName || "",
       company: profile.company || data.company || "",
@@ -129,7 +126,13 @@ export async function POST(request: NextRequest) {
       enriched: true,
     };
 
-    await redis.set(`quiz:${userId}`, JSON.stringify(updatedData));
+    const updatedData = await updateQuizRecord(userId, enrichmentPatch);
+    if (!updatedData) {
+      return NextResponse.json(
+        { success: false, error: "User not found." },
+        { status: 404, headers: CORS_HEADERS },
+      );
+    }
 
     // Also update HubSpot with enriched data
     const hubspotPayload = {
