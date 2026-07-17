@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing userId or cardUrl" }, { status: 400 });
     }
 
-    // Read existing data, add cardUrl, write back with same TTL
+    // Read existing data, add cardUrl, and keep the result indefinitely.
     const existing = await redis.get(`quiz:${userId}`);
     if (!existing) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -20,13 +20,7 @@ export async function POST(request: NextRequest) {
     const fieldName = field || "cardUrl";
     parsed[fieldName] = cardUrl;
 
-    // Get remaining TTL and preserve it
-    const ttl = await redis.ttl(`quiz:${userId}`);
-    if (ttl > 0) {
-      await redis.set(`quiz:${userId}`, JSON.stringify(parsed), "EX", ttl);
-    } else {
-      await redis.set(`quiz:${userId}`, JSON.stringify(parsed));
-    }
+    await redis.set(`quiz:${userId}`, JSON.stringify(parsed));
 
     return NextResponse.json({ success: true });
   } catch (error) {

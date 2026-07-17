@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "redis:persist-quiz": "node scripts/persist-quiz-records.mjs"
   },
   "dependencies": {
     "@google/genai": "^1.39.0",

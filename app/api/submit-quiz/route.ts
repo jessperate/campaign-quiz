@@ -8,8 +8,6 @@ import { redis } from "@/lib/redis";
 const VALID_ROLES = new Set<Role>(["ic", "manager", "executive"]);
 const VALID_ANSWERS = new Set(["a", "b", "c", "d", "e"]);
 const REQUIRED_ANSWER_COUNT = 6;
-const TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
-
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -23,7 +21,7 @@ export async function OPTIONS() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    let { firstName, lastName, company, title } = body;
+    const { firstName, lastName, company, title } = body;
     const { role, answers, email, headshotUrl, stippleImageUrl, linkedinUrl, wantsDemo } = body;
 
     // Validate role
@@ -152,14 +150,12 @@ export async function POST(request: NextRequest) {
       answers: answerMap,
     };
 
-    // Store in Redis with 30-day TTL
-    await redis.set(`quiz:${userId}`, JSON.stringify(storedData), "EX", TTL_SECONDS);
+    // Quiz results back permanent public card URLs, so keep them indefinitely.
+    await redis.set(`quiz:${userId}`, JSON.stringify(storedData));
 
     const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "https://campaign-quiz.vercel.app";
-    const shareBaseUrl = process.env.NEXT_PUBLIC_SHARE_BASE_URL || baseUrl;
-
     // Fire-and-forget Slack notification
     if (process.env.SLACK_WEBHOOK_URL) {
       const name = [firstName, lastName].filter(Boolean).join(" ");

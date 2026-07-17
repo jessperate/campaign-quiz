@@ -6,7 +6,6 @@ import { redis } from "@/lib/redis";
 
 // Allow up to 60s for PhantomBuster to complete
 export const maxDuration = 60;
-const TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -72,7 +71,7 @@ export async function POST(request: NextRequest) {
               { access: "public", contentType }
             );
             data.headshotUrl = blob.url;
-            await redis.set(`quiz:${userId}`, JSON.stringify(data), "EX", TTL_SECONDS);
+            await redis.set(`quiz:${userId}`, JSON.stringify(data));
             console.log('Re-uploaded headshot to blob:', blob.url);
             return NextResponse.json(
               { success: true, alreadyEnriched: true, ...data },
@@ -130,7 +129,7 @@ export async function POST(request: NextRequest) {
       enriched: true,
     };
 
-    await redis.set(`quiz:${userId}`, JSON.stringify(updatedData), "EX", TTL_SECONDS);
+    await redis.set(`quiz:${userId}`, JSON.stringify(updatedData));
 
     // Also update HubSpot with enriched data
     const hubspotPayload = {
