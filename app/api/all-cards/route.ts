@@ -59,7 +59,18 @@ export async function GET() {
             if (err || !val) continue;
             try {
               const data = JSON.parse(val as string);
-              if (data.archetype?.id && data.stippleImageUrl && data.firstName && data.company) {
+              // A generated stipple portrait is optional. The card renderers already
+              // fall back to the uploaded headshot and then to archetype artwork, so
+              // requiring stippleImageUrl here makes otherwise valid submissions
+              // disappear from every carousel when image generation fails.
+              //
+              // Keep explicit moderation/recovery flags out of public feeds.
+              if (
+                data.archetype?.id &&
+                data.firstName &&
+                !data.hidden &&
+                !data.removed
+              ) {
                 const archetypeId = normalizeArchetypeId(data.archetype?.id || "");
                 const theme = getCardTheme(archetypeId);
                 const images = getCardImages(archetypeId, baseUrl);
