@@ -75,6 +75,10 @@ export async function GET() {
                 const theme = getCardTheme(archetypeId);
                 const images = getCardImages(archetypeId, baseUrl);
                 const resultsPageTheme = getResultsPageTheme(archetypeId);
+                const portraitUrl =
+                  data.stippleImageUrl ||
+                  data.headshotUrl ||
+                  `${baseUrl}/images/card-no-image-${archetypeId}.svg`;
 
                 cards.push({
                   userId: data.userId,
@@ -84,7 +88,10 @@ export async function GET() {
                   archetypeId,
                   archetypeName: data.archetype?.name || "",
                   shortName: data.archetype?.shortName || "",
-                  headshotUrl: data.stippleImageUrl || data.headshotUrl || "",
+                  // Webflow's /win loader still filters on headshotUrl before it
+                  // renders a card. Always provide the designed archetype portrait
+                  // fallback so valid records are not discarded a second time.
+                  headshotUrl: portraitUrl,
                   stippleImageUrl: data.stippleImageUrl || "",
                   mostLikelyTo: data.bullets?.mostLikelyTo || "",
                   typicallySpending: data.bullets?.typicallySpending || "",
