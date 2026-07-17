@@ -1,8 +1,10 @@
 import fs from "node:fs";
 import Redis from "ioredis";
+import { list } from "@vercel/blob";
 import { archetypes, getBullets } from "../lib/archetypes.ts";
 
 const APPLY = process.argv.includes("--apply");
+const ATTACH_STIPPLES = process.argv.includes("--attach-stipples");
 const csvPath = process.argv.find((arg) => arg.endsWith(".csv"));
 
 if (!csvPath) {
@@ -73,6 +75,90 @@ function inferRole(title) {
 function normalizeArchetype(value) {
   const id = value.trim().toLowerCase();
   return archetypes[id] ? id : null;
+}
+
+async function buildStippleMatches(records) {
+  if (!ATTACH_STIPPLES) return { matches: new Map(), stats: null };
+
+  const timeOffsetMs = Number(process.env.RECOVERY_TIME_OFFSET_MS);
+  const maxDelayMs = Number(process.env.RECOVERY_STIPPLE_MAX_DELAY_MS || 30_000);
+  if (!Number.isFinite(timeOffsetMs)) {
+    throw new Error("RECOVERY_TIME_OFFSET_MS is required with --attach-stipples.");
+  }
+
+  const submissions = [...records.values()]
+    .map((record) => ({
+      userId: record.userId,
+      timestamp: new Date(record.createdAt).getTime() + timeOffsetMs,
+    }))
+    .filter((record) => Number.isFinite(record.timestamp))
+    .sort((a, b) => a.timestamp - b.timestamp);
+
+  const blobs = [];
+  let cursor;
+  do {
+    const page = await list({ cursor, limit: 1_000 });
+    blobs.push(...page.blobs);
+    cursor = page.cursor;
+  } while (cursor);
+
+  const matches = new Map();
+  let exactIdMatches = 0;
+  let legacyCandidates = 0;
+
+  for (const blob of blobs) {
+    const exact = blob.pathname.match(
+      /^cards\/stipple-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-(\d{13})\.png$/i,
+    );
+    if (exact && records.has(exact[1])) {
+      matches.set(exact[1], {
+        url: blob.url,
+        method: "blob-filename-user-id",
+        deltaMs: 0,
+      });
+      exactIdMatches += 1;
+      continue;
+    }
+
+    const legacy = blob.pathname.match(/^cards\/stipple-(\d{13})\.png$/);
+    if (!legacy) continue;
+
+    const uploadedAt = Number(legacy[1]);
+    let low = 0;
+    let high = submissions.length;
+    while (low < high) {
+      const middle = (low + high) >> 1;
+      if (submissions[middle].timestamp < uploadedAt) low = middle + 1;
+      else high = middle;
+    }
+
+    const submission = submissions[low];
+    if (!submission) continue;
+    const deltaMs = submission.timestamp - uploadedAt;
+    if (deltaMs < 0 || deltaMs > maxDelayMs) continue;
+
+    legacyCandidates += 1;
+    const existing = matches.get(submission.userId);
+    if (!existing || (existing.method !== "blob-filename-user-id" && deltaMs < existing.deltaMs)) {
+      matches.set(submission.userId, {
+        url: blob.url,
+        method: "hubspot-timestamp-match",
+        deltaMs,
+      });
+    }
+  }
+
+  return {
+    matches,
+    stats: {
+      blobCount: blobs.length,
+      maxDelayMs,
+      timeOffsetMs,
+      legacyCandidates,
+      exactIdMatches,
+      uniqueMatches: matches.size,
+    },
+  };
 }
 
 const rows = parseCsv(fs.readFileSync(csvPath, "utf8"));
@@ -179,6 +265,8 @@ for (const record of candidates.values()) {
   archetypeCounts[record.archetype.id] = (archetypeCounts[record.archetype.id] || 0) + 1;
 }
 
+const stippleRecovery = await buildStippleMatches(candidates);
+
 const summary = {
   mode: APPLY ? "apply" : "dry-run",
   inputRows: rows.slice(1).filter((row) => row.some(Boolean)).length,
@@ -186,6 +274,7 @@ const summary = {
   skipped,
   roleCounts,
   archetypeCounts,
+  stippleRecovery: stippleRecovery.stats,
 };
 
 if (!APPLY) {
@@ -206,6 +295,9 @@ const redis = new Redis(process.env.REDIS_URL, {
 let written = 0;
 let preservedExisting = 0;
 const writtenKeys = [];
+let portraitsAttached = 0;
+let portraitsPreserved = 0;
+const portraitKeys = [];
 
 try {
   const entries = [...candidates.entries()];
@@ -233,9 +325,53 @@ try {
     }
   }
 
+  const portraitEntries = [...stippleRecovery.matches.entries()];
+  for (let offset = 0; offset < portraitEntries.length; offset += batchSize) {
+    const batch = portraitEntries.slice(offset, offset + batchSize);
+    const readPipeline = redis.pipeline();
+    for (const [userId] of batch) readPipeline.get(`quiz:${userId}`);
+    const readResults = await readPipeline.exec();
+
+    const writePipeline = redis.pipeline();
+    const pendingKeys = [];
+    for (let index = 0; index < batch.length; index += 1) {
+      const [error, value] = readResults[index];
+      if (error) throw error;
+      if (!value) continue;
+
+      const data = JSON.parse(value);
+      if (data.stippleImageUrl) {
+        portraitsPreserved += 1;
+        continue;
+      }
+
+      const [userId, match] = batch[index];
+      data.stippleImageUrl = match.url;
+      data.recovered = {
+        ...(data.recovered || {}),
+        imageSource: match.method,
+        imageMatchDeltaMs: match.deltaMs,
+        imageMatchedAt: new Date().toISOString(),
+      };
+      const key = `quiz:${userId}`;
+      writePipeline.set(key, JSON.stringify(data));
+      pendingKeys.push(key);
+    }
+
+    if (pendingKeys.length) {
+      const writeResults = await writePipeline.exec();
+      for (const [error] of writeResults) {
+        if (error) throw error;
+      }
+      portraitsAttached += pendingKeys.length;
+      portraitKeys.push(...pendingKeys);
+    }
+  }
+
   const ttlPipeline = redis.pipeline();
-  for (const key of writtenKeys) ttlPipeline.ttl(key);
-  const ttlResults = writtenKeys.length ? await ttlPipeline.exec() : [];
+  const auditedKeys = [...new Set([...writtenKeys, ...portraitKeys])];
+  for (const key of auditedKeys) ttlPipeline.ttl(key);
+  const ttlResults = auditedKeys.length ? await ttlPipeline.exec() : [];
   const ttlValues = ttlResults.map(([error, ttl]) => {
     if (error) throw error;
     return ttl;
@@ -246,7 +382,9 @@ try {
     ...summary,
     written,
     preservedExisting,
-    permanentWrittenKeys: written - expiringWrittenKeys,
+    portraitsAttached,
+    portraitsPreserved,
+    permanentChangedKeys: auditedKeys.length - expiringWrittenKeys,
     expiringWrittenKeys,
     redisDbSize: await redis.dbsize(),
   }, null, 2));
